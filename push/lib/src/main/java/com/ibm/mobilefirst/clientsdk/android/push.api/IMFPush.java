@@ -25,6 +25,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushConstants.CONSUMER_ID;
+import static com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushConstants.USER_ID;
 import static com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushConstants.FROM_NOTIFICATION_BAR;
 import static com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushConstants.PLATFORM;
@@ -175,7 +177,6 @@ public class IMFPush {
     private String userId = null;
     private String gcmSenderId = null;
     private String deviceId = null;
-    private String xtifyAppId = null;
     private String deviceToken = null;
     private String regId = null;
     private String applicationId = null;
@@ -193,25 +194,25 @@ public class IMFPush {
     private boolean isNewRegistration = false;
     private boolean hasRegisterParametersChanged = false;
 
-    private IMFPush() {
+    private IMFPush(Context context) {
         try {
             // Get the applicationId from core
             applicationId = BMSClient.getInstance().getBackendGUID();
 
             // Get the application context from core?
-            //appContext =
+            appContext = context;
 
             //TODO: jialfred - temporarily commented out.
-            //validateAndroidContext();
+            validateAndroidContext();
         } catch (Exception e) {
             // an error occured while initializing.
             throw new RuntimeException(e);
         }
     }
 
-    public synchronized static IMFPush getInstance() {
+    public synchronized static IMFPush getInstance(Context context) {
         if (instance == null) {
-            instance = new IMFPush();
+            instance = new IMFPush(context);
         }
         return instance;
     }
@@ -326,20 +327,22 @@ public class IMFPush {
             final IMFPushResponseListener<String> listener) {
 		if (isAbleToSubscribe()) {
             //TODO - jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/subscriptions";
-            IMFPushInvoker invoker = IMFPushInvoker.newInstance(path, MFPRequest.POST, 10);
+            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/subscriptions";
+            IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, path, MFPRequest.POST);
             invoker.addHeaders();
             invoker.setJSONRequestBody(buildSubscription(tagName));
             invoker.setCoreResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
                     //Subscription successfully created.
+                    Log.d("Subscription Successful. Response is: ", response.toString());
 			        listener.onSuccess(tagName);
                 }
 
                 @Override
                 public void onFailure(FailResponse failResponse, Throwable throwable) {
                     //Error while subscribing to tags.
+                    Log.d("Subscription Failure. Response is: ", failResponse.toString());
                     listener.onFailure(new IMFPushException(failResponse.toString()));
                 }
             });
@@ -363,17 +366,19 @@ public class IMFPush {
             final IMFPushResponseListener<String> listener) {
 		if (isAbleToSubscribe()) {
             //TODO - jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/subscriptions?deviceId="+deviceId+"&tagName="+tagName;
-            IMFPushInvoker invoker = IMFPushInvoker.newInstance(path, MFPRequest.DELETE, 10);
+            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/subscriptions?deviceId="+deviceId+"&tagName="+tagName;
+            IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, path, MFPRequest.DELETE);
             invoker.addHeaders();
             invoker.setCoreResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
+                    Log.d("Successfully unsubscribed from tag. Response is: ", response.toString());
                     listener.onSuccess(tagName);
                 }
 
                 @Override
                 public void onFailure(FailResponse failResponse, Throwable throwable) {
+                    Log.d("Failure while unsubscribing from tag. Response is: ", failResponse.toString());
                     listener.onFailure(new IMFPushException(failResponse.toString()));
                 }
             });
@@ -394,17 +399,19 @@ public class IMFPush {
     public void unregisterDevice(final IMFPushResponseListener<String> listener) {
         if (isAbleToSubscribe()) {
             //TODO - jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/devices/"+deviceId;
-            IMFPushInvoker invoker = IMFPushInvoker.newInstance(path, MFPRequest.DELETE, 10);
+            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/devices/"+deviceId;
+            IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, path, MFPRequest.DELETE);
             invoker.addHeaders();
             invoker.setCoreResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
+                    Log.d("Successfully unregistered device. Response is: ", response.toString());
                     listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
                 }
 
                 @Override
                 public void onFailure(FailResponse failResponse, Throwable throwable) {
+                    Log.d("Failure while unregisterind device. Response is: ", failResponse.toString());
                     listener.onFailure(new IMFPushException(failResponse.toString()));
                 }
             });
@@ -424,18 +431,21 @@ public class IMFPush {
 	 */
     public void getTags(final IMFPushResponseListener<List<String>> listener) {
         //TODO -jialfred - hardcoding path until server urls are resolved.
-        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/tags";
-        IMFPushInvoker invoker = IMFPushInvoker.newInstance(path, MFPRequest.GET, 10);
+        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/tags";
+        IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, path, MFPRequest.GET);
         invoker.addHeaders();
         invoker.setCoreResponseListener(new ResponseListener() {
 
             @Override
             public void onSuccess(Response response) {
+                Log.d("Successfully retreived tags. Response is: ", response.toString());
                 List<String> tagNames = new ArrayList<String>();
                 try {
                     JSONArray tags = (JSONArray) response.getResponseJSON().get(TAGS);
+                    Log.d("JSONArray of tags is: ", tags.toString());
                     int tagsCnt = tags.length();
                     for (int tagsIdx = 0; tagsIdx < tagsCnt; tagsIdx++) {
+                        Log.d("Adding tag: ", tags.getJSONObject(tagsIdx).toString());
                         tagNames.add(tags.getJSONObject(tagsIdx)
                                 .getString(NAME));
                     }
@@ -467,8 +477,8 @@ public class IMFPush {
 			final IMFPushResponseListener<List<String>> listener) {
 
         //TODO - jialfred - hardcoding until server urls are sorted out.
-        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/subscriptions?deviceId="+deviceId;
-        IMFPushInvoker invoker = IMFPushInvoker.newInstance(path, MFPRequest.GET, 10);
+        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/subscriptions?deviceId="+deviceId;
+        IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, path, MFPRequest.GET);
         invoker.addHeaders();
         invoker.setCoreResponseListener(new ResponseListener() {
             @Override
@@ -548,7 +558,6 @@ public class IMFPush {
             uuid += packageName;
         // Use a hashed UUID not exposing the device ANDROID_ID/Mac Address
         regId = UUID.nameUUIDFromBytes(uuid.getBytes()).toString();
-        //debug("Generated RegId is: " + regId);
     }
 
     private boolean verifyDeviceRegistration() {
@@ -556,9 +565,10 @@ public class IMFPush {
 //                + "registrationId == " + regId + "&expand=true";
 
         //TODO-jialfred - hardcoding until server urls are sorted out.
-        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/devices/" + regId;
+        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/devices/" + regId;
 
-        IMFPushInvoker invoker = IMFPushInvoker.newInstance(path, MFPRequest.GET, 10);
+       // IMFPushInvoker invoker = IMFPushInvoker.newInstance(path, MFPRequest.GET, 10);
+        IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, path, MFPRequest.GET);
         invoker.setJSONRequestBody(null);
         invoker.addHeaders();
         invoker.setCoreResponseListener(new ResponseListener() {
@@ -572,6 +582,7 @@ public class IMFPush {
                     if (!(retDeviceId.equals(regId))
                             || !(retToken.equals(deviceToken))
                             || !(retUserId.equals(userId))) {
+
                         deviceId = retDeviceId;
                         IMFPushUtils
                                 .storeContentInSharedPreferences(
@@ -588,7 +599,7 @@ public class IMFPush {
                                         appContext, applicationId,
                                         DEVICE_ID, deviceId);
                         registerResponseListener
-                                .onSuccess(deviceId);
+                                .onSuccess(response.toString());
                     }
                 } catch (JSONException e1) {
                     //Exception caught while parsing JSON.
@@ -612,9 +623,10 @@ public class IMFPush {
         if (isNewRegistration) {
             //Device is registering with push for the first time.
             //TODO-jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/devices";
-            IMFPushInvoker invoker = IMFPushInvoker
-                    .newInstance(path, MFPRequest.POST, 10);
+            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/devices";
+//            IMFPushInvoker invoker = IMFPushInvoker
+//                    .newInstance(path, MFPRequest.POST, 10);
+            IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, path, MFPRequest.POST);
             invoker.setJSONRequestBody(buildDevice());
             invoker.addHeaders();
             invoker.setCoreResponseListener(new ResponseListener() {
@@ -635,9 +647,10 @@ public class IMFPush {
         } else if (hasRegisterParametersChanged) {
             //device is already registered. Registration parameters have changed, so updating params.
             //TODO-jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/devices/" + deviceId;
-            IMFPushInvoker invoker = IMFPushInvoker
-                    .newInstance(path, MFPRequest.PUT, 10);
+            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/devices/" + deviceId;
+//            IMFPushInvoker invoker = IMFPushInvoker
+//                    .newInstance(path, MFPRequest.PUT, 10);
+            IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, path, MFPRequest.PUT);
             invoker.setJSONRequestBody(buildDevice());
             invoker.addHeaders();
             invoker.setCoreResponseListener(new ResponseListener() {
@@ -708,7 +721,7 @@ public class IMFPush {
         JSONObject device = new JSONObject();
         try {
             device.put(DEVICE_ID, regId);
-            device.put(CONSUMER_ID, userId);
+            device.put(USER_ID, userId);
             device.put(TOKEN, deviceToken);
             device.put(PLATFORM, "G");
         } catch (JSONException e) {
@@ -860,7 +873,8 @@ public class IMFPush {
     }
 
     private void getSenderIdFromServerAndRegisterInBackground() {
-        IMFPushInvoker invoker = IMFPushInvoker.newInstance("http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/settings/gcmConf", MFPRequest.GET, 10);
+       // IMFPushInvoker invoker = IMFPushInvoker.newInstance("http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/settings/gcmConf", MFPRequest.GET, 10);
+        IMFPushInvoker invoker = IMFPushInvoker.newInstance(appContext, "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/settings/gcmConf", MFPRequest.GET);
         invoker.setJSONRequestBody(null);
         invoker.addHeaders();
         invoker.setCoreResponseListener(new ResponseListener() {
@@ -884,7 +898,7 @@ public class IMFPush {
                     registerInBackground();
                 }
 
-                registerResponseListener.onSuccess(response.toString());
+                //registerResponseListener.onSuccess(response.toString());
             }
 
             @Override

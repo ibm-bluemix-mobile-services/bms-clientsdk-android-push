@@ -15,6 +15,7 @@ package com.ibm.mobilefirst.clientsdk.android.push.api;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
+import android.content.Context;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.FailResponse;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.MFPRequest;
@@ -48,12 +49,16 @@ public class IMFPushInvoker implements ResponseListener{
     private IMFPushNotificationListener notificationListener = null;
     private ResponseListener rspListener = null;
 
-    private IMFPushInvoker(String url, String method, int timeout) {
-        requestBuilder = new ResourceRequest(url, method, timeout);
+//    private IMFPushInvoker(String url, String method, int timeout) {
+//        requestBuilder = new ResourceRequest(url, method, timeout);
+//    }
+
+    private IMFPushInvoker(Context ctx, String url, String method) {
+        requestBuilder = new ResourceRequest(ctx, url, method);
     }
 
-    public static IMFPushInvoker newInstance(String url, String method, int timeout) {
-        return new IMFPushInvoker(url, method, timeout);
+    public static IMFPushInvoker newInstance(Context ctx, String url, String method) {
+        return new IMFPushInvoker(ctx, url, method);
     }
 
     public IMFPushInvoker setResponseListener(
@@ -132,11 +137,13 @@ public class IMFPushInvoker implements ResponseListener{
     @Override
     public void onSuccess(Response response) {
         Log.d("Success Response in invoker is: ", response.toString());
+        rspListener.onSuccess(response);
     }
 
     @SuppressLint("LongLogTag")
     @Override
     public void onFailure(FailResponse failResponse, Throwable throwable) {
         Log.d("Failure Response in invoker is: ", failResponse.toString());
+        rspListener.onFailure(failResponse, throwable);
     }
 }

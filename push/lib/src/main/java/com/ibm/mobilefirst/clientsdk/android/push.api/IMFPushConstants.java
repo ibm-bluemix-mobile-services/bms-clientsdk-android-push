@@ -24,6 +24,7 @@ public interface IMFPushConstants {
 	public static final String PLATFORM = "platform";
 	public static final String DEVICE_ID = "deviceId";
 	public static final String CONSUMER_ID = "consumerId";
+	public static final String USER_ID = "userId";
 	public static final String TAG_NAME = "tagName";
 	public static final String TAGS = "tags";
 	public static final String SUBSCRIPTIONS = "subscriptions";
