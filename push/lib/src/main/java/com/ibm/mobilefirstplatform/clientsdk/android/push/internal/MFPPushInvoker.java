@@ -81,31 +81,17 @@ public class MFPPushInvoker implements ResponseListener{
 //        return this;
 //    }
 
-//    public MFPPushInvoker setResourcePath(String resourcePath) {
-//        if (resourcePath.startsWith(SLASH)) {
-//            resourcePath = resourcePath.substring(1);
-//        }
-//
-//        if (resourcePath.endsWith(SLASH)) {
-//            resourcePath = resourcePath.substring(0, resourcePath.length() - 1);
-//        }
-//
-//        StringBuilder uriBuilder = new StringBuilder(IBMBaaSConfig.getInstance().getBaaSUrl()).append(SLASH).append(resourcePath);
-//        try {
-//            requestBuilder.setUrl(new URL(uriBuilder.toString()));
-//        } catch (MalformedURLException e) {
-//            MFPPushUtils.error(e.getLocalizedMessage(), e);
-//            throw new RuntimeException(e);
-//        }
-//        return this;
-//    }
+    public MFPPushInvoker addHeaders(String headerName, String headerValue) {
 
-    public MFPPushInvoker addHeaders() {
-        requestBuilder.addHeader(CONTENT_TYPE, APPLICATION_JSON);
+        if (headerName == null && headerValue == null) {
+            requestBuilder.addHeader(CONTENT_TYPE, APPLICATION_JSON);
+        } else {
+            requestBuilder.addHeader(CONTENT_TYPE, APPLICATION_JSON);
+            requestBuilder.addHeader(headerName, headerValue);
+        }
         return this;
     }
 
-    //TODO - jialfred, clean up required.
     public void execute() {
         try {
             logger.info("MFPPushInvoker: execute().  Sending request to push server, with url = " + requestBuilder.getUrl().toString()

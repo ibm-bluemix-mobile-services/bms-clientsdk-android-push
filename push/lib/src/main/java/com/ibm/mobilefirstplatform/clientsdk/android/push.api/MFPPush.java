@@ -61,6 +61,8 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SENDER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAGS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NAME;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SLASH;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_EXTRA_MESSAGE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_MESSAGE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
@@ -185,6 +187,7 @@ public class MFPPush {
     private String deviceToken = null;
     private String regId = null;
     private String applicationId = null;
+    private String applicationRoute = null;
 
     private boolean isTokenUpdatedOnServer = false;
 
@@ -215,7 +218,12 @@ public class MFPPush {
         try {
             // Get the applicationId from core
             applicationId = BMSClient.getInstance().getBackendGUID();
+            logger.info("ApplicationId is: "+ applicationId);
+            logger.info("Application rewrite info is: "+ BMSClient.getInstance().getRewriteDomain());
+
             appContext = context.getApplicationContext();
+            applicationRoute = BMSClient.getInstance().getBackendRoute();
+            logger.info("Application backend route is: "+ applicationRoute);
 
             validateAndroidContext();
         } catch (Exception e) {
@@ -320,10 +328,12 @@ public class MFPPush {
     public void subscribe(final String tagName,
             final MFPPushResponseListener<String> listener) {
 		if (isAbleToSubscribe()) {
-            //TODO - jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/subscriptions";
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+            String path = builder.getSubscriptionsUrl();
+            logger.debug("The tag subscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.POST);
-            invoker.addHeaders();
+            // TODO: temporarily redirecting to dev zone.
+            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
             invoker.setJSONRequestBody(buildSubscription(tagName));
             invoker.setResponseListener(new ResponseListener() {
                 @Override
@@ -360,10 +370,12 @@ public class MFPPush {
     public void unsubscribe(final String tagName,
             final MFPPushResponseListener<String> listener) {
 		if (isAbleToSubscribe()) {
-            //TODO - jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/subscriptions?deviceId="+deviceId+"&tagName="+tagName;
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+            String path = builder.getSubscriptionsUrl(deviceId, tagName);
+            logger.debug("The tag unsubscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.DELETE);
-            invoker.addHeaders();
+            // TODO: temporarily redirecting to dev zone.
+            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -394,10 +406,12 @@ public class MFPPush {
      */
     public void unregisterDevice(final MFPPushResponseListener<String> listener) {
         if (isAbleToSubscribe()) {
-            //TODO - jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/devices/"+deviceId;
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+            String path = builder.getUnregisterUrl(deviceId);
+            logger.debug("The device unregister url is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.DELETE);
-            invoker.addHeaders();
+            // TODO: temporarily redirecting to dev zone.
+            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -427,10 +441,12 @@ public class MFPPush {
 	 *            otherwise
 	 */
     public void getTags(final MFPPushResponseListener<List<String>> listener) {
-        //TODO -jialfred - hardcoding path until server urls are resolved.
-        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/tags";
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+        String path = builder.getTagsUrl();
+        logger.debug("The getTags url is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.GET);
-        invoker.addHeaders();
+        // TODO: temporarily redirecting to dev zone.
+        invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
         invoker.setResponseListener(new ResponseListener() {
 
             @Override
@@ -476,10 +492,12 @@ public class MFPPush {
 	public void getSubscriptions(
 			final MFPPushResponseListener<List<String>> listener) {
 
-        //TODO - jialfred - hardcoding until server urls are sorted out.
-        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/subscriptions?deviceId="+deviceId;
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+        String path = builder.getSubscriptionsUrl(deviceId, null);
+        logger.debug("The getSubscriptions path is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.GET);
-        invoker.addHeaders();
+        // TODO: temporarily redirecting to dev zone.
+        invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
@@ -541,20 +559,16 @@ public class MFPPush {
         }.execute(null, null, null);
     }
 
-    // Generate a Device UUID based on ANDROID_ID and Device MAC.
-    // The addition of MAC address is to ensure uniqueness.
-    // There are reported cases of non-unique ANDROID_ID in Froyo devices are of
-    // no concern.
     private void computeRegId() throws JSONException {
         logger.debug("computeRegId: Computing device's registrationId");
 
         if(regId == null){
             try {
-                regId = (String) AuthorizationManager.getInstance().getDeviceIdentity().get("id");
+                regId = (String) AuthorizationManager.getInstance().getDeviceIdentity().get(ID);
                 logger.debug("MFPPush:computeRegId() - DeviceId obtained from AuthorizationManager object id field is : " + regId);
 
                 if (regId == null){
-                    regId = (String)AuthorizationManager.getInstance().getDeviceIdentity().get("deviceId");
+                    regId = (String)AuthorizationManager.getInstance().getDeviceIdentity().get(DEVICE_ID);
                     logger.debug("MFPPush:computeRegId() - DeviceId obtained from AuthorizationManager object deviceId field is : "+ regId);
                 }
             } catch (JSONException e) {
@@ -564,16 +578,14 @@ public class MFPPush {
     }
 
     private boolean verifyDeviceRegistration() {
-//        String path = urlBuilder.getDevicesUrl() + "?filter="
-//                + "registrationId == " + regId + "&expand=true";
 
-        //TODO-jialfred - hardcoding until server urls are sorted out.
-        String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/devices/" + regId;
-
-       // MFPPushInvoker invoker = MFPPushInvoker.newInstance(path, MFPRequest.GET, 10);
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+        String path = builder.getDeviceIdUrl(regId);
+        logger.debug("The url for verifying previous device registration is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.GET);
         invoker.setJSONRequestBody(null);
-        invoker.addHeaders();
+        // TODO: temporarily redirecting to dev zone.
+        invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
@@ -625,14 +637,13 @@ public class MFPPush {
     private void updateTokenCallback(String deviceToken) {
         if (isNewRegistration) {
             logger.debug("updateTokenCallback: Device is registering with push server for the first time.");
-            //Device is registering with push for the first time.
-            //TODO-jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/devices";
-//            MFPPushInvoker invoker = MFPPushInvoker
-//                    .newInstance(path, MFPRequest.POST, 10);
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+            String path = builder.getDevicesUrl();
+            logger.debug("The url for device registration is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.POST);
             invoker.setJSONRequestBody(buildDevice());
-            invoker.addHeaders();
+            // TODO: temporarily redirecting to dev zone.
+            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -651,13 +662,13 @@ public class MFPPush {
             invoker.execute();
         } else if (hasRegisterParametersChanged) {
             logger.debug("updateTokenCallback: Device is already registered. Registration parameteres have changed.");
-            //TODO-jialfred - hardcoding until server urls are sorted out.
-            String path = "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/devices/" + deviceId;
-//            MFPPushInvoker invoker = MFPPushInvoker
-//                    .newInstance(path, MFPRequest.PUT, 10);
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+            String path = builder.getDeviceIdUrl(deviceId);
+            logger.debug("The url for updating device registration is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.PUT);
             invoker.setJSONRequestBody(buildDevice());
-            invoker.addHeaders();
+            // TODO: temporarily redirecting to dev zone.
+            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -881,10 +892,13 @@ public class MFPPush {
     }
 
     private void getSenderIdFromServerAndRegisterInBackground() {
-       // MFPPushInvoker invoker = MFPPushInvoker.newInstance("http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/aa6c4d5c-1650-41cf-804c-6d73ecd087da/settings/gcmConf", MFPRequest.GET, 10);
-        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, "http://imfpush.stage1-dev.ng.bluemix.net/imfpush/v1/apps/android-sdk-test2/settings/gcmConf", MFPRequest.GET);
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+        String path = builder.getSettingsUrl();
+        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.GET);
+        logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground - The url for getting gcm configuration is: "+ path);
         invoker.setJSONRequestBody(null);
-        invoker.addHeaders();
+        // TODO: temporarily redirecting to dev zone.
+        invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
         invoker.setResponseListener(new ResponseListener() {
 
             @Override

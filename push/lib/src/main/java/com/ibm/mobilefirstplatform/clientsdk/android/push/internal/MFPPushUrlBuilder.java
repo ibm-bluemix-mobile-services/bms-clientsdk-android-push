@@ -19,7 +19,7 @@ package com.ibm.mobilefirstplatform.clientsdk.android.push.internal;
 public class MFPPushUrlBuilder {
 
 	private static final String FORWARDSLASH = "/";
-	private static final String PUSH = "push";
+	private static final String IMFPUSH = "imfpush";
 	private static final String V1 = "v1";
 	private static final String APPS = "apps";
 	private static final String AMPERSAND = "&";
@@ -31,14 +31,16 @@ public class MFPPushUrlBuilder {
 	private static final String TAGNAME = "tagName";
 	private static final String DEVICEID = "deviceId";
 	private static final String SETTINGS = "settings" + FORWARDSLASH
-			+ "current";
+			+ "gcmConf";
 	private static final String METRICS = "metric" + FORWARDSLASH + "user"
 			+ FORWARDSLASH;
 
 	private final StringBuilder pwUrl_ = new StringBuilder();
 
-	public MFPPushUrlBuilder(String applicationId) {
-		pwUrl_.append(PUSH);
+	public MFPPushUrlBuilder(String applicationRoute, String applicationId) {
+		pwUrl_.append(applicationRoute);
+		pwUrl_.append(FORWARDSLASH);
+		pwUrl_.append(IMFPUSH);
 		pwUrl_.append(FORWARDSLASH);
 		pwUrl_.append(V1);
 		pwUrl_.append(FORWARDSLASH);
@@ -92,6 +94,15 @@ public class MFPPushUrlBuilder {
 		deviceIdUrl.append(FORWARDSLASH).append(deviceId);
 
 		return deviceIdUrl.toString();
+	}
+
+	public String getUnregisterUrl(String deviceId){
+		StringBuilder deviceUnregisterUrl = new StringBuilder(
+				getDevicesUrl());
+		deviceUnregisterUrl.append(FORWARDSLASH);
+		deviceUnregisterUrl.append(deviceId);
+
+		return deviceUnregisterUrl.toString();
 	}
 
 

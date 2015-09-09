@@ -29,13 +29,9 @@ public interface MFPPushConstants {
 	public static final String TAGS = "tags";
 	public static final String SUBSCRIPTIONS = "subscriptions";
 	public static final String REGISTRATION_ID = "registrationId";
+	public static final String ID = "id";
+	public static final String SLASH = "/";
 
-	public static final String ENVIRONMENT = "environment";
-	public static final String SANDBOX_ENVIRONMENT = "sandbox";
-	public static final String PRODUCTION_ENVIRONMENT = "production";
-
-	public static final String SANDBOX_CREDENTIALS = "gcmSandboxCredentials";
-	public static final String PRODUCTION_CREDENTIALS = "gcmProductionCredentials";
 	public static final String SENDER_ID = "senderId";
 
     public static final double MIN_SUPPORTED_ANDRIOD_VERSION = 4.0;
