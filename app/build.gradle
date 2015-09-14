@@ -19,7 +19,7 @@ android {
     }
     repositories{
         flatDir{
-            dirs '/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/push/lib/build/outputs/aar'
+            dirs '/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/lib/build/outputs/aar'
             dirs '/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/bms-clientsdk-android-core/lib/build/outputs/aar'
         }
     }

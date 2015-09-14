@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="lib-release-">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/lib-release/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/lib-release/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
