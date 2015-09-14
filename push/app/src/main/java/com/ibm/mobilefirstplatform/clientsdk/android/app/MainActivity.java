@@ -8,6 +8,8 @@ import android.app.AlertDialog.Builder;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
+import com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushException;
+import com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
@@ -112,18 +114,32 @@ public class MainActivity extends Activity {
         });
     }
 
+    void unregisterDevice(){
+        push.unregisterDevice(new MFPPushResponseListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                updateTextView("Device is successfully unregistered. Success response is: " + s);
+            }
+
+            @Override
+            public void onFailure(MFPPushException e) {
+                updateTextView("Device unregistration failure. Failure response is: "+ e);
+            }
+        });
+    }
+
     void unsubscribeFromTags(final String tag) {
         push.unsubscribe(tag, new MFPPushResponseListener<String>() {
 
             @Override
             public void onSuccess(String s) {
                 updateTextView("Unsubscribing from tag");
-                updateTextView("Successfully unsubscribed from tag . "+ tag);
+                updateTextView("Successfully unsubscribed from tag . " + tag);
             }
 
             @Override
             public void onFailure(MFPPushException e) {
-                updateTextView("Error while unsubscribing from tags. "+ e.getMessage());
+                updateTextView("Error while unsubscribing from tags. " + e.getMessage());
             }
 
         });
@@ -134,7 +150,7 @@ public class MainActivity extends Activity {
             @Override
             public void onSuccess(List<String> tags) {
                 updateTextView("Retrieved subscriptions : " + tags);
-                System.out.println("Subscribed tags are: "+tags);
+                System.out.println("Subscribed tags are: " + tags);
                 subscribedTags = tags;
                 subscribeToTag();
             }
@@ -149,7 +165,7 @@ public class MainActivity extends Activity {
 
     void subscribeToTag() {
         System.out.println("subscribedTags: "+ subscribedTags+ "size is: "+subscribedTags.size());
-        System.out.println("allTags: " + allTags +"Size is: "+allTags.size());
+        System.out.println("allTags: " + allTags + "Size is: " + allTags.size());
 
         if ((allTags.size() != 0)) {
             push.subscribe(allTags.get(0),

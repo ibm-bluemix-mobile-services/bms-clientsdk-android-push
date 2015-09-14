@@ -21,8 +21,6 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService;
 
-//import com.ibm.mobile.services.push.internal.wakeful.AlarmReceiver;
-
 /**
  * MFPPushBroadcastReceiver receives GCM messages and delivers them to
  * <class>com.ibm.mobile.services.push.MFPPushIntentService</class>.

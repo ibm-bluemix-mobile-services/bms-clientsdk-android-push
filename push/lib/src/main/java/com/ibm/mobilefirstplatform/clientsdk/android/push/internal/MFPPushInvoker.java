@@ -38,12 +38,6 @@ public class MFPPushInvoker implements ResponseListener{
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
-    private static final String DEFAULT_CHARSET = "UTF-8";
-
-    private static final String CODE = "code";
-    private static final String DOCURL = "docUrl";
-    private static final String MESSAGE = "message";
-    private static final String SLASH = "/";
 
     private ResourceRequest requestBuilder = null;
     private MFPPushResponseListener<JSONObject> listener = null;
@@ -74,12 +68,6 @@ public class MFPPushInvoker implements ResponseListener{
     public void setResponseListener(ResponseListener listener){
         this.rspListener = listener;
     }
-
-    //TODO - jialfred - to be fixed after the server urls are resolved.
-//    public MFPPushInvoker setMethod(String method) {
-//        requestBuilder.
-//        return this;
-//    }
 
     public MFPPushInvoker addHeaders(String headerName, String headerValue) {
 

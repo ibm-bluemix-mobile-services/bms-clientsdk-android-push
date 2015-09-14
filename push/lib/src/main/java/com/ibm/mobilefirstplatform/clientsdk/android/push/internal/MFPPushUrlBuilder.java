@@ -32,8 +32,6 @@ public class MFPPushUrlBuilder {
 	private static final String DEVICEID = "deviceId";
 	private static final String SETTINGS = "settings" + FORWARDSLASH
 			+ "gcmConf";
-	private static final String METRICS = "metric" + FORWARDSLASH + "user"
-			+ FORWARDSLASH;
 
 	private final StringBuilder pwUrl_ = new StringBuilder();
 

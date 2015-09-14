@@ -20,10 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.provider.Settings;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -49,7 +45,6 @@ import org.json.JSONArray;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
@@ -62,7 +57,6 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAGS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NAME;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SLASH;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_EXTRA_MESSAGE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_MESSAGE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
@@ -216,14 +210,11 @@ public class MFPPush {
 
     public void initialize(Context context){
         try {
-            // Get the applicationId from core
+            // Get the applicationId and backend route from core
             applicationId = BMSClient.getInstance().getBackendGUID();
-            logger.info("ApplicationId is: "+ applicationId);
-            logger.info("Application rewrite info is: "+ BMSClient.getInstance().getRewriteDomain());
+            applicationRoute = BMSClient.getInstance().getBackendRoute();
 
             appContext = context.getApplicationContext();
-            applicationRoute = BMSClient.getInstance().getBackendRoute();
-            logger.info("Application backend route is: "+ applicationRoute);
 
             validateAndroidContext();
         } catch (Exception e) {
@@ -405,7 +396,6 @@ public class MFPPush {
      *            called otherwise
      */
     public void unregisterDevice(final MFPPushResponseListener<String> listener) {
-        if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
             String path = builder.getUnregisterUrl(deviceId);
             logger.debug("The device unregister url is: "+ path);
@@ -427,7 +417,6 @@ public class MFPPush {
                 }
             });
             invoker.execute();
-        }
     }
 
 	/**
@@ -921,7 +910,6 @@ public class MFPPush {
                     MFPPushUtils.storeContentInSharedPreferences(appContext, applicationId, SENDER_ID, gcmSenderId);
                     registerInBackground();
                 }
-                //registerResponseListener.onSuccess(response.toString());
             }
 
             @Override
