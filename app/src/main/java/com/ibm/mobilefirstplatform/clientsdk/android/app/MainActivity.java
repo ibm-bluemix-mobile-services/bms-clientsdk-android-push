@@ -8,8 +8,6 @@ import android.app.AlertDialog.Builder;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
-import com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushException;
-import com.ibm.mobilefirst.clientsdk.android.push.api.IMFPushResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
