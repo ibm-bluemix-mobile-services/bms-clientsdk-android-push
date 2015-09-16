@@ -214,6 +214,9 @@ public class MFPPush {
             applicationId = BMSClient.getInstance().getBackendGUID();
             applicationRoute = BMSClient.getInstance().getBackendRoute();
 
+            logger.debug("The redirect url is: "+ BMSClient.getInstance().getRewriteDomain());
+            logger.debug("The redirect url shoud be: stage1-dev.ng.bluemix.net");
+            
             appContext = context.getApplicationContext();
 
             validateAndroidContext();

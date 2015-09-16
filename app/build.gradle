@@ -18,9 +18,12 @@ android {
         }
     }
     repositories{
+//        flatDir{
+//            dirs '/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/lib/build/outputs/aar'
+//            dirs '/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/bms-clientsdk-android-core/lib/build/outputs/aar'
+//        }
         flatDir{
-            dirs '/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/lib/build/outputs/aar'
-            dirs '/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/bms-clientsdk-android-core/lib/build/outputs/aar'
+            dirs 'libs'
         }
     }
 }
@@ -30,7 +33,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.0.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.google.android.gms:play-services:7.8.0'
-
-    compile (name:'lib-debug', ext:'aar')
-    compile (name:'lib-release', ext:'aar')
+    compile (name:'push-debug', ext:'aar')
+    compile (name:'core-release', ext:'aar')
 }
