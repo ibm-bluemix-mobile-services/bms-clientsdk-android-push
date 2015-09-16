@@ -214,9 +214,6 @@ public class MFPPush {
             applicationId = BMSClient.getInstance().getBackendGUID();
             applicationRoute = BMSClient.getInstance().getBackendRoute();
 
-            logger.debug("The redirect url is: "+ BMSClient.getInstance().getRewriteDomain());
-            logger.debug("The redirect url shoud be: stage1-dev.ng.bluemix.net");
-            
             appContext = context.getApplicationContext();
 
             validateAndroidContext();
@@ -326,8 +323,8 @@ public class MFPPush {
             String path = builder.getSubscriptionsUrl();
             logger.debug("The tag subscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.POST);
-            // TODO: temporarily redirecting to dev zone.
-            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+
+            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setJSONRequestBody(buildSubscription(tagName));
             invoker.setResponseListener(new ResponseListener() {
                 @Override
@@ -369,7 +366,7 @@ public class MFPPush {
             logger.debug("The tag unsubscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.DELETE);
             // TODO: temporarily redirecting to dev zone.
-            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -404,7 +401,7 @@ public class MFPPush {
             logger.debug("The device unregister url is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.DELETE);
             // TODO: temporarily redirecting to dev zone.
-            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -438,7 +435,7 @@ public class MFPPush {
         logger.debug("The getTags url is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.GET);
         // TODO: temporarily redirecting to dev zone.
-        invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+        invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
 
             @Override
@@ -489,7 +486,7 @@ public class MFPPush {
         logger.debug("The getSubscriptions path is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.GET);
         // TODO: temporarily redirecting to dev zone.
-        invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+        invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
@@ -577,7 +574,7 @@ public class MFPPush {
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.GET);
         invoker.setJSONRequestBody(null);
         // TODO: temporarily redirecting to dev zone.
-        invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+        invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
@@ -635,7 +632,7 @@ public class MFPPush {
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.POST);
             invoker.setJSONRequestBody(buildDevice());
             // TODO: temporarily redirecting to dev zone.
-            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -660,7 +657,7 @@ public class MFPPush {
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, MFPRequest.PUT);
             invoker.setJSONRequestBody(buildDevice());
             // TODO: temporarily redirecting to dev zone.
-            invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -890,7 +887,7 @@ public class MFPPush {
         logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground - The url for getting gcm configuration is: "+ path);
         invoker.setJSONRequestBody(null);
         // TODO: temporarily redirecting to dev zone.
-        invoker.addHeaders("X-Rewrite-Domain", "stage1-dev.ng.bluemix.net");
+        invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
 
             @Override
