@@ -166,7 +166,6 @@ public class MFPPushIntentService extends IntentService {
 		return notificationIcon;
 	}
 
-	@SuppressWarnings("deprecation")
 	private void generateNotification(Context context, String ticker,
 			String title, String msg, int icon, Intent intent) {
 		long when = System.currentTimeMillis();
@@ -181,7 +180,6 @@ public class MFPPushIntentService extends IntentService {
 //		NotificationManager notificationManager = (NotificationManager) context
 //				.getSystemService(Context.NOTIFICATION_SERVICE);
 //        notificationManager.notify(randomObj.nextInt(), notification);
-
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 this);
@@ -211,7 +209,7 @@ public class MFPPushIntentService extends IntentService {
 
 		if (!extras.isEmpty()) {
 			if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-				logger.debug("handleMessageIntent: Received a message from GCM Server.");
+				logger.debug("handleMessageIntent: Received a message from GCM Server." +intent.getExtras());
 				MFPInternalPushMessage message = new MFPInternalPushMessage(intent);
 				intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
 						+ GCM_MESSAGE);

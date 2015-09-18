@@ -365,7 +365,6 @@ public class MFPPush {
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
             logger.debug("The tag unsubscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
-            // TODO: temporarily redirecting to dev zone.
             invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
                 @Override
@@ -400,7 +399,6 @@ public class MFPPush {
             String path = builder.getUnregisterUrl(deviceId);
             logger.debug("The device unregister url is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
-            // TODO: temporarily redirecting to dev zone.
             invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
                 @Override
@@ -434,7 +432,6 @@ public class MFPPush {
         String path = builder.getTagsUrl();
         logger.debug("The getTags url is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-        // TODO: temporarily redirecting to dev zone.
         invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
 
@@ -487,7 +484,6 @@ public class MFPPush {
         String path = builder.getSubscriptionsUrl(deviceId, null);
         logger.debug("The getSubscriptions path is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-        // TODO: temporarily redirecting to dev zone.
         invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
             @Override
@@ -575,7 +571,6 @@ public class MFPPush {
         logger.debug("The url for verifying previous device registration is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         invoker.setJSONRequestBody(null);
-        // TODO: temporarily redirecting to dev zone.
         invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
             @Override
@@ -633,7 +628,6 @@ public class MFPPush {
             logger.debug("The url for device registration is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
             invoker.setJSONRequestBody(buildDevice());
-            // TODO: temporarily redirecting to dev zone.
             invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
 
@@ -658,7 +652,6 @@ public class MFPPush {
             logger.debug("The url for updating device registration is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT);
             invoker.setJSONRequestBody(buildDevice());
-            // TODO: temporarily redirecting to dev zone.
             invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
 
@@ -888,7 +881,6 @@ public class MFPPush {
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground - The url for getting gcm configuration is: "+ path);
         invoker.setJSONRequestBody(null);
-        // TODO: temporarily redirecting to dev zone.
         invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
 
@@ -916,7 +908,16 @@ public class MFPPush {
 
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject object) {
-                registerResponseListener.onFailure(new MFPPushException(response.toString()));
+                logger.error("Error while getting senderId from push server.");
+                String errString = null;
+                if (response != null) {
+                    errString = response.toString();
+                } else if (errString == null && throwable != null) {
+                    errString = throwable.toString();
+                } else if (errString == null && object != null) {
+                    errString = object.toString();
+                }
+                registerResponseListener.onFailure(new MFPPushException(errString));
             }
         });
 

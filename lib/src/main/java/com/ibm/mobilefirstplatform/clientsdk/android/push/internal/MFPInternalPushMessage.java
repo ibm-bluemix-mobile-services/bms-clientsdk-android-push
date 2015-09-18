@@ -32,7 +32,7 @@ import org.json.JSONObject;
  */
 public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
-	private static final String GCM_EXTRA_ID = "id";
+	private static final String GCM_EXTRA_ID = "nid";
 	private static final String GCM_EXTRA_ALERT = "alert";
 	private static final String GCM_EXTRA_PAYLOAD = "payload";
 	private static final String GCM_EXTRA_URL = "url";
@@ -56,6 +56,10 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 		Bundle info = intent.getExtras();
 		MFPPushUtils.dumpIntent(intent);
+		id = info.getString(GCM_EXTRA_ID);
+		alert = info.getString(GCM_EXTRA_ALERT);
+		url = info.getString(GCM_EXTRA_URL);
+		payload = info.getString(GCM_EXTRA_PAYLOAD);
 	}
 
 	private MFPInternalPushMessage(Parcel source) {

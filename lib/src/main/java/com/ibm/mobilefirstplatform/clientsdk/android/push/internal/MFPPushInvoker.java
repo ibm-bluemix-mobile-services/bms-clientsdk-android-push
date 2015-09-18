@@ -103,7 +103,9 @@ public class MFPPushInvoker implements ResponseListener{
 
     @Override
     public void onFailure(Response response, Throwable throwable, JSONObject object) {
-        logger.debug("MFPPushInvoker.onFailure() - Failure response in invoker is: "+ response.toString());
+        if (response != null) {
+            logger.debug("MFPPushInvoker.onFailure() - Failure response in invoker is: " + response.toString());
+        }
         rspListener.onFailure(response, throwable, object);
     }
 }
