@@ -47,7 +47,6 @@
             <!-- Notification Intent -->
             <intent-filter>
                 <action android:name="com.ibm.mobilefirstplatform.clientsdk.android.app.IBMPushNotification" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 

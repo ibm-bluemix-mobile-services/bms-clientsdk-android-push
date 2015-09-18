@@ -62,14 +62,14 @@ public class MainActivity extends Activity {
 
         final Activity activity = this;
 
-        notificationListener = new MFPPushNotificationListener() {
 
-            @Override
-            public void onReceive(final MFPSimplePushNotification message) {
-                showNotification(activity, message);
+            notificationListener = new MFPPushNotificationListener() {
 
-            }
+                @Override
+                public void onReceive(final MFPSimplePushNotification message) {
+                    showNotification(activity, message);
 
+                }
         };
     }
 

@@ -17,8 +17,8 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 import android.content.Context;
 
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.FailResponse;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResourceRequest;
+//import com.ibm.mobilefirstplatform.clientsdk.android.core.api.FailResponse;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
@@ -33,13 +33,13 @@ import java.net.MalformedURLException;
  * Created by jialfred on 9/2/15.
  */
 
-//TODO: jialfred - This class is tentative, subject to change.
 public class MFPPushInvoker implements ResponseListener{
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
+    private static Context appContext = null;
 
-    private ResourceRequest requestBuilder = null;
+    private Request requestBuilder = null;
     private MFPPushResponseListener<JSONObject> listener = null;
     private JSONObject requestBody = null;
     private MFPPushNotificationListener notificationListener = null;
@@ -47,12 +47,13 @@ public class MFPPushInvoker implements ResponseListener{
 
     protected static Logger logger = Logger.getInstance("com.ibm.mobilefirstplatform.clientsdk.android.push.internal");
 
-    private MFPPushInvoker(Context ctx, String url, String method) {
-        requestBuilder = new ResourceRequest(ctx, url, method);
+    private MFPPushInvoker(String url, String method) {
+        requestBuilder = new Request(url, method);
     }
 
     public static MFPPushInvoker newInstance(Context ctx, String url, String method) {
-        return new MFPPushInvoker(ctx, url, method);
+        appContext = ctx;
+        return new MFPPushInvoker(url, method);
     }
 
     public MFPPushInvoker setResponseListener(
@@ -90,7 +91,7 @@ public class MFPPushInvoker implements ResponseListener{
         if (requestBody != null && requestBody.length() != 0) {
             requestBuilder.send(requestBody, this);
         } else {
-            requestBuilder.send(this);
+            requestBuilder.send(appContext,this);
         }
     }
 
