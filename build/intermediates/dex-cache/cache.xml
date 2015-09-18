@@ -2,11 +2,11 @@
 <items version="2" >
 
     <item
-        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.bms.clientsdk.android/bms-clientsdk-android-core/0.1-SNAPSHOT/jars/classes.jar"
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.bms.clientsdk.android/bms-clientsdk-android-push/0.1-SNAPSHOT/jars/classes.jar"
         jumboMode="false"
         revision="23.0.0"
-        sha1="1e2a683d30d1e69e448d810d897960da31ea835d">
-        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/debug/classes-0b56a14c22dd3c959d01d9839de2d41d85c622c2.jar" />
+        sha1="cb2701defe16db2167c94f528f770eac751ac825">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/debug/classes-af46a21c7acccdc08f97afa858e1d2afaf6c5d0c.jar" />
     </item>
 
 </items>
