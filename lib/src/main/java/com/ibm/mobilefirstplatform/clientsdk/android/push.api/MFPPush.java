@@ -13,55 +13,56 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
-import android.app.Activity;
-import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.util.Log;
+        import android.app.Activity;
+        import android.app.NotificationManager;
+        import android.content.BroadcastReceiver;
+        import android.content.Context;
+        import android.content.Intent;
+        import android.content.IntentFilter;
+        import android.content.SharedPreferences;
+        import android.os.AsyncTask;
+        import android.util.Log;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+        import com.google.android.gms.common.ConnectionResult;
+        import com.google.android.gms.common.GooglePlayServicesUtil;
+        import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushInvoker;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
-import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
+        import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
+        import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
+        import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
+        import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+        import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
+        import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushInvoker;
+        import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder;
+        import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
+        import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
+        import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
+        import org.json.JSONException;
+        import org.json.JSONObject;
+        import org.json.JSONArray;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+        import java.io.IOException;
+        import java.util.ArrayList;
+        import java.util.List;
 
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TOKEN;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SENDER_ID;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAGS;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NAME;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_EXTRA_MESSAGE;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_MESSAGE;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TOKEN;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SENDER_ID;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAGS;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NAME;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_EXTRA_MESSAGE;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_MESSAGE;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.X_REWRITE_DOMAIN;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
+        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
 
 /**
  * <class>MFPPush</class> provides methods required by an android application to
@@ -167,9 +168,6 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 public class MFPPush {
     public static final String PREFS_NAME = "com.ibm.mobile.services.push";
     static final String PREFS_NOTIFICATION_MSG = "LatestNotificationMsg";
-    static final String PREFS_DEVICE_ID = "DeviceId";
-    static final String PREFS_DEVICE_TOKEN = "DeviceToken";
-    static final String PREFS_CONSUMER_ID = "ConsumerId";
     static final String PREFS_NOTIFICATION_COUNT = "NotificationCount";
 
     private static MFPPush instance;
@@ -304,27 +302,27 @@ public class MFPPush {
         getSenderIdFromServerAndRegisterInBackground();
     }
 
-	/**
-	 * Subscribes to the given tag
-	 *
-	 * @param tagName
-	 *            name of the tag
-	 * @param listener
-	 *            Mandatory listener class. When the subscription is created
-	 *            successfully the {@link MFPPushResponseListener}.onSuccess
-	 *            method is called with the tagName for which subscription is
-	 *            created. {@link MFPPushResponseListener}.onFailure method is
-	 *            called otherwise
-	 */
+    /**
+     * Subscribes to the given tag
+     *
+     * @param tagName
+     *            name of the tag
+     * @param listener
+     *            Mandatory listener class. When the subscription is created
+     *            successfully the {@link MFPPushResponseListener}.onSuccess
+     *            method is called with the tagName for which subscription is
+     *            created. {@link MFPPushResponseListener}.onFailure method is
+     *            called otherwise
+     */
     public void subscribe(final String tagName,
-            final MFPPushResponseListener<String> listener) {
-		if (isAbleToSubscribe()) {
+                          final MFPPushResponseListener<String> listener) {
+        if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
             String path = builder.getSubscriptionsUrl();
             logger.debug("The tag subscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
 
-            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
+            invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
             invoker.setJSONRequestBody(buildSubscription(tagName));
             invoker.setResponseListener(new ResponseListener() {
                 @Override
@@ -343,29 +341,29 @@ public class MFPPush {
 
             });
             invoker.execute();
-		}
-	}
+        }
+    }
 
-	/**
-	 * Unsubscribes to the given tag
-	 *
-	 * @param tagName
-	 *            name of the tag
-	 * @param listener
-	 *            Mandatory listener class. When the subscription is deleted
-	 *            successfully the {@link MFPPushResponseListener}.onSuccess
-	 *            method is called with the tagName for which subscription is
-	 *            deleted. {@link MFPPushResponseListener}.onFailure method is
-	 *            called otherwise
-	 */
+    /**
+     * Unsubscribes to the given tag
+     *
+     * @param tagName
+     *            name of the tag
+     * @param listener
+     *            Mandatory listener class. When the subscription is deleted
+     *            successfully the {@link MFPPushResponseListener}.onSuccess
+     *            method is called with the tagName for which subscription is
+     *            deleted. {@link MFPPushResponseListener}.onFailure method is
+     *            called otherwise
+     */
     public void unsubscribe(final String tagName,
-            final MFPPushResponseListener<String> listener) {
-		if (isAbleToSubscribe()) {
+                            final MFPPushResponseListener<String> listener) {
+        if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
             logger.debug("The tag unsubscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
-            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
+            invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -381,8 +379,8 @@ public class MFPPush {
                 }
             });
             invoker.execute();
-		}
-	}
+        }
+    }
 
     /**
      * Unregister the device from Push Server
@@ -395,44 +393,44 @@ public class MFPPush {
      *            called otherwise
      */
     public void unregisterDevice(final MFPPushResponseListener<String> listener) {
-            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
-            String path = builder.getUnregisterUrl(deviceId);
-            logger.debug("The device unregister url is: "+ path);
-            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
-            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
-            invoker.setResponseListener(new ResponseListener() {
-                @Override
-                public void onSuccess(Response response) {
-                    logger.info("Successfully unregistered device. Response is: " + response.toString());
-                    listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
-                }
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
+        String path = builder.getUnregisterUrl(deviceId);
+        logger.debug("The device unregister url is: "+ path);
+        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
+        invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
+        invoker.setResponseListener(new ResponseListener() {
+            @Override
+            public void onSuccess(Response response) {
+                logger.info("Successfully unregistered device. Response is: " + response.toString());
+                listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
+            }
 
-                @Override
-                public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-                    //Error while subscribing to tags.
-                    logger.error("Device unregistration failure. Failure response is: " + response.toString());
-                    listener.onFailure(new MFPPushException(response.toString()));
-                }
-            });
-            invoker.execute();
+            @Override
+            public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
+                //Error while subscribing to tags.
+                logger.error("Device unregistration failure. Failure response is: " + response.toString());
+                listener.onFailure(new MFPPushException(response.toString()));
+            }
+        });
+        invoker.execute();
     }
 
-	/**
-	 * Get the list of tags
-	 *
-	 * @param listener
-	 *            Mandatory listener class. When the list of tags are
-	 *            successfully retrieved the {@link MFPPushResponseListener}
-	 *            .onSuccess method is called with the list of tagNames
-	 *            {@link MFPPushResponseListener}.onFailure method is called
-	 *            otherwise
-	 */
+    /**
+     * Get the list of tags
+     *
+     * @param listener
+     *            Mandatory listener class. When the list of tags are
+     *            successfully retrieved the {@link MFPPushResponseListener}
+     *            .onSuccess method is called with the list of tagNames
+     *            {@link MFPPushResponseListener}.onFailure method is called
+     *            otherwise
+     */
     public void getTags(final MFPPushResponseListener<List<String>> listener) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
         String path = builder.getTagsUrl();
         logger.debug("The getTags url is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-        invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
+        invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
 
             @Override
@@ -464,27 +462,27 @@ public class MFPPush {
                 listener.onFailure(new MFPPushException(response.toString()));
             }
         });
-		invoker.execute();
-	}
+        invoker.execute();
+    }
 
-	/**
-	 * Get the list of tags subscribed to
-	 *
-	 * @param listener
-	 *            Mandatory listener class. When the list of tags subscribed to
-	 *            are successfully retrieved the {@link MFPPushResponseListener}
-	 *            .onSuccess method is called with the list of tagNames
-	 *            {@link MFPPushResponseListener}.onFailure method is called
-	 *            otherwise
-	 */
-	public void getSubscriptions(
-			final MFPPushResponseListener<List<String>> listener) {
+    /**
+     * Get the list of tags subscribed to
+     *
+     * @param listener
+     *            Mandatory listener class. When the list of tags subscribed to
+     *            are successfully retrieved the {@link MFPPushResponseListener}
+     *            .onSuccess method is called with the list of tagNames
+     *            {@link MFPPushResponseListener}.onFailure method is called
+     *            otherwise
+     */
+    public void getSubscriptions(
+            final MFPPushResponseListener<List<String>> listener) {
 
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
         String path = builder.getSubscriptionsUrl(deviceId, null);
         logger.debug("The getSubscriptions path is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-        invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
+        invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
@@ -512,8 +510,8 @@ public class MFPPush {
                 listener.onFailure(new MFPPushException(response.toString()));
             }
         });
-		invoker.execute();
-	}
+        invoker.execute();
+    }
 
     private void registerInBackground() {
         new AsyncTask<Void, Void, String>() {
@@ -571,7 +569,7 @@ public class MFPPush {
         logger.debug("The url for verifying previous device registration is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         invoker.setJSONRequestBody(null);
-        invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
+        invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
@@ -628,7 +626,7 @@ public class MFPPush {
             logger.debug("The url for device registration is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
             invoker.setJSONRequestBody(buildDevice());
-            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
+            invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -646,13 +644,13 @@ public class MFPPush {
             });
             invoker.execute();
         } else if (hasRegisterParametersChanged) {
-            logger.debug("updateTokenCallback: Device is already registered. Registration parameteres have changed.");
+            logger.debug("updateTokenCallback: Device is already registered. Registration parameters have changed.");
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
             String path = builder.getDeviceIdUrl(deviceId);
             logger.debug("The url for updating device registration is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT);
             invoker.setJSONRequestBody(buildDevice());
-            invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
+            invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -881,7 +879,7 @@ public class MFPPush {
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground - The url for getting gcm configuration is: "+ path);
         invoker.setJSONRequestBody(null);
-        invoker.addHeaders("X-Rewrite-Domain", BMSClient.getInstance().getRewriteDomain());
+        invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
 
             @Override

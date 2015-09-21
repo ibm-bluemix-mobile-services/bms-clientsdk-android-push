@@ -30,4 +30,5 @@ public interface MFPPushConstants {
 	public static final String ID = "id";
 	public static final String SENDER_ID = "senderId";
     public static final double MIN_SUPPORTED_ANDRIOD_VERSION = 4.0;
+	public static final String X_REWRITE_DOMAIN = "X-Rewrite-Domain";
 }
