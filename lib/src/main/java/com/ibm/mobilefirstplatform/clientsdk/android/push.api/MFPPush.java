@@ -177,6 +177,7 @@ public class MFPPush {
     private String regId = null;
     private String applicationId = null;
     private String applicationRoute = null;
+    private String errorString = null;
 
     private boolean isTokenUpdatedOnServer = false;
 
@@ -332,8 +333,15 @@ public class MFPPush {
                 @Override
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     //Error while subscribing to tags.
-                    logger.error("MFPPush:subscribe() - Error while subscribing to tags. " + response.toString());
-                    listener.onFailure(new MFPPushException(response.toString()));
+                    errorString = null;
+                    if (response != null) {
+                        errorString = response.toString();
+                    } else if (errorString == null && throwable != null) {
+                        errorString = throwable.toString();
+                    } else if (errorString == null && jsonObject != null) {
+                        errorString = jsonObject.toString();
+                    }
+                    listener.onFailure(new MFPPushException(errorString));
                 }
 
             });
@@ -371,8 +379,15 @@ public class MFPPush {
                 @Override
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     //Error while subscribing to tags.
-                    logger.info(("MFPPush:unsubscribe() - Error while unsubscribing from tags.  Error is: " + response.toString()));
-                    listener.onFailure(new MFPPushException(response.toString()));
+                    errorString = null;
+                    if (response != null) {
+                        errorString = response.toString();
+                    } else if (errorString == null && throwable != null) {
+                        errorString = throwable.toString();
+                    } else if (errorString == null && jsonObject != null) {
+                        errorString = jsonObject.toString();
+                    }
+                    listener.onFailure(new MFPPushException(errorString));
                 }
             });
             invoker.execute();
@@ -404,9 +419,15 @@ public class MFPPush {
 
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-                //Error while subscribing to tags.
-                logger.error("MFPPush:unregisterDevice() - Device unregistration failure. Failure response is: " + response.toString());
-                listener.onFailure(new MFPPushException(response.toString()));
+                errorString = null;
+                if (response != null) {
+                    errorString = response.toString();
+                } else if (errorString == null && throwable != null) {
+                    errorString = throwable.toString();
+                } else if (errorString == null && jsonObject != null) {
+                    errorString = jsonObject.toString();
+                }
+                listener.onFailure(new MFPPushException(errorString));
             }
         });
         invoker.execute();
@@ -453,8 +474,14 @@ public class MFPPush {
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 //Error while subscribing to tags.
-                logger.error("MFPPush:getTags() - Failure while retrieving tags. Error response is: " + response.toString());
-                listener.onFailure(new MFPPushException(response.toString()));
+                errorString = null;
+                if (response != null) {
+                    errorString = response.toString();
+                } else if (errorString == null && throwable != null) {
+                    errorString = throwable.toString();
+                } else if (errorString == null && jsonObject != null) {
+                    errorString = jsonObject.toString();
+                }                listener.onFailure(new MFPPushException(errorString));
             }
         });
         invoker.execute();
@@ -500,8 +527,15 @@ public class MFPPush {
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 //Error while subscribing to tags.
-                logger.error("MFPPush:getSubscriptions() - Failure while getting subscriptions. Success response is: "+ response.toString());
-                listener.onFailure(new MFPPushException(response.toString()));
+                errorString = null;
+                if (response != null) {
+                    errorString = response.toString();
+                } else if (errorString == null && throwable != null) {
+                    errorString = throwable.toString();
+                } else if (errorString == null && jsonObject != null) {
+                    errorString = jsonObject.toString();
+                }
+                listener.onFailure(new MFPPushException(errorString));
             }
         });
         invoker.execute();
@@ -631,7 +665,15 @@ public class MFPPush {
                 @Override
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     logger.error("MFPPush:updateTokenCallback() - Failure during device registration.");
-                    registerResponseListener.onFailure(new MFPPushException(response.toString()));
+                    errorString = null;
+                    if (response != null) {
+                        errorString = response.toString();
+                    } else if (errorString == null && throwable != null) {
+                        errorString = throwable.toString();
+                    } else if (errorString == null && jsonObject != null) {
+                        errorString = jsonObject.toString();
+                    }
+                    registerResponseListener.onFailure(new MFPPushException(errorString));
                 }
             });
             invoker.execute();
@@ -654,7 +696,15 @@ public class MFPPush {
                 @Override
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     logger.debug("MFPPush:updateTokenCallback() - Failure while updating device registration details.");
-                    registerResponseListener.onFailure(new MFPPushException(response.toString()));
+                    errorString = null;
+                    if (response != null) {
+                        errorString = response.toString();
+                    } else if (errorString == null && throwable != null) {
+                        errorString = throwable.toString();
+                    } else if (errorString == null && jsonObject != null) {
+                        errorString = jsonObject.toString();
+                    }
+                    registerResponseListener.onFailure(new MFPPushException(errorString));
                 }
             });
             invoker.execute();
@@ -886,8 +936,8 @@ public class MFPPush {
                 }
 
                 if (senderId == null) {
-                    String errString = "MFPPush:getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
-                    registerResponseListener.onFailure(new MFPPushException(errString));
+                    errorString = "MFPPush:getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
+                    registerResponseListener.onFailure(new MFPPushException(errorString));
                 } else {
                     gcmSenderId = senderId;
                     MFPPushUtils.storeContentInSharedPreferences(appContext, applicationId, SENDER_ID, gcmSenderId);
@@ -898,15 +948,15 @@ public class MFPPush {
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject object) {
                 logger.error("MFPPush: getSenderIdFromServerAndRegisterInBackground() - Error while getting senderId from push server.");
-                String errString = null;
+                errorString = null;
                 if (response != null) {
-                    errString = response.toString();
-                } else if (errString == null && throwable != null) {
-                    errString = throwable.toString();
-                } else if (errString == null && object != null) {
-                    errString = object.toString();
+                    errorString = response.toString();
+                } else if (errorString == null && throwable != null) {
+                    errorString = throwable.toString();
+                } else if (errorString == null && object != null) {
+                    errorString = object.toString();
                 }
-                registerResponseListener.onFailure(new MFPPushException(errString));
+                registerResponseListener.onFailure(new MFPPushException(errorString));
             }
         });
 
