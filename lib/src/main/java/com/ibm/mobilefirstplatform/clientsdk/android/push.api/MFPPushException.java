@@ -13,9 +13,6 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
-/**
- * Created by jialfred on 9/2/15.
- */
 public class MFPPushException extends Exception {
 
 	private static final long serialVersionUID = 8902847782639797614L;

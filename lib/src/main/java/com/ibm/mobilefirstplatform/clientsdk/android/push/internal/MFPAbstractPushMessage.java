@@ -13,9 +13,6 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.internal;
 
-/**
- * Created by jialfred on 9/2/15.
- */
 public abstract class MFPAbstractPushMessage implements MFPPushMessage {
 
 	protected String alert;

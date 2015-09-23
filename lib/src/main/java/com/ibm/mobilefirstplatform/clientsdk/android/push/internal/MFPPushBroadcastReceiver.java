@@ -49,9 +49,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentServi
  * }
  */
 
-/**
- * Created by jialfred on 9/2/15.
- */
 public class MFPPushBroadcastReceiver extends WakefulBroadcastReceiver {
 
 	@Override

@@ -54,9 +54,6 @@ import java.util.Random;
  * </pre>
  */
 
-/**
- * Created by jialfred on 9/2/15.
- */
 public class MFPPushIntentService extends IntentService {
 
 	public static final String IBM_PUSH_NOTIFICATION = ".IBMPushNotification";
@@ -142,7 +139,7 @@ public class MFPPushIntentService extends IntentService {
 				appInfo = packManager.getApplicationInfo(
 						context.getPackageName(), 0);
 			} catch (Exception e) {
-				logger.warn("Notification will not have a title because application name is not available.");
+				logger.warn("MFPPushIntentService:getNotificationTitle() - Notification will not have a title because application name is not available.");
 			}
 
 			if (appInfo != null) {
@@ -169,17 +166,6 @@ public class MFPPushIntentService extends IntentService {
 	private void generateNotification(Context context, String ticker,
 			String title, String msg, int icon, Intent intent) {
 		long when = System.currentTimeMillis();
-
-        //TODO: jialfred - setLatestEventInfo deprecated. Will this work on older devices?
-//		Notification notification = new Notification(icon, ticker, when);
-//		notification.setLatestEventInfo(context, title, msg, PendingIntent
-//				.getActivity(context, 0, intent,
-//						PendingIntent.FLAG_UPDATE_CURRENT));
-//		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-//
-//		NotificationManager notificationManager = (NotificationManager) context
-//				.getSystemService(Context.NOTIFICATION_SERVICE);
-//        notificationManager.notify(randomObj.nextInt(), notification);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 this);
@@ -209,14 +195,14 @@ public class MFPPushIntentService extends IntentService {
 
 		if (!extras.isEmpty()) {
 			if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-				logger.debug("handleMessageIntent: Received a message from GCM Server." +intent.getExtras());
+				logger.debug("MFPPushIntentService:handleMessageIntent() - Received a message from GCM Server." +intent.getExtras());
 				MFPInternalPushMessage message = new MFPInternalPushMessage(intent);
 				intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
 						+ GCM_MESSAGE);
 				intent.putExtra(GCM_EXTRA_MESSAGE, message);
 
 				if (!isAppForeground()) {
-					logger.debug("handleMessageIntent: App is not on foreground. Queue the intent for later re-sending when app is on foreground");
+					logger.debug("MFPPushIntentService:handleMessageIntent() - App is not on foreground. Queue the intent for later re-sending when app is on foreground");
 					intentsQueue.add(intent);
 				}
 				getApplicationContext().sendOrderedBroadcast(intent, null,

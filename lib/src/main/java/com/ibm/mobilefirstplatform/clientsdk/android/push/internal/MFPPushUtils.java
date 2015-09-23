@@ -25,9 +25,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import java.util.Iterator;
 import java.util.Set;
 
-/**
- * Created by jialfred on 9/2/15.
- */
 public class MFPPushUtils {
 
 	private static final String LOG_CAT = MFPPush.class.getName();

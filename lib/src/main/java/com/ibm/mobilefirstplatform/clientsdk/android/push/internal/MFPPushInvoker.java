@@ -13,11 +13,8 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.internal;
 
-import android.annotation.SuppressLint;
-import android.util.Log;
 import android.content.Context;
 
-//import com.ibm.mobilefirstplatform.clientsdk.android.core.api.FailResponse;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
@@ -29,10 +26,6 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 
-/**
- * Created by jialfred on 9/2/15.
- */
-
 public class MFPPushInvoker implements ResponseListener{
 
     private static final String CONTENT_TYPE = "Content-Type";
@@ -43,7 +36,7 @@ public class MFPPushInvoker implements ResponseListener{
     private MFPPushResponseListener<JSONObject> listener = null;
     private JSONObject requestBody = null;
     private MFPPushNotificationListener notificationListener = null;
-    private ResponseListener rspListener = null;
+    private ResponseListener responseListener = null;
 
     protected static Logger logger = Logger.getInstance("com.ibm.mobilefirstplatform.clientsdk.android.push.internal");
 
@@ -67,7 +60,7 @@ public class MFPPushInvoker implements ResponseListener{
     }
 
     public void setResponseListener(ResponseListener listener){
-        this.rspListener = listener;
+        this.responseListener = listener;
     }
 
     public MFPPushInvoker addHeaders(String headerName, String headerValue) {
@@ -98,14 +91,15 @@ public class MFPPushInvoker implements ResponseListener{
     @Override
     public void onSuccess(Response response) {
         logger.debug("MFPPushInvoker.onSuccess() - Success response in invoker is: "+ response.toString());
-        rspListener.onSuccess(response);
+        responseListener.onSuccess(response);
     }
 
     @Override
     public void onFailure(Response response, Throwable throwable, JSONObject object) {
         if (response != null) {
             logger.debug("MFPPushInvoker.onFailure() - Failure response in invoker is: " + response.toString());
+
         }
-        rspListener.onFailure(response, throwable, object);
+        responseListener.onFailure(response, throwable, object);
     }
 }

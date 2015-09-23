@@ -18,9 +18,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPAbstractPu
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushMessage;
 
-/**
- * Created by jialfred on 9/2/15.
- */
 public class MFPSimplePushNotification extends MFPAbstractPushMessage implements
 		MFPPushMessage {
 	private String url;

@@ -13,56 +13,56 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
-        import android.app.Activity;
-        import android.app.NotificationManager;
-        import android.content.BroadcastReceiver;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.content.IntentFilter;
-        import android.content.SharedPreferences;
-        import android.os.AsyncTask;
-        import android.util.Log;
+import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.util.Log;
 
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.GooglePlayServicesUtil;
-        import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushInvoker;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
+import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
 
-        import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
-        import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
-        import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
-        import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-        import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
-        import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushInvoker;
-        import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder;
-        import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
-        import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
-        import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONArray;
 
-        import org.json.JSONException;
-        import org.json.JSONObject;
-        import org.json.JSONArray;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-        import java.io.IOException;
-        import java.util.ArrayList;
-        import java.util.List;
-
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TOKEN;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SENDER_ID;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAGS;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NAME;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_EXTRA_MESSAGE;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_MESSAGE;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.X_REWRITE_DOMAIN;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
-        import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TOKEN;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SENDER_ID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAGS;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NAME;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_EXTRA_MESSAGE;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_MESSAGE;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.X_REWRITE_DOMAIN;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
 
 /**
  * <class>MFPPush</class> provides methods required by an android application to
@@ -98,7 +98,7 @@ package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
  *    &lt;category android:name="android.intent.category.DEFAULT" /&gt;
  *  &lt;/intent-filter&gt;
  *
- * 3. Refer to {@link IBMPushBroadcastReceiver},  {@link IBMPushIntentService} to declare the receiver and intent service in AndroidManifest.xml
+ * 3. Refer to {@link MFPPushBroadcastReceiver},  {@link MFPPushIntentService} to declare the receiver and intent service in AndroidManifest.xml
  *
  * 4. To present the notification on status bar, an icon is required. This icon - push.png should be copied into /res/drawable folder of the
  * android application. If the icon given is an invalid resource, the notification will not be shown
@@ -162,9 +162,6 @@ package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
  * </pre>
  */
 
-/**
- * Created by jialfred on 9/2/15.
- */
 public class MFPPush {
     public static final String PREFS_NAME = "com.ibm.mobile.services.push";
     static final String PREFS_NOTIFICATION_MSG = "LatestNotificationMsg";
@@ -216,7 +213,7 @@ public class MFPPush {
 
             validateAndroidContext();
         } catch (Exception e) {
-            logger.error("An error occured while initializing MFPPush service.");
+            logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
             throw new RuntimeException(e);
         }
     }
@@ -246,7 +243,7 @@ public class MFPPush {
             }
             cancelAllNotification();
         } else {
-            logger.info("onMessage broadcast listener has already been registered.");
+            logger.info("MFPPush:listen() - onMessage broadcast listener has already been registered.");
         }
     }
 
@@ -266,7 +263,7 @@ public class MFPPush {
             try {
                 appContext.unregisterReceiver(onMessage);
             } catch (Exception e) {
-                logger.warn("Exception while unregistering receiver. " +e.getMessage());
+                logger.warn("MFPPush:hold() - Exception while unregistering receiver. " +e.getMessage());
             }
             onMessageReceiverRegistered = false;
         }
@@ -298,7 +295,7 @@ public class MFPPush {
         this.userId = userId;
         this.registerResponseListener = listener;
 
-        logger.info("Retrieving senderId from MFPPush server.");
+        logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
         getSenderIdFromServerAndRegisterInBackground();
     }
 
@@ -319,7 +316,7 @@ public class MFPPush {
         if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
             String path = builder.getSubscriptionsUrl();
-            logger.debug("The tag subscription path is: "+ path);
+            logger.debug("MFPPush:subscribe() - The tag subscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
 
             invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
@@ -328,14 +325,14 @@ public class MFPPush {
                 @Override
                 public void onSuccess(Response response) {
                     //Subscription successfully created.
-                    logger.info("Tag subscription successfully created.  The response is: " + response.toString());
+                    logger.info("MFPPush:subscribe() - Tag subscription successfully created.  The response is: " + response.toString());
                     listener.onSuccess(tagName);
                 }
 
                 @Override
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     //Error while subscribing to tags.
-                    logger.error("Error while subscribing to tags. " + response.toString());
+                    logger.error("MFPPush:subscribe() - Error while subscribing to tags. " + response.toString());
                     listener.onFailure(new MFPPushException(response.toString()));
                 }
 
@@ -361,20 +358,20 @@ public class MFPPush {
         if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
-            logger.debug("The tag unsubscription path is: "+ path);
+            logger.debug("MFPPush:unsubscribe() - The tag unsubscription path is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
             invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
-                    logger.info("Tag unsubscription successful.  The response is: "+ response.toString());
+                    logger.info("MFPPush:unsubscribe() - Tag unsubscription successful.  The response is: "+ response.toString());
                     listener.onSuccess(tagName);
                 }
 
                 @Override
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     //Error while subscribing to tags.
-                    logger.info(("Error while unsubscribing from tags.  Error is: " + response.toString()));
+                    logger.info(("MFPPush:unsubscribe() - Error while unsubscribing from tags.  Error is: " + response.toString()));
                     listener.onFailure(new MFPPushException(response.toString()));
                 }
             });
@@ -395,20 +392,20 @@ public class MFPPush {
     public void unregisterDevice(final MFPPushResponseListener<String> listener) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
         String path = builder.getUnregisterUrl(deviceId);
-        logger.debug("The device unregister url is: "+ path);
+        logger.debug("MFPPush:unregisterDevice() - The device unregister url is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
         invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
-                logger.info("Successfully unregistered device. Response is: " + response.toString());
+                logger.info("MFPPush:unregisterDevice() - Successfully unregistered device. Response is: " + response.toString());
                 listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
             }
 
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 //Error while subscribing to tags.
-                logger.error("Device unregistration failure. Failure response is: " + response.toString());
+                logger.error("MFPPush:unregisterDevice() - Device unregistration failure. Failure response is: " + response.toString());
                 listener.onFailure(new MFPPushException(response.toString()));
             }
         });
@@ -428,18 +425,16 @@ public class MFPPush {
     public void getTags(final MFPPushResponseListener<List<String>> listener) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
         String path = builder.getTagsUrl();
-        logger.debug("The getTags url is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
 
             @Override
             public void onSuccess(Response response) {
-                logger.info("Successfully retreived tags.  The response is: "+ response.toString());
+                logger.info("MFPPush:getTags() - Successfully retreived tags.  The response is: "+ response.toString());
                 List<String> tagNames = new ArrayList<String>();
                 try {
                     String responseText = response.getResponseText();
-                    //JSONArray tags = (JSONArray) response.getResponseJSON().get(TAGS);
                     JSONArray tags = (JSONArray)(new JSONObject(responseText)).get(TAGS);
                     Log.d("JSONArray of tags is: ", tags.toString());
                     int tagsCnt = tags.length();
@@ -458,7 +453,7 @@ public class MFPPush {
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 //Error while subscribing to tags.
-                logger.error("Failure while retrieving tags. Error response is: " + response.toString());
+                logger.error("MFPPush:getTags() - Failure while retrieving tags. Error response is: " + response.toString());
                 listener.onFailure(new MFPPushException(response.toString()));
             }
         });
@@ -480,7 +475,6 @@ public class MFPPush {
 
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
         String path = builder.getSubscriptionsUrl(deviceId, null);
-        logger.debug("The getSubscriptions path is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
@@ -506,7 +500,7 @@ public class MFPPush {
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 //Error while subscribing to tags.
-                logger.error("Failure while getting subscriptions. Success response is: "+ response.toString());
+                logger.error("MFPPush:getSubscriptions() - Failure while getting subscriptions. Success response is: "+ response.toString());
                 listener.onFailure(new MFPPushException(response.toString()));
             }
         });
@@ -524,7 +518,7 @@ public class MFPPush {
                     }
                     deviceToken = gcm.register(gcmSenderId);
                     gcm.close();
-                    logger.info("Successfully registered with GCM. Returned deviceToken is: "+ deviceToken);
+                    logger.info("MFPPush:registerInBackground() - Successfully registered with GCM. Returned deviceToken is: "+ deviceToken);
                     try {
                         computeRegId();
                     } catch (JSONException e) {
@@ -535,7 +529,7 @@ public class MFPPush {
                 } catch (IOException ex) {
                     msg = ex.getMessage();
                     //Failed to register at GCM Server.
-                    logger.error("Failed to register at GCM Server. Exception is: "+ ex.getMessage());
+                    logger.error("MFPPush:registerInBackground() - Failed to register at GCM Server. Exception is: "+ ex.getMessage());
                     registerResponseListener
                             .onFailure(new MFPPushException(msg));
                 }
@@ -545,7 +539,7 @@ public class MFPPush {
     }
 
     private void computeRegId() throws JSONException {
-        logger.debug("computeRegId: Computing device's registrationId");
+        logger.debug("MFPPush:computeRegId() Computing device's registrationId");
 
         if(regId == null){
             try {
@@ -566,7 +560,6 @@ public class MFPPush {
 
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
         String path = builder.getDeviceIdUrl(regId);
-        logger.debug("The url for verifying previous device registration is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         invoker.setJSONRequestBody(null);
         invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
@@ -601,7 +594,7 @@ public class MFPPush {
                                 .onSuccess(response.toString());
                     }
                 } catch (JSONException e1) {
-                    logger.error("VerifyDeviceRegistration: Exception caught while parsing JSON response.");
+                    logger.error("MFPPush:VerifyDeviceRegistration() - Exception caught while parsing JSON response.");
                     e1.printStackTrace();
                 }
             }
@@ -620,10 +613,9 @@ public class MFPPush {
 
     private void updateTokenCallback(String deviceToken) {
         if (isNewRegistration) {
-            logger.debug("updateTokenCallback: Device is registering with push server for the first time.");
+            logger.debug("MFPPush:updateTokenCallback() - Device is registering with push server for the first time.");
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
             String path = builder.getDevicesUrl();
-            logger.debug("The url for device registration is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
             invoker.setJSONRequestBody(buildDevice());
             invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
@@ -632,22 +624,21 @@ public class MFPPush {
                 @Override
                 public void onSuccess(Response response) {
                     isNewRegistration = false;
-                    logger.info("updateTokenCallback: Successfully registered device.");
+                    logger.info("MFPPush:updateTokenCallback() - Successfully registered device.");
                     registerResponseListener.onSuccess(response.toString());
                 }
 
                 @Override
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-                    logger.error("updateTokenCallback: Failure during device registration.");
+                    logger.error("MFPPush:updateTokenCallback() - Failure during device registration.");
                     registerResponseListener.onFailure(new MFPPushException(response.toString()));
                 }
             });
             invoker.execute();
         } else if (hasRegisterParametersChanged) {
-            logger.debug("updateTokenCallback: Device is already registered. Registration parameters have changed.");
+            logger.debug("MFPPush:updateTokenCallback() - Device is already registered. Registration parameters have changed.");
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
             String path = builder.getDeviceIdUrl(deviceId);
-            logger.debug("The url for updating device registration is: "+ path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT);
             invoker.setJSONRequestBody(buildDevice());
             invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
@@ -655,14 +646,14 @@ public class MFPPush {
 
                 @Override
                 public void onSuccess(Response response) {
-                    logger.debug("updateTokenCallback: Device registration successfully updated.");
+                    logger.debug("MFPPush:updateTokenCallback() - Device registration successfully updated.");
                     isNewRegistration = false;
                     registerResponseListener.onSuccess(response.toString());
                 }
 
                 @Override
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-                    logger.debug("updateTokenCallback: Failure while updating device registration details.");
+                    logger.debug("MFPPush:updateTokenCallback() - Failure while updating device registration details.");
                     registerResponseListener.onFailure(new MFPPushException(response.toString()));
                 }
             });
@@ -684,7 +675,7 @@ public class MFPPush {
                     MFPPushUtils.storeContentInSharedPreferences(appContext,
                             applicationId, DEVICE_ID, deviceId);
                 } catch (JSONException e) {
-                    logger.debug("getDeviceRegistrationListener: missing deviceId in response.");
+                    logger.debug("MFPPush:getDeviceRegistrationListener() - Missing deviceId in response.");
                 }
                 isTokenUpdatedOnServer = true;
                 registerResponseListener.onSuccess(deviceId);
@@ -693,7 +684,7 @@ public class MFPPush {
             @Override
             public void onFailure(MFPPushException exception) {
                 isTokenUpdatedOnServer = false;
-                logger.error("getDeviceRegistrationListener: Failed to register device on IMF Push server.");
+                logger.error("MFPPush:getDeviceRegistrationListener() - Failed to register device on IMF Push server.");
                 registerResponseListener.onFailure(exception);
             }
         };
@@ -710,7 +701,7 @@ public class MFPPush {
             @Override
             public void onFailure(MFPPushException exception) {
                 isTokenUpdatedOnServer = false;
-                logger.error("getDeviceUpdateListener: Failed to update token on IMF Push server.");
+                logger.error("MFPPush:getDeviceUpdateListener() - Failed to update token on IMF Push server.");
                 registerResponseListener.onFailure(exception);
             }
         };
@@ -747,7 +738,7 @@ public class MFPPush {
 
     private boolean isAbleToSubscribe() {
         if (!isTokenUpdatedOnServer) {
-            logger.debug("isAbleToSubscribe: Cannot subscribe to tag while token is not updated on the server.");
+            logger.debug("MFPPush:isAbleToSubscribe() - Cannot subscribe to tag while token is not updated on the server.");
             return false;
         }
 
@@ -799,7 +790,7 @@ public class MFPPush {
         if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil
                     .isUserRecoverableError(ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)) {
-                logger.warn("validateAndroidContext: Newer version of Google play service is available.");
+                logger.warn("Newer version of Google play service is available.");
             } else if (GooglePlayServicesUtil
                     .isUserRecoverableError(ConnectionResult.SERVICE_MISSING)) {
                 throw new RuntimeException(
@@ -816,7 +807,7 @@ public class MFPPush {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            logger.debug("onMessage: Successfully received message for dispatching.");
+            logger.debug("MFPPush:onMessage() - Successfully received message for dispatching.");
             synchronized (pending) {
                 pending.add((MFPInternalPushMessage) intent
                         .getParcelableExtra(GCM_EXTRA_MESSAGE));
@@ -853,7 +844,7 @@ public class MFPPush {
 
                     if (msg != null) {
                         gotMessages = true;
-                        logger.debug("getMessagesFromSharedPreferences: Messages retrieved from shared preferences.");
+                        logger.debug("MFPPush:getMessagesFromSharedPreferences() - Messages retrieved from shared preferences.");
                         MFPInternalPushMessage pushMessage = new MFPInternalPushMessage(
                                 new JSONObject(msg));
 
@@ -877,14 +868,14 @@ public class MFPPush {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
         String path = builder.getSettingsUrl();
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-        logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground - The url for getting gcm configuration is: "+ path);
+        logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground() - The url for getting gcm configuration is: "+ path);
         invoker.setJSONRequestBody(null);
         invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
 
             @Override
             public void onSuccess(Response response) {
-                logger.debug("getSenderIdFromServerAndRegisterInBackground: success retrieving senderId from server");
+                logger.debug("MFPPush:getSenderIdFromServerAndRegisterInBackground() - success retrieving senderId from server");
                 String senderId = null;
                 try {
                     senderId = (String) (new JSONObject(response.getResponseText())).get(SENDER_ID);
@@ -895,7 +886,7 @@ public class MFPPush {
                 }
 
                 if (senderId == null) {
-                    String errString = "SenderId is not configured in the backend application.";
+                    String errString = "MFPPush:getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
                     registerResponseListener.onFailure(new MFPPushException(errString));
                 } else {
                     gcmSenderId = senderId;
@@ -906,7 +897,7 @@ public class MFPPush {
 
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject object) {
-                logger.error("Error while getting senderId from push server.");
+                logger.error("MFPPush: getSenderIdFromServerAndRegisterInBackground() - Error while getting senderId from push server.");
                 String errString = null;
                 if (response != null) {
                     errString = response.toString();

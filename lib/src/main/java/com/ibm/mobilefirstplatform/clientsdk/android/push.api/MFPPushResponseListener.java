@@ -13,10 +13,6 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
-/**
- * Created by jialfred on 9/2/15.
- */
-
 /** This interface defines the callback methods used for reporting the status of IMFPush's async
  * methods.
  *

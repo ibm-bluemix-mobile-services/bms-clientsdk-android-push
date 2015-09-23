@@ -24,8 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Created by jialfred on 9/2/15.
-
+ *
  * Represents message received from Push Server via GCM
  * Its visibility is restricted to package level since it will be used by the sdk internally
  * to store the push received before it can be passed to Jane.
