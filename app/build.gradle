@@ -35,10 +35,10 @@ dependencies{
             ext: 'aar',
             transitive: true
 
-//    compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
-//            name: 'push',
-//            version: '1.0.0-SNAPSHOT',
-//            ext: 'aar',
-//            transitive: true
+    compile group: 'com.ibm.mobilefirstplatform.bms.clientsdk.android',
+            name: 'bms-clientsdk-android-push',
+            version: '0.1-SNAPSHOT',
+            ext: 'aar',
+            transitive: true
 
 }
