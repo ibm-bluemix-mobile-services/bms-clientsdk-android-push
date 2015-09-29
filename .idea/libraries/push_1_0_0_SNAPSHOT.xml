@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="push-1.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.clientsdk.android/push/1.0.0-SNAPSHOT/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.clientsdk.android/push/1.0.0-SNAPSHOT/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

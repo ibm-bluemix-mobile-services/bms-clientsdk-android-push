@@ -2,6 +2,62 @@
 <items version="2" >
 
     <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-vision/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="b99f0b78bbcb76b915bc6529a83b65d4d46990dd">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-df03ae05e4cbb79a4be44b3fe6afe3e83b9d89ba.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.clientsdk.android/core/1.0.0-SNAPSHOT/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="c61fe06815889b8d0a20577b05f7894864813d07">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-19139c4bab2ffacd1ab22d086f615229ed0b950d.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-maps/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="cb6fab7a71fa9ec1f483d44c5fca65ab469d8aca">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-e9522b569f618b6c4bad4de4ed463c10da5bc872.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-analytics/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="0124ce31248c0e8acfa2b28283c6d1a4d76e73d2">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-40113e6a8b6d880db10eb51b37b7f2d1795d4e63.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-appindexing/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="e23ea11124bb700eeddd4ab7aa848c615f493850">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-b97f29fff780940c3762fae571a82e2c02d9f930.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-appstate/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="edea92852b40eee716e910af8dad9eeaa58fb0e1">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-e5c0aa7d0828fab35e962e8b877cfe8d71891e31.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-appinvite/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="98137c4d12c50923f5809852b1ef4d1c4e162081">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-386d07dc631f0ebcdd8d6ffe1b7ee9d5726e71b7.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-wearable/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="c5cafb324568d954780abb858c25db7ce675ab3c">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-1beb7e6f9279711c74210e769040d35a3d20f653.jar" />
+    </item>
+    <item
         jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.bms.clientsdk.android/bms-clientsdk-android-push/0.1-SNAPSHOT/jars/classes.jar"
         jumboMode="false"
         revision="23.0.0"
@@ -9,11 +65,165 @@
         <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/debug/classes-af46a21c7acccdc08f97afa858e1d2afaf6c5d0c.jar" />
     </item>
     <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-nearby/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="adebe28e0c0c05d34a3bfd76f3275bf4d8ff87b6">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-7190929872f5e6aa1188ffc0875a0de1ed87c718.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Programming_Tools/android-sdk-macosx/extras/android/m2repository/com/android/support/support-annotations/23.0.0/support-annotations-23.0.0.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="990e7f98a7bad86a40b1f0bcfeb039023afd0839">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/support-annotations-23.0.0-e4cf486c6aa2af68a323e36c1c75126cf9e1e01f.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-wallet/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="c2ac04c5b232f6f0658ee4f1c13be09cd76406e2">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-6f606398e3b7890da3312600de2bd26a908771a7.jar" />
+    </item>
+    <item
         jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.bms.clientsdk.android/bms-clientsdk-android-core/0.1-SNAPSHOT/jars/classes.jar"
         jumboMode="false"
         revision="23.0.0"
         sha1="e4b17ef193b90488dddc443a5ae5eccee1eb74f6">
         <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/debug/classes-0b56a14c22dd3c959d01d9839de2d41d85c622c2.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/22.2.0/jars/libs/internal_impl-22.2.0.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="0632f06970823b7e3436f649bfa65b47035c91d0">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/internal_impl-22.2.0-ca01db5c6c3851c27e3a269246a4e192eb2a4bda.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.0/jars/libs/internal_impl-23.0.0.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="8bd336eeae661e8311330284897ee07f8ebaa297">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/internal_impl-23.0.0-1677ea45d5678bb3c70c38f02e18e39780052192.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-gcm/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="c756d14e99d39471e99013a1e8fd2f3813ed42bf">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-41787a10023c8e80795eb6ae44046193e5f21182.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp/okhttp/2.4.0/40340c0748190fe897baf7bffbc1b282734294e5/okhttp-2.4.0.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="40340c0748190fe897baf7bffbc1b282734294e5">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/okhttp-2.4.0-95af31e010a72a0d05a2291b0cc5efb840d00b39.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/22.2.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="dcf8c83c3dead00a6c4fe313e95f7aaca20dc641">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-4438e0cfc379a6732cd9cb35bf923e22d1b7f353.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="c0c912d58c9468b1f9d9769c8975afdf2c85d681">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-68419ac50ee0418040dc870ff9af2796432171b3.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-plus/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="2491ae1b2a848af1f4f0c795f3117c1bd6a1989f">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-3c31e9154b0d96639b578331a823280279617c7a.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-ads/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="1ff30fa49c07a08c3035d7218a3efebf5680d522">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-bc91b162464b23b4e8a7c5db193bf4d7e634a54e.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.0.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="8413c27b45b7fe61dca4a98159f65e2cee215f5a">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-0ef8a725e256b9370cc8ad5ab17c202fcf0b749c.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-fitness/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="77a9dcb5f8b1dba36aacaa9c150eb0942dbea158">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-c911c266004f33b76f3a69780548e365f5af423c.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-safetynet/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="166e458ee3b5fb5fcff0f936df3f3a788e6c54f3">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-2a38399e75076241042bd8a2498a4ca5ed374d4b.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-cast/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="130b32ed466fa0f63efd4c7d6250ccd2ed506790">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-410faa20a635d32c19a037fa86e5d63c2d0cd523.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="4fcf0b1879f8caf497c073e1432d398e9e2988c1">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-9cd6a19c59add52e3b09d63dcbfd8bca0b850957.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-identity/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="d11330ea68c0d964d30d5caed1f27e6b1488b189">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-be643b9f6fbf6f6486cc71c77c150a14c37d628f.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-games/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="2e24e5f1b11170163028277de63f709e42525db4">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-197f195d40a465e950f7e79aebaff7cee8b72e95.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-panorama/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="6e85edfc9b5346d216e50ccef1f8e825504144a3">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-6ccdc7a7d736b004205ed7b26476894ec60b183e.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-location/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="4a135d56554069e5d0ff80e3220e887e57146ee5">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-fa55cb2da9b461c86a13602e024fc17841142117.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.4.0/5b72bf48563ea8410e650de14aa33ff69a3e8c35/okio-1.4.0.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="5b72bf48563ea8410e650de14aa33ff69a3e8c35">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/okio-1.4.0-196dc593ff575f1d73d15f64d8e986c73acaf9d8.jar" />
+    </item>
+    <item
+        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-drive/7.8.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="42a1ee578b62fd1bd28b3307a679dc9ba0791587">
+        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/release/classes-294db9d1d83c3da5547c1e48d2ddaa4f8cbed513.jar" />
     </item>
 
 </items>
