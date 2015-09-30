@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
@@ -170,7 +169,6 @@ public class MFPPush {
     private static MFPPush instance;
     private static Context appContext = null;
 
-    private String userId = null;
     private String gcmSenderId = null;
     private String deviceId = null;
     private String deviceToken = null;
@@ -284,16 +282,13 @@ public class MFPPush {
      * Registers the device for Push notifications with the given alias and
      * consumerId
      *
-     * @param userId   - consumerId that will be used for device registration
      * @param listener - Mandatory listener class. When the device is successfully
      *                 registered with Push service the
      *                 {@link MFPPushResponseListener}.onSuccess method is called
      *                 with the deviceId. {@link MFPPushResponseListener}.onFailure
      *                 method is called otherwise
      */
-    public void register(final String userId,
-                         MFPPushResponseListener<String> listener) {
-        this.userId = userId;
+    public void register(MFPPushResponseListener<String> listener) {
         this.registerResponseListener = listener;
 
         logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
@@ -603,12 +598,9 @@ public class MFPPush {
                 try {
                     String retDeviceId = (new JSONObject(response.getResponseText())).getString(DEVICE_ID);
                     String retToken = (new JSONObject(response.getResponseText())).getString(TOKEN);
-                    String retUserId = (new JSONObject(response.getResponseText()).getString(USER_ID));
 
                     if (!(retDeviceId.equals(regId))
-                            || !(retToken.equals(deviceToken))
-                            || !(retUserId.equals(userId))) {
-
+                            || !(retToken.equals(deviceToken))) {
                         deviceId = retDeviceId;
                         MFPPushUtils
                                 .storeContentInSharedPreferences(
@@ -761,7 +753,6 @@ public class MFPPush {
         JSONObject device = new JSONObject();
         try {
             device.put(DEVICE_ID, regId);
-            device.put(USER_ID, userId);
             device.put(TOKEN, deviceToken);
             device.put(PLATFORM, "G");
         } catch (JSONException e) {
@@ -925,7 +916,7 @@ public class MFPPush {
 
             @Override
             public void onSuccess(Response response) {
-                logger.debug("MFPPush:getSenderIdFromServerAndRegisterInBackground() - success retrieving senderId from server");
+                logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground() - success retrieving senderId from server");
                 String senderId = null;
                 try {
                     senderId = (String) (new JSONObject(response.getResponseText())).get(SENDER_ID);
@@ -936,7 +927,7 @@ public class MFPPush {
                 }
 
                 if (senderId == null) {
-                    errorString = "MFPPush:getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
+                    errorString = "MFPPush: getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
                     registerResponseListener.onFailure(new MFPPushException(errorString));
                 } else {
                     gcmSenderId = senderId;
