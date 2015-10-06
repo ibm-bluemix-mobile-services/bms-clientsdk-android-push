@@ -44,8 +44,7 @@ public class MainActivity extends Activity {
 
         MFPPush.getInstance().initialize(getApplicationContext());
         push = MFPPush.getInstance();
-        push.register("DemoDevice",
-                new MFPPushResponseListener<String>() {
+        push.register(new MFPPushResponseListener<String>() {
                     @Override
                     public void onSuccess(String deviceId) {
                         updateTextView("Device is registered with Push Service.");
