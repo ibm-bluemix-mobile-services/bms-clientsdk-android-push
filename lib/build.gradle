@@ -29,9 +29,11 @@ task generateJavadoc(type: Javadoc) {
 
     exclude '**/BuildConfig.java'
     exclude '**/R.java'
+    exclude '**/internal/**'
 
     options.links 'http://docs.oracle.com/javase/7/docs/api/'
     options.encoding 'UTF-8'
+    options.memberLevel = JavadocMemberLevel.PUBLIC
 
     setTitle 'Bluemix Mobile Services Push Android API'
 }
