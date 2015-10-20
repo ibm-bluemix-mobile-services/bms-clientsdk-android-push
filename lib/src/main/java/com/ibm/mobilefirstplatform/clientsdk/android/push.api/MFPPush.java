@@ -116,7 +116,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
  *    push = MFPPush.initializeService();
  *
  *    // Use Push Service APIs
- *    push.register("DemoDevice", "DemoUser", new MFPPushResponseListener&lt;String&gt;() {
+ *    push.register(new MFPPushResponseListener&lt;String&gt;() {
  *      {@literal @}Override
  *      public void onSuccess(String deviceId) {
  *        ...
