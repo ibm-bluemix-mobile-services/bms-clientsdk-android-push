@@ -683,6 +683,7 @@ public class MFPPush {
                 @Override
                 public void onSuccess(Response response) {
                     logger.debug("MFPPush:updateTokenCallback() - Device registration successfully updated.");
+                    isTokenUpdatedOnServer = true;
                     isNewRegistration = false;
                     registerResponseListener.onSuccess(response.toString());
                 }
