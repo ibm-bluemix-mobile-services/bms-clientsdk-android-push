@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
     }
 
     void unregisterDevice(){
-        push.unregisterDevice(new MFPPushResponseListener<String>() {
+        push.unregister(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String s) {
                 updateTextView("Device is successfully unregistered. Success response is: " + s);
