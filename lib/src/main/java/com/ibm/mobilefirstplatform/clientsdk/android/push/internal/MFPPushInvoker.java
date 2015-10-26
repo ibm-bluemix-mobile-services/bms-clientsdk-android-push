@@ -77,7 +77,7 @@ public class MFPPushInvoker implements ResponseListener{
     public void execute() {
         try {
             logger.info("MFPPushInvoker: execute().  Sending request to push server, with url = " + requestBuilder.getUrl().toString()
-                            + "with http method = "+ requestBuilder.getMethod());
+                            + " with http method = "+ requestBuilder.getMethod());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
