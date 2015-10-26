@@ -409,6 +409,7 @@ public class MFPPush {
             @Override
             public void onSuccess(Response response) {
                 logger.info("MFPPush:unregister() - Successfully unregistered device. Response is: " + response.toString());
+                isTokenUpdatedOnServer = false;
                 listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
             }
 
@@ -650,6 +651,7 @@ public class MFPPush {
                 @Override
                 public void onSuccess(Response response) {
                     isNewRegistration = false;
+                    isTokenUpdatedOnServer = true;
                     logger.info("MFPPush:updateTokenCallback() - Successfully registered device.");
                     registerResponseListener.onSuccess(response.toString());
                 }

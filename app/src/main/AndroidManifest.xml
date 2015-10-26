@@ -57,7 +57,7 @@
 
 
         <!-- Add GCM Intent Service and intent-filters for RECEIVE and REGISTRATION of notifications -->
-        <service android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService" />
+        <service android:name="MFPPushIntentService" />
 
         <receiver
             android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver"

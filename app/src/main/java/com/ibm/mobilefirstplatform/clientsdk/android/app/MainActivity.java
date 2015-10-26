@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
         updateTextView("Starting Push Android Sample..");
 
         try {
-                BMSClient.getInstance().initialize(getApplicationContext(), "http://nstanley15092015.stage1.mybluemix.net?subzone=test", "c748c45c-8618-4f16-9536-2a59a9957985");
+                BMSClient.getInstance().initialize(getApplicationContext(), "http://simpletestappnew.stage1.bluemix.net", "d88c328d-631f-49ca-a80d-f4efb32de716");
         } catch (MalformedURLException e){
             e.printStackTrace();
         }

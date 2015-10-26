@@ -21,6 +21,7 @@ android {
         maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots/'
         }
+
     }
 }
 
@@ -34,10 +35,13 @@ dependencies{
             version: '1.0.0',
             ext: 'aar',
             transitive: true
+    compile (name:'lib-debug', ext: 'aar')
 
     compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
             name: 'push',
             version: '1.0.0',
             ext: 'aar',
             transitive: true
+
+
 }
