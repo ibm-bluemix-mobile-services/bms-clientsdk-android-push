@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 android {
     compileSdkVersion 23
@@ -140,3 +141,4 @@ dependencies {
             ext: 'aar',
             transitive: true
 }
+apply plugin: 'signing'
