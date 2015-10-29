@@ -80,7 +80,7 @@ def isReleaseBuild() {
 }
 
 def getVersion() {
-    return '1.0.0-SNAPSHOT'
+    return '1.0.1-SNAPSHOT'
 }
 
 uploadArchives {
