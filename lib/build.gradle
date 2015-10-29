@@ -80,7 +80,7 @@ def isReleaseBuild() {
 }
 
 def getVersion() {
-    return '1.0.1-SNAPSHOT'
+    return '1.0.0-SNAPSHOT'
 }
 
 uploadArchives {
@@ -141,4 +141,3 @@ dependencies {
             ext: 'aar',
             transitive: true
 }
-apply plugin: 'signing'

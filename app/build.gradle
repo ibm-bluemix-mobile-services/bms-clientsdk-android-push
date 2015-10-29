@@ -21,6 +21,9 @@ android {
         maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots/'
         }
+        flatDir {
+            dirs '/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/lib/build/outputs/aar'
+        }
 
     }
 }
@@ -36,11 +39,12 @@ dependencies{
             ext: 'aar',
             transitive: true
 
-    compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
-            name: 'push',
-            version: '1.0.0',
-            ext: 'aar',
-            transitive: true
+//    compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
+//            name: 'push',
+//            version: '1.0.0',
+//            ext: 'aar',
+//            transitive: true
 
+    compile (name:'lib-debug', ext: 'aar')
 
 }
