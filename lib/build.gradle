@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 android {
     compileSdkVersion 23
@@ -53,12 +54,17 @@ artifacts {
     archives androidJavadocsJar
 }
 
+signing {
+    required { isReleaseBuild() }
+    sign configurations.archives
+}
+
 def getRepositoryUsername() {
-    return hasProperty('ossrhUsername') ? ossrhUsername : ""
+    return hasProperty('ossrhUsername') ? ossrhUsername :''
 }
 
 def getRepositoryPassword() {
-    return hasProperty('ossrhPassword') ? ossrhPassword : ""
+    return hasProperty('ossrhPassword') ? ossrhPassword : ''
 }
 
 def getReleaseRepositoryUrl() {
@@ -69,10 +75,19 @@ def getSnapshotRepositoryUrl() {
     return 'https://oss.sonatype.org/content/repositories/snapshots/'
 }
 
+def isReleaseBuild() {
+    return !getVersion().contains('-SNAPSHOT')
+}
+
+def getVersion() {
+    return '1.0.1-SNAPSHOT'
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
-            //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
             repository(url: getReleaseRepositoryUrl()) {
                 authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
             }
@@ -83,7 +98,7 @@ uploadArchives {
 
             pom.groupId='com.ibm.mobilefirstplatform.clientsdk.android'
             pom.artifactId='push'
-            pom.version = 'Dev-SNAPSHOT'
+            pom.version = getVersion()
 
             pom.project {
                 name 'IBM Bluemix Mobile Services - Client SDK Android Push'
@@ -103,6 +118,13 @@ uploadArchives {
                         distribution 'repo'
                     }
                 }
+
+                developers {
+                    developer {
+                        name 'IBM Bluemix Services Mobile SDK'
+                        email 'mobilsdk@us.ibm.com'
+                    }
+                }
             }
         }
     }
@@ -115,7 +137,7 @@ dependencies {
     compile 'com.google.android.gms:play-services:7.8.0'
     compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
             name: 'core',
-            version: '1.0.0',
+            version: '1.0.3',
             ext: 'aar',
             transitive: true
 }

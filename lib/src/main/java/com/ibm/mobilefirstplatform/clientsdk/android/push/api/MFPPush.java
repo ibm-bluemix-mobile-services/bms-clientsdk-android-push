@@ -116,7 +116,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
  *    push = MFPPush.initializeService();
  *
  *    // Use Push Service APIs
- *    push.register("DemoDevice", "DemoUser", new MFPPushResponseListener&lt;String&gt;() {
+ *    push.register(new MFPPushResponseListener&lt;String&gt;() {
  *      {@literal @}Override
  *      public void onSuccess(String deviceId) {
  *        ...
@@ -399,16 +399,17 @@ public class MFPPush {
      *            deleted. {@link MFPPushResponseListener}.onFailure method is
      *            called otherwise
      */
-    public void unregisterDevice(final MFPPushResponseListener<String> listener) {
+    public void unregister(final MFPPushResponseListener<String> listener) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationRoute, applicationId);
         String path = builder.getUnregisterUrl(deviceId);
-        logger.debug("MFPPush:unregisterDevice() - The device unregister url is: "+ path);
+        logger.debug("MFPPush:unregister() - The device unregister url is: "+ path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
         invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
-                logger.info("MFPPush:unregisterDevice() - Successfully unregistered device. Response is: " + response.toString());
+                logger.info("MFPPush:unregister() - Successfully unregistered device. Response is: " + response.toString());
+                isTokenUpdatedOnServer = false;
                 listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
             }
 
@@ -650,6 +651,7 @@ public class MFPPush {
                 @Override
                 public void onSuccess(Response response) {
                     isNewRegistration = false;
+                    isTokenUpdatedOnServer = true;
                     logger.info("MFPPush:updateTokenCallback() - Successfully registered device.");
                     registerResponseListener.onSuccess(response.toString());
                 }
@@ -681,6 +683,7 @@ public class MFPPush {
                 @Override
                 public void onSuccess(Response response) {
                     logger.debug("MFPPush:updateTokenCallback() - Device registration successfully updated.");
+                    isTokenUpdatedOnServer = true;
                     isNewRegistration = false;
                     registerResponseListener.onSuccess(response.toString());
                 }
