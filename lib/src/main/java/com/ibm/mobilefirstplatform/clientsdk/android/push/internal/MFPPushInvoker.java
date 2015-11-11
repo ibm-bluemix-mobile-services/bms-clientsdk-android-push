@@ -38,7 +38,7 @@ public class MFPPushInvoker implements ResponseListener{
     private MFPPushNotificationListener notificationListener = null;
     private ResponseListener responseListener = null;
 
-    protected static Logger logger = Logger.getInstance("com.ibm.mobilefirstplatform.clientsdk.android.push.internal");
+    protected static Logger logger = Logger.getInstance(Logger.INTERNAL_PREFIX + MFPPushInvoker.class.getSimpleName());
 
     private MFPPushInvoker(String url, String method) {
         requestBuilder = new Request(url, method);
@@ -82,7 +82,7 @@ public class MFPPushInvoker implements ResponseListener{
             e.printStackTrace();
         }
         if (requestBody != null && requestBody.length() != 0) {
-            requestBuilder.send(requestBody, this);
+            requestBuilder.send(appContext, requestBody.toString(), this);
         } else {
             requestBuilder.send(appContext,this);
         }
