@@ -190,7 +190,7 @@ public class MFPPush {
     private boolean isNewRegistration = false;
     private boolean hasRegisterParametersChanged = false;
 
-    protected static Logger logger = Logger.getInstance("com.ibm.mobilefirstplatform.clientsdk.android.push.api");
+    protected static Logger logger = Logger.getInstance(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
 
     private MFPPush() {
     }

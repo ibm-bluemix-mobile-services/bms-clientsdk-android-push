@@ -66,7 +66,7 @@ public class MFPPushIntentService extends IntentService {
 
 	private LinkedList<Intent> intentsQueue = new LinkedList<Intent>();
 
-	private static Logger logger = Logger.getInstance("com.ibm.mobilefirstplatform.clientsdk.android.push.api");
+	private static Logger logger = Logger.getInstance(Logger.INTERNAL_PREFIX + MFPPushIntentService.class.getSimpleName());
 
 	public MFPPushIntentService() {
 		super("MFPPushIntentService");

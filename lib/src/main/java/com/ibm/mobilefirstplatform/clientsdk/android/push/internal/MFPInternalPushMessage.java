@@ -49,7 +49,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String htmlTitle = null;
 	private String htmlContent = null;
 
-	protected static Logger logger = Logger.getInstance("com.ibm.mobilefirstplatform.clientsdk.android.push.internal");
+	protected static Logger logger = Logger.getInstance(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
 
 	public MFPInternalPushMessage(Intent intent) {
 
