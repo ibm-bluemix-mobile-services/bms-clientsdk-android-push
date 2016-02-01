@@ -13,6 +13,8 @@ This package contains the push components of Android SDK.  This package has to b
 The package is supported on Android API level 14 and up (Android 4.0 and up).
 
 ###Change log
+####1.0.3
+* Update SDK to support migration from MbaaS to MobileFirst.
 ####1.0.2
 * Update references of core to 1.1.0.
 * Fixed send for Logger in MFPPushInvoker class.
