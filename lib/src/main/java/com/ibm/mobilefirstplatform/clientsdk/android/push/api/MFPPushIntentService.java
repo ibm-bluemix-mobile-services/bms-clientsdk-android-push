@@ -66,7 +66,7 @@ public class MFPPushIntentService extends IntentService {
 
 	private LinkedList<Intent> intentsQueue = new LinkedList<Intent>();
 
-	private static Logger logger = Logger.getInstance(Logger.INTERNAL_PREFIX + MFPPushIntentService.class.getSimpleName());
+	private static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPushIntentService.class.getSimpleName());
 
 	public MFPPushIntentService() {
 		super("MFPPushIntentService");

@@ -49,7 +49,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String htmlTitle = null;
 	private String htmlContent = null;
 
-	protected static Logger logger = Logger.getInstance(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
+	protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
 
 	public MFPInternalPushMessage(Intent intent) {
 

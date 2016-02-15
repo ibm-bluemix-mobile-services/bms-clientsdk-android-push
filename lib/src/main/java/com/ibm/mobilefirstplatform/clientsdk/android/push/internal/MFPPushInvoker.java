@@ -24,24 +24,25 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseLis
 
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
-
 public class MFPPushInvoker implements ResponseListener{
 
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String ACCEPT = "Accept";
     private static final String APPLICATION_JSON = "application/json";
     private static Context appContext = null;
 
-    private Request requestBuilder = null;
+    private Request request = null;
     private MFPPushResponseListener<JSONObject> listener = null;
     private JSONObject requestBody = null;
     private MFPPushNotificationListener notificationListener = null;
     private ResponseListener responseListener = null;
 
-    protected static Logger logger = Logger.getInstance(Logger.INTERNAL_PREFIX + MFPPushInvoker.class.getSimpleName());
+    protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPushInvoker.class.getSimpleName());
 
     private MFPPushInvoker(String url, String method) {
-        requestBuilder = new Request(url, method);
+        request = new Request(url, method);
+        request.addHeader(CONTENT_TYPE, APPLICATION_JSON);
+        request.addHeader(ACCEPT, APPLICATION_JSON);
     }
 
     public static MFPPushInvoker newInstance(Context ctx, String url, String method) {
@@ -66,25 +67,18 @@ public class MFPPushInvoker implements ResponseListener{
     public MFPPushInvoker addHeaders(String headerName, String headerValue) {
 
         if (headerName == null && headerValue == null) {
-            requestBuilder.addHeader(CONTENT_TYPE, APPLICATION_JSON);
-        } else {
-            requestBuilder.addHeader(CONTENT_TYPE, APPLICATION_JSON);
-            requestBuilder.addHeader(headerName, headerValue);
+            request.addHeader(headerName, headerValue);
         }
         return this;
     }
 
     public void execute() {
-        try {
-            logger.info("MFPPushInvoker: execute().  Sending request to push server, with url = " + requestBuilder.getUrl().toString()
-                            + " with http method = "+ requestBuilder.getMethod());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        logger.info("MFPPushInvoker: execute().  Sending request to push server, with url = " + request.getUrl().toString()
+                            + " with http method = "+ request.getMethod());
         if (requestBody != null && requestBody.length() != 0) {
-            requestBuilder.send(appContext, requestBody.toString(), this);
+            request.send(appContext, requestBody.toString(), this);
         } else {
-            requestBuilder.send(appContext,this);
+            request.send(appContext,this);
         }
     }
 
