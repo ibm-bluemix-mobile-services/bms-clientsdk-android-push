@@ -647,9 +647,6 @@ public class MFPPush {
             invoker.setJSONRequestBody(buildDevice());
             invoker.addHeaders(X_REWRITE_DOMAIN, BMSClient.getInstance().getRewriteDomain());
   
-            //Add header for xtify deviceId for migration
-            final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);
-            invoker.addHeaders(MFPPushConstants.IBM_MBAAS_XID_HEADER,sharedPreferences.getString(applicationId + MFPPushConstants.DEVICE_ID,null));
 
             invoker.setResponseListener(new ResponseListener() {
 

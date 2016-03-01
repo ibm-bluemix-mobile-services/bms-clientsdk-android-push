@@ -28,5 +28,4 @@ public interface MFPPushConstants {
 	public static final String SENDER_ID = "senderId";
         public static final double MIN_SUPPORTED_ANDRIOD_VERSION = 4.0;
   	public static final String X_REWRITE_DOMAIN = "X-Rewrite-Domain";
-        public static final String IBM_MBAAS_XID_HEADER = "X-IBM-Mbaas-Migration-XID";     
 }
