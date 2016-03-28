@@ -42,7 +42,6 @@ public class MFPPushUrlBuilder {
 			pwUrl_.append(BMSClient.getInstance().getDefaultProtocol());
 			pwUrl_.append("://");
 			pwUrl_.append(IMFPUSH);
-			pwUrl_.append(".");
 			pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
 		}
 
