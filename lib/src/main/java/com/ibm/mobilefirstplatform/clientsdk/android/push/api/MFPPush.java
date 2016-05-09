@@ -46,6 +46,7 @@ import org.json.JSONArray;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+//import java.util.logging.Logger;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
@@ -189,7 +190,6 @@ public class MFPPush {
     private boolean hasRegisterParametersChanged = false;
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
-
     public static String overrideServerHost = null;
 
     private MFPPush() {
