@@ -36,8 +36,11 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
+        String appRoute = "http://sample.mybluemix.net";
+        String appGuid = "sample-guid";
+
         try {
-                BMSClient.getInstance().initialize(getApplicationContext(), "http://simpletestappnew.stage1.bluemix.net", "d88c328d-631f-49ca-a80d-f4efb32de716");
+            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);
         } catch (MalformedURLException e){
             e.printStackTrace();
         }

@@ -13,6 +13,9 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.internal;
 
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
+
 public class MFPPushUrlBuilder {
 
 	private static final String FORWARDSLASH = "/";
@@ -32,8 +35,16 @@ public class MFPPushUrlBuilder {
 
 	private final StringBuilder pwUrl_ = new StringBuilder();
 
-	public MFPPushUrlBuilder(String applicationRoute, String applicationId) {
-		pwUrl_.append(applicationRoute);
+	public MFPPushUrlBuilder(String applicationId) {
+		if (MFPPush.overrideServerHost != null){
+			pwUrl_.append(MFPPush.overrideServerHost);
+		} else {
+			pwUrl_.append(BMSClient.getInstance().getDefaultProtocol());
+			pwUrl_.append("://");
+			pwUrl_.append(IMFPUSH);
+			pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
+		}
+
 		pwUrl_.append(FORWARDSLASH);
 		pwUrl_.append(IMFPUSH);
 		pwUrl_.append(FORWARDSLASH);
@@ -43,6 +54,7 @@ public class MFPPushUrlBuilder {
 		pwUrl_.append(FORWARDSLASH);
 		pwUrl_.append(applicationId);
 		pwUrl_.append(FORWARDSLASH);
+
 	}
 
 	public String getDevicesUrl() {
