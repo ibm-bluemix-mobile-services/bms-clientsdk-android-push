@@ -12,6 +12,10 @@ This package contains the push components of Android SDK.  This package has to b
 ###Supported Levels
 The package is supported on Android API level 14 and up (Android 4.0 and up).
 
+####2.0.0
+* Update references of core to 2.0.0
+* Several BMS core APIs have been updated, and those would not be compatible with previous versions.
+
 ####1.0.2
 * Update references of core to 1.1.0.
 * Fixed send for Logger in MFPPushInvoker class.
