@@ -178,7 +178,7 @@ Uri notifSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION
 						PendingIntent.FLAG_UPDATE_CURRENT))
                 .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                 .setAutoCancel(true).setContentTitle(title)
-                .setContentText(msg).
+                .setContentText(msg)
                 .setSound(notifSound).build();
         NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
