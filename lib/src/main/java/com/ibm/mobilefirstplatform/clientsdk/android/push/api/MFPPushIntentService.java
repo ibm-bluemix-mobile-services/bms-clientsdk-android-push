@@ -24,16 +24,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-
+import android.net.Uri;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
-
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -109,6 +108,7 @@ public class MFPPushIntentService extends IntentService {
 		if ((MFPPushUtils.getIntentPrefix(context) + GCM_MESSAGE).equals(action)) {
 			MFPInternalPushMessage message = intent
 					.getParcelableExtra(GCM_EXTRA_MESSAGE);
+
 			saveInSharedPreferences(message);
 
 			intent = new Intent(MFPPushUtils.getIntentPrefix(context)
@@ -116,7 +116,7 @@ public class MFPPushIntentService extends IntentService {
 			intent.putExtra(GCM_EXTRA_MESSAGE, message);
 			generateNotification(context, message.getAlert(),
 					getNotificationTitle(context), message.getAlert(),
-					getNotificationIcon(), intent);
+					getNotificationIcon(), intent, message.getSound());
 		}
 	}
 
@@ -164,7 +164,7 @@ public class MFPPushIntentService extends IntentService {
 	}
 
 	private void generateNotification(Context context, String ticker,
-			String title, String msg, int icon, Intent intent) {
+			String title, String msg, int icon, Intent intent, String sound) {
 		long when = System.currentTimeMillis();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
@@ -174,11 +174,51 @@ public class MFPPushIntentService extends IntentService {
 						PendingIntent.FLAG_UPDATE_CURRENT))
                 .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                 .setAutoCancel(true).setContentTitle(title)
-                .setContentText(msg).build();
+                .setContentText(msg).setSound(getNotificationSoundUri(context, sound)).build();
         NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 
+		//builder.setSound(getNotificationSoundUri(context,sound));
+
 		notificationManager.notify(randomObj.nextInt(), notification);
+	}
+
+	private Uri getNotificationSoundUri(Context context, String sound) {
+		Uri uri = null;
+
+		if (sound == null) {
+			uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		} else if (!(sound.trim().isEmpty())) {
+			String soundResourceString = sound;
+			try {
+				if (soundResourceString.contains(".")) {
+					soundResourceString = soundResourceString.substring(0, soundResourceString.indexOf("."));
+				}
+				int resourceId = getResourceId (context, "raw", soundResourceString);
+				if(resourceId == -1) {
+					logger.error("Specified sound file is not found in res/raw");
+				}
+				uri = Uri.parse("android.resource://" + context.getPackageName() + "/" + resourceId);
+			} catch (Exception e) {
+				logger.error("Exception while parsing sound file");
+			}
+		}
+
+		return uri;
+	}
+
+
+
+	public static int getResourceId(Context context, String resourceCategory, String resourceName)  {
+		int resourceId = -1;
+		try
+		{
+			resourceId = context.getResources().getIdentifier(resourceName, "raw", context.getPackageName());
+
+		} catch (Exception e) {
+			logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
+		}
+		return resourceId;
 	}
 
 	@Override
