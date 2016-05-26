@@ -27,6 +27,10 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
+
+import android.media.RingtoneManager;
+import android.net.Uri;
+
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
@@ -166,7 +170,7 @@ public class MFPPushIntentService extends IntentService {
 	private void generateNotification(Context context, String ticker,
 			String title, String msg, int icon, Intent intent) {
 		long when = System.currentTimeMillis();
-
+Uri notifSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 this);
         Notification notification = builder.setContentIntent(PendingIntent
@@ -174,7 +178,8 @@ public class MFPPushIntentService extends IntentService {
 						PendingIntent.FLAG_UPDATE_CURRENT))
                 .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                 .setAutoCancel(true).setContentTitle(title)
-                .setContentText(msg).build();
+                .setContentText(msg)
+                .setSound(notifSound).build();
         NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 
