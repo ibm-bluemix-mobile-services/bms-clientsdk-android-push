@@ -34,8 +34,8 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
-        String appRoute = "http://appnamekg.mybluemix.net";
-        String appGuid = "7b05d33e-7e81-490c-8a87-a44599c55c99";
+        String appRoute = "";
+        String appGuid = "";
 
         try {
             BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);

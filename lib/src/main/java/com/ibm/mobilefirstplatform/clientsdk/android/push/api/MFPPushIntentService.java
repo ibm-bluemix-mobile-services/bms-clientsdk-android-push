@@ -213,7 +213,7 @@ public class MFPPushIntentService extends IntentService {
 		int resourceId = -1;
 		try
 		{
-			resourceId = context.getResources().getIdentifier("pop", "raw", context.getPackageName());
+			resourceId = context.getResources().getIdentifier(resourceName, "raw", context.getPackageName());
 
 		} catch (Exception e) {
 			logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
