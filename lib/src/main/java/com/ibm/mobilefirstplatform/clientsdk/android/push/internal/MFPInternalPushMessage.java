@@ -37,6 +37,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_EXTRA_URL = "url";
 	private static final String GCM_EXTRA_MID = "mid";
 	private static final String GCM_EXTRA_TYPE = "type";
+    private static final String GCM_EXTRA_SOUND = "sound";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -45,6 +46,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String alert = null;
 	private String payload = null;
 	private String mid = null;
+    private String sound = null;
 
 	private String htmlTitle = null;
 	private String htmlContent = null;
@@ -59,6 +61,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		alert = info.getString(GCM_EXTRA_ALERT);
 		url = info.getString(GCM_EXTRA_URL);
 		payload = info.getString(GCM_EXTRA_PAYLOAD);
+        sound = info.getString(GCM_EXTRA_SOUND);
 	}
 
 	private MFPInternalPushMessage(Parcel source) {
@@ -67,6 +70,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		url = source.readString();
 		payload = source.readString();
 		mid = source.readString();
+        sound = source.readString();
 	}
 
 	public MFPInternalPushMessage(JSONObject json) {
@@ -95,6 +99,11 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get mid.  "+ e.toString());
 		}
+        try {
+            sound = json.getString(GCM_EXTRA_SOUND);
+        } catch (JSONException e) {
+            logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get sound.  "+ e.toString());
+        }
 	}
 
 	public JSONObject toJson() {
@@ -105,6 +114,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			json.put(GCM_EXTRA_URL, url);
 			json.put(GCM_EXTRA_PAYLOAD, payload);
 			json.put(GCM_EXTRA_MID, mid);
+            json.put(GCM_EXTRA_SOUND,sound);
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON.  "+ e.toString());
 		}
@@ -164,7 +174,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	@Override
 	public String toString() {
 		return "MFPPushMessage [url=" + url + ", alert=" + alert + ", payload="
-				+ payload + ", mid=" + mid + "]";
+				+ payload + ", mid=" + mid + ",sound="+ sound+ "]";
 	}
 
 	/* (non-Javadoc)
@@ -185,6 +195,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		dest.writeString(url);
 		dest.writeString(payload);
 		dest.writeString(mid);
+        dest.writeString(sound);
 	}
 
 	public static final Creator<MFPInternalPushMessage> CREATOR = new Creator<MFPInternalPushMessage>() {
@@ -212,4 +223,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		this.id = id;
 	}
 
+    public String getSound() {
+        return sound;
+    }
 }

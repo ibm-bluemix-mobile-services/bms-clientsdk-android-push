@@ -37,6 +37,10 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 import java.util.LinkedList;
 import java.util.Random;
 
+import android.media.RingtoneManager;
+import android.net.Uri;
+
+
 /**
  * MFPPushIntentService responsible for handling communication from GCM (Google
  * Cloud Messaging). This class should be configured as the GCM intent service
@@ -116,7 +120,7 @@ public class MFPPushIntentService extends IntentService {
 			intent.putExtra(GCM_EXTRA_MESSAGE, message);
 			generateNotification(context, message.getAlert(),
 					getNotificationTitle(context), message.getAlert(),
-					getNotificationIcon(), intent);
+					getNotificationIcon(), intent, message.getSound());
 		}
 	}
 
@@ -164,7 +168,7 @@ public class MFPPushIntentService extends IntentService {
 	}
 
 	private void generateNotification(Context context, String ticker,
-			String title, String msg, int icon, Intent intent) {
+			String title, String msg, int icon, Intent intent, String sound) {
 		long when = System.currentTimeMillis();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
@@ -174,13 +178,50 @@ public class MFPPushIntentService extends IntentService {
 						PendingIntent.FLAG_UPDATE_CURRENT))
                 .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                 .setAutoCancel(true).setContentTitle(title)
-                .setContentText(msg).build();
+                .setContentText(msg).setSound(getNotificationSoundUri(context, sound)).build();
         NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 
 		notificationManager.notify(randomObj.nextInt(), notification);
 	}
 
+    private Uri getNotificationSoundUri(Context context, String sound) {
+        Uri uri = null;
+
+        if (sound == null) {
+            uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        } else if (!(sound.trim().isEmpty())) {
+            String soundResourceString = sound;
+            try {
+                if (soundResourceString.contains(".")) {
+                soundResourceString = soundResourceString.substring(0, soundResourceString.indexOf("."));
+                }
+                int resourceId = getResourceId (context, "raw", soundResourceString);
+                if(resourceId == -1) {
+                logger.error("Specified sound file is not found in res/raw");
+                }
+                uri = Uri.parse("android.resource://" + context.getPackageName() + "/" + resourceId);
+            } catch (Exception e) {
+                logger.error("Exception while parsing sound file");
+            }
+        }
+
+        return uri;
+    }
+
+
+
+    public static int getResourceId(Context context, String resourceCategory, String resourceName)  {
+        int resourceId = -1;
+        try
+        {
+            resourceId = context.getResources().getIdentifier(resourceName, "raw", context.getPackageName());
+
+        } catch (Exception e) {
+            logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
+        }
+        return resourceId;
+    }
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Bundle extras = intent.getExtras();
