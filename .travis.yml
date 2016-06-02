@@ -11,7 +11,7 @@ env:
   - END_TASK=""
 script:
   - if [[ -z $encrypted_9fbcb2c72d5f_key ]]; then
-      END_TASK="uploadArchives";
+      export END_TASK="uploadArchives";
     fi
   - echo $END_TASK
   - ./gradlew clean assemble test $END_TASK
