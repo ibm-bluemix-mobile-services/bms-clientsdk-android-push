@@ -10,12 +10,14 @@ env:
   global:
   - END_TASK=""
 script:
-  - if [[ -z $encrypted_9fbcb2c72d5f_key ]]; then
+  - if [[ "${TRAVIS_PULL_REQUEST}" = "false" ]]; then
+      echo "Setting END_TASK to uploadArchives";
       export END_TASK="uploadArchives";
     fi
-  - echo $END_TASK
+  - echo "**${END_TASK}**"
   - ./gradlew clean assemble test $END_TASK
 before_install:
-  - if [[ -z $encrypted_9fbcb2c72d5f_key ]]; then
+  - if [[ "${TRAVIS_PULL_REQUEST}" = "false" ]]; then
+      echo "**${TRAVIS_PULL_REQUEST}**";
       openssl aes-256-cbc -K $encrypted_9fbcb2c72d5f_key -iv $encrypted_9fbcb2c72d5f_iv -in gradle.properties.enc -out gradle.properties -d;
     fi
