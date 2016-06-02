@@ -9,7 +9,7 @@ android:
 env:
   global:
   - END_TASK=""
-script: ./gradlew clean assemble test uploadArchives
+script:
   - if [[ -z ${encrypted_9fbcb2c72d5f_key} ]]; then
       END_TASK="uploadArchives";
     fi
