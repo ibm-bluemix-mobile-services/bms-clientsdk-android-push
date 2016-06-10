@@ -24,16 +24,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-
+import android.net.Uri;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
-
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -113,6 +112,7 @@ public class MFPPushIntentService extends IntentService {
 		if ((MFPPushUtils.getIntentPrefix(context) + GCM_MESSAGE).equals(action)) {
 			MFPInternalPushMessage message = intent
 					.getParcelableExtra(GCM_EXTRA_MESSAGE);
+
 			saveInSharedPreferences(message);
 
 			intent = new Intent(MFPPushUtils.getIntentPrefix(context)
@@ -182,8 +182,11 @@ public class MFPPushIntentService extends IntentService {
         NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 
+		//builder.setSound(getNotificationSoundUri(context,sound));
+
 		notificationManager.notify(randomObj.nextInt(), notification);
 	}
+
 
     private Uri getNotificationSoundUri(Context context, String sound) {
         Uri uri = null;
@@ -222,6 +225,7 @@ public class MFPPushIntentService extends IntentService {
         }
         return resourceId;
     }
+
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Bundle extras = intent.getExtras();

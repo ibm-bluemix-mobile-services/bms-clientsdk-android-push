@@ -1,0 +1,20 @@
+language: android
+sudo: required
+android:
+  components:
+  - tools
+  - build-tools-23.0.2
+  - android-23
+  - extra
+env:
+  global:
+  - END_TASK=""
+script:
+  - if [[ "${TRAVIS_PULL_REQUEST}" = "false" ]]; then
+      export END_TASK="uploadArchives";
+    fi
+  - ./gradlew clean assemble test $END_TASK
+before_install:
+  - if [[ "${TRAVIS_PULL_REQUEST}" = "false" ]]; then
+      openssl aes-256-cbc -K $encrypted_9fbcb2c72d5f_key -iv $encrypted_9fbcb2c72d5f_iv -in gradle.properties.enc -out gradle.properties -d;
+    fi

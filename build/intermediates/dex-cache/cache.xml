@@ -2,18 +2,11 @@
 <items version="2" >
 
     <item
-        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.clientsdk.android/core/1.0.0/jars/classes.jar"
+        jar="/Users/ananthakrishnankg/Desktop/work/Push_Team/Feb-12-Push/DEV/Android push/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/bms-clientsdk-android-push/lib/unspecified/jars/classes.jar"
         jumboMode="false"
-        revision="23.0.0"
-        sha1="e8b6879d91dcc5368cf1cdc6cd9599b246549fa1">
-        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/debug/classes-1181698496639c6231e1da45e28a6e9542d4d7bf.jar" />
-    </item>
-    <item
-        jar="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/exploded-aar/com.ibm.mobilefirstplatform.clientsdk.android/push/1.0.0/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.0"
-        sha1="041ea8c72bacdb10270b30771ed382fa753078eb">
-        <dex dex="/Users/ibm_admin/Documents/Work/Eclipse_Workspaces/git/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/debug/classes-05c4816d9b0fff7f88127fc0261fd3e13aea226d.jar" />
+        revision="23.0.2"
+        sha1="31f449171ce51ed66a445a4688e63c909d2523e2">
+        <dex dex="/Users/ananthakrishnankg/Desktop/work/Push_Team/Feb-12-Push/DEV/Android push/bms-clientsdk-android-push/app/build/intermediates/pre-dexed/debug/classes-30604a9b20920b1d8cb48bd237a246ee7420e0c6.jar" />
     </item>
 
 </items>
