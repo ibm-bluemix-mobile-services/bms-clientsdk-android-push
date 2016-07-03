@@ -22,6 +22,9 @@ Currently v2.x of Android SDK does not submit monitoring data. This is a work in
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+####2.0.3
+* Update analytics support for push service.
+
 ####2.0.2
 * Update references of core to 2.0.1
 * Update google play services to version 9.0.1
