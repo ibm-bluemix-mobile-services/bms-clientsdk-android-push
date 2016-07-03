@@ -188,6 +188,7 @@ public class MFPPush {
     private boolean onMessageReceiverRegistered = false;
     private boolean isNewRegistration = false;
     private boolean hasRegisterParametersChanged = false;
+    public static boolean isRegisteredForPush = false;
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
@@ -404,6 +405,7 @@ public class MFPPush {
             public void onSuccess(Response response) {
                 logger.info("MFPPush:unregister() - Successfully unregistered device. Response is: " + response.toString());
                 isTokenUpdatedOnServer = false;
+                 isRegisteredForPush = false;
                 listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
             }
 
@@ -635,6 +637,7 @@ public class MFPPush {
                 public void onSuccess(Response response) {
                     isNewRegistration = false;
                     isTokenUpdatedOnServer = true;
+                    isRegisteredForPush = true;
                     logger.info("MFPPush:updateTokenCallback() - Successfully registered device.");
                     registerResponseListener.onSuccess(response.toString());
                 }
@@ -667,6 +670,7 @@ public class MFPPush {
                     logger.debug("MFPPush:updateTokenCallback() - Device registration successfully updated.");
                     isTokenUpdatedOnServer = true;
                     isNewRegistration = false;
+                    isRegisteredForPush = true;
                     registerResponseListener.onSuccess(response.toString());
                 }
 

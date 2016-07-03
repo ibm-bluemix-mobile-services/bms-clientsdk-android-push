@@ -14,18 +14,23 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.internal;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
-
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
+import com.ibm.mobilefirstplatform.clientsdk.android.analytics.api.*;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService;
 
-public class MFPPushUtils {
+public class MFPPushUtils extends Activity {
 
 	private static final String LOG_CAT = MFPPush.class.getName();
 
@@ -120,6 +125,56 @@ public class MFPPushUtils {
 			}
 		}
 	}
+
+	public static void generateMetricsEvents(String notificationId) {
+
+		//String date = getCurrentTimeStamp();
+        String action = "received";
+		storeMetricEvents(notificationId,action);
+
+		if (MFPPushIntentService.isAppForeground == true){
+			action = "seen";
+			storeMetricEvents(notificationId,action);
+			action = "open";
+			storeMetricEvents(notificationId,action);
+		}
+		if (MFPPush.isRegisteredForPush == true){
+
+			action = "acknowledged";
+			storeMetricEvents(notificationId,action);
+		}
+
+
+	}
+    public static void storeMetricEvents(String notificationId, String action) {
+
+		try {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("$category", "push");
+			jsonObject.put("$notificationAction", action);  // one of four possible values: "received", "acknowledged", "seen", or "open"
+			if (notificationId.isEmpty() == false){
+				jsonObject.put("$notificationId", notificationId);  // the ID you used to report PushNotification from Push server, and passed to client via the push itself
+			}
+			Analytics.log(jsonObject);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	public static String getCurrentTimeStamp(){
+		try {
+
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+			String currentTimeStamp = dateFormat.format(new Date()); // Find todays date
+
+			return currentTimeStamp;
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return null;
+		}
+	}
+
 
 	public static final String APPLICATION_ID = "APPLICATION_ID";
 }
