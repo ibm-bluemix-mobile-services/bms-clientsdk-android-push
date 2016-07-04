@@ -55,12 +55,18 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 		Bundle info = intent.getExtras();
 		MFPPushUtils.dumpIntent(intent);
-		id = info.getString(GCM_EXTRA_ID);
 		alert = info.getString(GCM_EXTRA_ALERT);
 		url = info.getString(GCM_EXTRA_URL);
 		payload = info.getString(GCM_EXTRA_PAYLOAD);
 		sound = info.getString(GCM_EXTRA_SOUND);
-
+		try {
+			JSONObject towers = new JSONObject(payload);
+			id = towers.getString(GCM_EXTRA_ID);
+		}
+		catch (JSONException e){
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get id.  "+ e.toString());
+		}
+		MFPPushUtils.generateMetricsEvents(id);
 	}
 
 	private MFPInternalPushMessage(Parcel source) {

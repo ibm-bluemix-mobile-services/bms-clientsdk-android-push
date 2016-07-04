@@ -15,12 +15,12 @@ This package contains the push components of Android SDK.  This package has to b
 ###Supported Levels
 The package is supported on Android API level 14 and up (Android 4.0 and up).
 
-###Known Limitations
-Currently v2.x of Android SDK does not submit monitoring data. This is a work in progress and will be delivered in following months. If you’d like to continue receiving monitoring data in the service dashboard you can continue using the v1.x SDK.
-
 ###Sound Configuration
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
+
+####2.0.3
+* Update analytics support for push service.
 
 ####2.0.2
 * Update references of core to 2.0.1

@@ -24,15 +24,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.net.Uri;
+
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
+
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -63,7 +64,7 @@ public class MFPPushIntentService extends IntentService {
 	public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
 	public static final String GCM_EXTRA_MESSAGE = "message";
 
-	private static boolean isAppForeground = true;
+	public static boolean isAppForeground = true;
 
 	private static Random randomObj = new Random();
 
