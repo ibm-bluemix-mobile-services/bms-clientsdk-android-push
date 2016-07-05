@@ -42,7 +42,21 @@ public class MFPPushUrlBuilder {
 			pwUrl_.append(BMSClient.getInstance().getDefaultProtocol());
 			pwUrl_.append("://");
 			pwUrl_.append(IMFPUSH);
-			pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
+            if ((BMSClient.getInstance().getBluemixRegionSuffix().contains("stage1-test") == true) ||
+                (BMSClient.getInstance().getBluemixRegionSuffix().contains("stage1-dev") == true)){
+                
+                pwUrl_.append(".stage1.ng.bluemix.net");
+                if (BMSClient.getInstance().getBluemixRegionSuffix().contains("stage1-test") == true) {
+                    reWriteDomain = "stage1-test.ng.bluemix.net";
+                }
+                else {
+                    reWriteDomain = "stage1-dev.ng.bluemix.net";
+                }
+                
+            }else {
+                pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
+                reWriteDomain = "";
+            }
 		}
 
 		pwUrl_.append(FORWARDSLASH);
@@ -111,6 +125,10 @@ public class MFPPushUrlBuilder {
 
 		return deviceUnregisterUrl.toString();
 	}
+    public String getRewriteDomain(){
+        
+        return reWriteDomain;
+    }
 
 
 	private StringBuilder getCollectionUrl(String collectionName) {

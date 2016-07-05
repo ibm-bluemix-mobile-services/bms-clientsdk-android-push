@@ -29,6 +29,7 @@ public class MFPPushInvoker implements ResponseListener{
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String ACCEPT = "Accept";
     private static final String APPLICATION_JSON = "application/json";
+     private static final String X_REWRITE_DOMAIN = "X-REWRITE-DOMAIN";
     private static Context appContext = null;
 
     private Request request = null;
@@ -43,6 +44,8 @@ public class MFPPushInvoker implements ResponseListener{
         request = new Request(url, method);
         request.addHeader(CONTENT_TYPE, APPLICATION_JSON);
         request.addHeader(ACCEPT, APPLICATION_JSON);
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(BMSClient.getInstance().getBluemixAppGUID());
+        request.addHeader(X_REWRITE_DOMAIN, builder.getRewriteDomain());
     }
 
     public static MFPPushInvoker newInstance(Context ctx, String url, String method) {
