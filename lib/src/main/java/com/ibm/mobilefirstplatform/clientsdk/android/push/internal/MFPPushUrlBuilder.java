@@ -33,6 +33,7 @@ public class MFPPushUrlBuilder {
 	private static final String SETTINGS = "settings" + FORWARDSLASH
 			+ "gcmConfPublic";
 
+    String reWriteDomain = "";
 	private final StringBuilder pwUrl_ = new StringBuilder();
 
 	public MFPPushUrlBuilder(String applicationId) {
