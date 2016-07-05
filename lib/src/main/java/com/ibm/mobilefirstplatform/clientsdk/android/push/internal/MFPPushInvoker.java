@@ -15,6 +15,7 @@ package com.ibm.mobilefirstplatform.clientsdk.android.push.internal;
 
 import android.content.Context;
 
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
