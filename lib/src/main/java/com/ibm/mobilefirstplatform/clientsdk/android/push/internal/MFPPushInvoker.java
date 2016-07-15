@@ -20,10 +20,14 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
 
 import org.json.JSONObject;
+
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_CLIENT_SECRET;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_USER_ID;
 
 public class MFPPushInvoker implements ResponseListener{
 
@@ -47,6 +51,12 @@ public class MFPPushInvoker implements ResponseListener{
         request.addHeader(ACCEPT, APPLICATION_JSON);
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(BMSClient.getInstance().getBluemixAppGUID());
         request.addHeader(X_REWRITE_DOMAIN, builder.getRewriteDomain());
+        if (MFPPush.isUserIdEnabled == true) {
+
+            request.addHeader(IMFPUSH_USER_ID, MFPPush.getInstance().getBluemixPushUserId());
+            request.addHeader(IMFPUSH_CLIENT_SECRET,MFPPush.getInstance().getBluemixPushClientSecret());
+        }
+
     }
 
     public static MFPPushInvoker newInstance(Context ctx, String url, String method) {

@@ -21,6 +21,8 @@ public interface MFPPushConstants {
 	public static final String PLATFORM = "platform";
 	public static final String DEVICE_ID = "deviceId";
 	public static final String USER_ID = "userId";
+	public static final String IMFPUSH_USER_ID  = "pushUser";
+	public static final String IMFPUSH_CLIENT_SECRET  = "clientSecret";
 	public static final String TAG_NAME = "tagName";
 	public static final String TAGS = "tags";
 	public static final String SUBSCRIPTIONS = "subscriptions";
