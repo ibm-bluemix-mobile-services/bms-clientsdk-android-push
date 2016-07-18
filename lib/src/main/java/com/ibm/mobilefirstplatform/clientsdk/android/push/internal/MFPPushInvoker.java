@@ -51,12 +51,6 @@ public class MFPPushInvoker implements ResponseListener{
         request.addHeader(ACCEPT, APPLICATION_JSON);
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(BMSClient.getInstance().getBluemixAppGUID());
         request.addHeader(X_REWRITE_DOMAIN, builder.getRewriteDomain());
-        if (MFPPush.isUserIdEnabled == true) {
-
-            request.addHeader(IMFPUSH_USER_ID, MFPPush.getInstance().getBluemixPushUserId());
-            request.addHeader(IMFPUSH_CLIENT_SECRET,MFPPush.getInstance().getBluemixPushClientSecret());
-        }
-
     }
 
     public static MFPPushInvoker newInstance(Context ctx, String url, String method) {
@@ -80,7 +74,7 @@ public class MFPPushInvoker implements ResponseListener{
 
     public MFPPushInvoker addHeaders(String headerName, String headerValue) {
 
-        if (headerName == null && headerValue == null) {
+        if (headerName != null && headerValue != null) {
             request.addHeader(headerName, headerValue);
         }
         return this;

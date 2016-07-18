@@ -180,12 +180,10 @@ public class MFPPush {
     private String applicationId = null;
     private String errorString = null;
 
-    private String bluemixPushClientSecret;
-    private String bluemixTenentId;
-    private String bluemixPushUserId;
+    private String clientSecret;
+    private boolean isInitialized = false;
 
     private boolean isTokenUpdatedOnServer = false;
-    public static boolean isUserIdEnabled = false;
 
     private List<MFPInternalPushMessage> pending = new ArrayList<MFPInternalPushMessage>();
     private GoogleCloudMessaging gcm;
@@ -218,14 +216,13 @@ public class MFPPush {
      * <p>
      *
      * @param context  this is the Context of the application from getApplicationContext()
-     * @param tenantId tenantId is the backend app GUID
      */
-    public void initialize(Context context, String tenantId) {
+    public void initialize(Context context) {
         try {
             // Get the applicationId and backend route from core
-            bluemixTenentId = tenantId;
             applicationId = BMSClient.getInstance().getBluemixAppGUID();
             appContext = context.getApplicationContext();
+            isInitialized = true;
             validateAndroidContext();
         } catch (Exception e) {
             logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
@@ -238,17 +235,24 @@ public class MFPPush {
      * <p>
      *
      * @param context                 this is the Context of the application from getApplicationContext()
-     * @param tenantId                tenantId is the backend app GUID
-     * @param bluemixPushClientSecret ClientSecret from the push service.
+     * @param pushClientSecret ClientSecret from the push service.
      */
-    public void initialize(Context context, String tenantId, String bluemixPushClientSecret) {
+    public void initialize(Context context, String pushClientSecret) {
         try {
-            // Get the applicationId and backend route from core
-            bluemixTenentId = tenantId;
-            this.bluemixPushClientSecret = bluemixPushClientSecret;
-            applicationId = BMSClient.getInstance().getBluemixAppGUID();
-            appContext = context.getApplicationContext();
-            validateAndroidContext();
+            if (validateString(pushClientSecret)){
+                // Get the applicationId and backend route from core
+                clientSecret = pushClientSecret;
+                applicationId = BMSClient.getInstance().getBluemixAppGUID();
+                appContext = context.getApplicationContext();
+                isInitialized = true;
+                validateAndroidContext();
+            }
+            else {
+                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret Value");
+                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret Value");
+            }
+
         } catch (Exception e) {
             logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
             throw new RuntimeException(e);
@@ -328,11 +332,18 @@ public class MFPPush {
      * @param userId   -  The UserId for registration.
      */
     public void registerWithUserId(String userId, MFPPushResponseListener<String> listener) {
-        bluemixPushUserId = userId;
-        isUserIdEnabled = true;
+
         this.registerResponseListener = listener;
-        logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
-        getSenderIdFromServerAndRegisterInBackground();
+        if (validateString(userId)){
+
+            logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
+            getGCMDetails(userId);
+        } else {
+            logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
+            System.out.print("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
+            registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value"));
+        }
+
     }
 
     /**
@@ -347,10 +358,21 @@ public class MFPPush {
      */
     public void register(MFPPushResponseListener<String> listener) {
         this.registerResponseListener = listener;
-        isUserIdEnabled = false;
-        logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
-        getSenderIdFromServerAndRegisterInBackground();
+        logger.info("MFPPush:register() - Registering for MFPPush service.");
+        getGCMDetails(null);
     }
+
+    /**
+     * Check for the GCM credentials
+     *
+     * @param userId   -  The UserId for registration.
+     */
+    private void getGCMDetails(final String userId) {
+
+        logger.info("MFPPush:registerDevice() - Retrieving senderId from MFPPush server.");
+        getSenderIdFromServerAndRegisterInBackground(userId);
+    }
+
 
     /**
      * Subscribes to the given tag
@@ -365,7 +387,7 @@ public class MFPPush {
     public void subscribe(final String tagName,
                           final MFPPushResponseListener<String> listener) {
         if (isAbleToSubscribe()) {
-            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getSubscriptionsUrl();
             logger.debug("MFPPush:subscribe() - The tag subscription path is: " + path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
@@ -410,7 +432,7 @@ public class MFPPush {
     public void unsubscribe(final String tagName,
                             final MFPPushResponseListener<String> listener) {
         if (isAbleToSubscribe()) {
-            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
             logger.debug("MFPPush:unsubscribe() - The tag unsubscription path is: " + path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
@@ -450,7 +472,7 @@ public class MFPPush {
      *                 called otherwise
      */
     public void unregister(final MFPPushResponseListener<String> listener) {
-        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getUnregisterUrl(deviceId);
         logger.debug("MFPPush:unregister() - The device unregister url is: " + path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
@@ -490,7 +512,7 @@ public class MFPPush {
      *                 otherwise
      */
     public void getTags(final MFPPushResponseListener<List<String>> listener) {
-        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getTagsUrl();
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
 
@@ -546,7 +568,7 @@ public class MFPPush {
     public void getSubscriptions(
             final MFPPushResponseListener<List<String>> listener) {
 
-        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getSubscriptionsUrl(deviceId, null);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
 
@@ -587,7 +609,7 @@ public class MFPPush {
         invoker.execute();
     }
 
-    private void registerInBackground() {
+    private void registerInBackground(final String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
@@ -600,12 +622,11 @@ public class MFPPush {
                     gcm.close();
                     logger.info("MFPPush:registerInBackground() - Successfully registered with GCM. Returned deviceToken is: " + deviceToken);
                     computeRegId();
-                    if (isUserIdEnabled == true) {
-                        verifyDeviceRegistrationWithUserId();
+                    if (validateString(userId)) {
+                        registerDeviceWithUserId(userId);
                     } else {
-                        verifyDeviceRegistration();
+                        registerDevice();
                     }
-
                 } catch (IOException ex) {
                     msg = ex.getMessage();
                     //Failed to register at GCM Server.
@@ -628,89 +649,77 @@ public class MFPPush {
         }
     }
 
-    private boolean verifyDeviceRegistrationWithUserId() {
+    private boolean registerDeviceWithUserId(final String userId) {
 
-        if (bluemixTenentId.isEmpty() != true && bluemixTenentId != "" && bluemixTenentId != null) {
-            if (bluemixPushUserId.isEmpty() != true && bluemixPushUserId != "" && bluemixPushUserId != null) {
+        if (isInitialized == true) {
+            if (validateString(userId) && validateString(clientSecret)) {
 
-                if (bluemixPushClientSecret.isEmpty() != true && bluemixPushClientSecret != "" && bluemixPushClientSecret != null) {
+                MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
+                String path = builder.getDeviceIdUrl(regId);
+                MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
+                invoker.setJSONRequestBody(null);
 
-                    MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
-                    String path = builder.getDeviceIdUrl(regId);
-                    MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-                    invoker.setJSONRequestBody(null);
+                invoker.setResponseListener(new ResponseListener() {
+                    @Override
+                    public void onSuccess(Response response) {
+                        try {
+                            String retDeviceId = (new JSONObject(response.getResponseText())).getString(DEVICE_ID);
+                            String retToken = (new JSONObject(response.getResponseText())).getString(TOKEN);
+                            String userIdFromResponse = (new JSONObject(response.getResponseText())).getString(USER_ID);
 
-                    invoker.setResponseListener(new ResponseListener() {
-                        @Override
-                        public void onSuccess(Response response) {
-                            try {
-                                String retDeviceId = (new JSONObject(response.getResponseText())).getString(DEVICE_ID);
-                                String retToken = (new JSONObject(response.getResponseText())).getString(TOKEN);
-                                String userId = (new JSONObject(response.getResponseText())).getString(USER_ID);
+                            if (!(retDeviceId.equals(regId))
+                                    || !(retToken.equals(deviceToken)) || !(userId.equals(userIdFromResponse))) {
+                                deviceId = retDeviceId;
+                                MFPPushUtils
+                                        .storeContentInSharedPreferences(
+                                                appContext, applicationId,
+                                                DEVICE_ID, deviceId);
 
-                                if (!(retDeviceId.equals(regId))
-                                        || !(retToken.equals(deviceToken)) || !(userId.equals(bluemixPushUserId))) {
-                                    deviceId = retDeviceId;
-                                    MFPPushUtils
-                                            .storeContentInSharedPreferences(
-                                                    appContext, applicationId,
-                                                    DEVICE_ID, deviceId);
-
-                                    hasRegisterParametersChanged = true;
-                                    updateTokenCallback(deviceToken);
-                                } else {
-                                    deviceId = retDeviceId;
-                                    bluemixPushUserId = userId;
-                                    isTokenUpdatedOnServer = true;
-                                    MFPPushUtils
-                                            .storeContentInSharedPreferences(
-                                                    appContext, applicationId,
-                                                    DEVICE_ID, deviceId);
-                                    registerResponseListener
-                                            .onSuccess(response.toString());
-                                }
-                            } catch (JSONException e1) {
-                                logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Exception caught while parsing JSON response.");
-                                e1.printStackTrace();
+                                hasRegisterParametersChanged = true;
+                                updateTokenCallback(deviceToken,userId);
+                            } else {
+                                deviceId = retDeviceId;
+                                isTokenUpdatedOnServer = true;
+                                MFPPushUtils
+                                        .storeContentInSharedPreferences(
+                                                appContext, applicationId,
+                                                DEVICE_ID, deviceId);
+                                registerResponseListener
+                                        .onSuccess(response.toString());
                             }
+                        } catch (JSONException e1) {
+                            logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Exception caught while parsing JSON response.");
+                            e1.printStackTrace();
                         }
+                    }
 
-                        @Override
-                        public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-                            // Device is not registered.
-                            isNewRegistration = true;
-                            updateTokenCallback(deviceToken);
-                        }
-                    });
-                    invoker.execute();
-
-
-                } else {
-
-                    String error = "Error while registration - Error is: 401. Please specify your client secret value";
-                    logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Exception caught while parsing JSON response.");
-                    //error.printStackTrace();
-                    System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
-                }
+                    @Override
+                    public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
+                        // Device is not registered.
+                        isNewRegistration = true;
+                        updateTokenCallback(deviceToken,userId);
+                    }
+                });
+                invoker.execute();
             } else {
 
-                String error = "Error while registration - Error is: 401. Please specify your UserId value";
-                logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Exception caught while parsing JSON response.");
+                String error = "Error while registration - Please verify your UserId and ClientSecret value";
+                logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Please verify your UserId and ClientSecret value");
                 System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
             }
         } else {
-            String error = "Error while registration - Error is: 401. Not initialized BMSPush";
-            logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Exception caught while parsing JSON response.");
+            String error = "Error while registration -. Not initialized MFPPush";
+            logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Error while registration -. Not initialized MFPPush");
             System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
         }
 
         return true;
     }
 
-    private boolean verifyDeviceRegistration() {
+    private boolean registerDevice() {
 
-        if (bluemixTenentId.isEmpty() != true && bluemixTenentId != "" && bluemixTenentId != null) {
-            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+        if (isInitialized) {
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDeviceIdUrl(regId);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
             invoker.setJSONRequestBody(null);
@@ -730,7 +739,7 @@ public class MFPPush {
                                             DEVICE_ID, deviceId);
 
                             hasRegisterParametersChanged = true;
-                            updateTokenCallback(deviceToken);
+                            updateTokenCallback(deviceToken,null);
                         } else {
                             deviceId = retDeviceId;
                             isTokenUpdatedOnServer = true;
@@ -751,31 +760,33 @@ public class MFPPush {
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     // Device is not registered.
                     isNewRegistration = true;
-                    updateTokenCallback(deviceToken);
+                    updateTokenCallback(deviceToken,null);
                 }
             });
             invoker.execute();
 
         } else {
-            String error = "Error while registration - Error is: 401. Not initialized BMSPush";
-            logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Exception caught while parsing JSON response.");
+            String error = "Error while registration -. Not initialized MFPPush";
+            logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Error while registration -. Not initialized MFPPush");
             System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
         }
         return true;
     }
 
-    private void updateTokenCallback(String deviceToken) {
+    private void updateTokenCallback(String deviceToken, String userId) {
         if (isNewRegistration) {
             logger.debug("MFPPush:updateTokenCallback() - Device is registering with push server for the first time.");
-            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDevicesUrl();
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
             invoker.setJSONRequestBody(buildDevice());
 
             //Add header for xtify deviceId for migration
             final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);
-            invoker.addHeaders(MFPPushConstants.IBM_MBAAS_XID_HEADER, sharedPreferences.getString(applicationId + MFPPushConstants.DEVICE_ID, null));
-
+            if(validateString(userId)){
+                invoker.addHeaders(IMFPUSH_USER_ID, userId);
+                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            }
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -804,11 +815,14 @@ public class MFPPush {
             invoker.execute();
         } else if (hasRegisterParametersChanged) {
             logger.debug("MFPPush:updateTokenCallback() - Device is already registered. Registration parameters have changed.");
-            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDeviceIdUrl(deviceId);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT);
             invoker.setJSONRequestBody(buildDevice());
-
+            if(validateString(userId)){
+                invoker.addHeaders(IMFPUSH_USER_ID, userId);
+                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            }
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -1040,8 +1054,8 @@ public class MFPPush {
         return gotMessages;
     }
 
-    private void getSenderIdFromServerAndRegisterInBackground() {
-        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(bluemixTenentId);
+    private void getSenderIdFromServerAndRegisterInBackground(final String userId) {
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getSettingsUrl();
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground() - The url for getting gcm configuration is: " + path);
@@ -1066,7 +1080,7 @@ public class MFPPush {
                 } else {
                     gcmSenderId = senderId;
                     MFPPushUtils.storeContentInSharedPreferences(appContext, applicationId, SENDER_ID, gcmSenderId);
-                    registerInBackground();
+                    registerInBackground(userId);
                 }
             }
 
@@ -1088,17 +1102,12 @@ public class MFPPush {
         invoker.execute();
     }
 
-    public String getBluemixPushClientSecret() {
-        return this.bluemixPushClientSecret;
+    public Boolean validateString(String object) {
+        if (object == null || object.isEmpty()  || object == "") {
+            return false;
+        } else {
+            return true;
+        }
     }
-
-    public String getBluemixPushUserId() {
-        return this.bluemixPushUserId;
-    }
-
-    public String getBluemixTenentId() {
-        return this.bluemixTenentId;
-    }
-
 }
 
