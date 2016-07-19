@@ -217,7 +217,7 @@ public class MFPPush {
      *
      * @param context  this is the Context of the application from getApplicationContext()
      */
-    public void initialize(Context context) {
+    public void initializeBluemixPush(Context context) {
         try {
             // Get the applicationId and backend route from core
             applicationId = BMSClient.getInstance().getBluemixAppGUID();
@@ -237,7 +237,7 @@ public class MFPPush {
      * @param context                 this is the Context of the application from getApplicationContext()
      * @param pushClientSecret ClientSecret from the push service.
      */
-    public void initialize(Context context, String pushClientSecret) {
+    public void initializeBluemixPushWithClientSecret(Context context, String pushClientSecret) {
         try {
             if (validateString(pushClientSecret)){
                 // Get the applicationId and backend route from core
@@ -333,15 +333,19 @@ public class MFPPush {
      */
     public void registerWithUserId(String userId, MFPPushResponseListener<String> listener) {
 
-        this.registerResponseListener = listener;
-        if (validateString(userId)){
+        if ( isInitialized ) {
+            this.registerResponseListener = listener;
+            if (validateString(userId)) {
 
-            logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
-            getGCMDetails(userId);
-        } else {
-            logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
-            System.out.print("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
-            registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value"));
+                logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
+                getSenderIdFromServerAndRegisterInBackground(userId);
+            } else {
+                logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
+                System.out.print("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
+                registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value"));
+            }
+        }else {
+            logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
         }
 
     }
@@ -357,22 +361,15 @@ public class MFPPush {
      *                 method is called otherwise
      */
     public void register(MFPPushResponseListener<String> listener) {
-        this.registerResponseListener = listener;
-        logger.info("MFPPush:register() - Registering for MFPPush service.");
-        getGCMDetails(null);
+
+        if ( isInitialized ) {
+            this.registerResponseListener = listener;
+            logger.info("MFPPush:register() - Registering for MFPPush service.");
+            getSenderIdFromServerAndRegisterInBackground(null);
+        } else {
+            logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
+        }
     }
-
-    /**
-     * Check for the GCM credentials
-     *
-     * @param userId   -  The UserId for registration.
-     */
-    private void getGCMDetails(final String userId) {
-
-        logger.info("MFPPush:registerDevice() - Retrieving senderId from MFPPush server.");
-        getSenderIdFromServerAndRegisterInBackground(userId);
-    }
-
 
     /**
      * Subscribes to the given tag

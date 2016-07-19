@@ -38,13 +38,15 @@ public class MainActivity extends Activity {
         String appGuid = "";
 
         try {
-            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, ".stage1-dev.ng.bluemix.net");
+            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, "");
+           // MFPPush.overrideServerHost = "http://10.0.2.2:9080";
+
         } catch (MalformedURLException e){
             e.printStackTrace();
         }
 
         push = MFPPush.getInstance();
-        push.initialize(getApplicationContext());
+        push.initializeBluemixPush(getApplicationContext());
         push.register(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
@@ -60,7 +62,7 @@ public class MainActivity extends Activity {
         });
 
 
-        //       push.initialize(getApplicationContext(),"");
+        //       push.initializeBluemixPushWithClientSecret(getApplicationContext(),"");
 //
 //        push.registerWithUserId("", new MFPPushResponseListener<String>() {
 //            @Override
