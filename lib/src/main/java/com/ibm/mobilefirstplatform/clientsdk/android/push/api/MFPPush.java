@@ -217,7 +217,7 @@ public class MFPPush {
      *
      * @param context  this is the Context of the application from getApplicationContext()
      */
-    public void initializeBluemixPush(Context context) {
+    public void initialize(Context context) {
         try {
             // Get the applicationId and backend route from core
             applicationId = BMSClient.getInstance().getBluemixAppGUID();
@@ -237,7 +237,7 @@ public class MFPPush {
      * @param context                 this is the Context of the application from getApplicationContext()
      * @param pushClientSecret ClientSecret from the push service.
      */
-    public void initializeBluemixPushWithClientSecret(Context context, String pushClientSecret) {
+    public void initializeWithClientSecret(Context context, String pushClientSecret) {
         try {
             if (validateString(pushClientSecret)){
                 // Get the applicationId and backend route from core
@@ -331,7 +331,7 @@ public class MFPPush {
      *                 method is called otherwise
      * @param userId   -  The UserId for registration.
      */
-    public void registerWithUserId(String userId, MFPPushResponseListener<String> listener) {
+    public void registerDeviceWithUserId(String userId, MFPPushResponseListener<String> listener) {
 
         if ( isInitialized ) {
             this.registerResponseListener = listener;
@@ -360,7 +360,7 @@ public class MFPPush {
      *                 with the deviceId. {@link MFPPushResponseListener}.onFailure
      *                 method is called otherwise
      */
-    public void register(MFPPushResponseListener<String> listener) {
+    public void registerDevice(MFPPushResponseListener<String> listener) {
 
         if ( isInitialized ) {
             this.registerResponseListener = listener;

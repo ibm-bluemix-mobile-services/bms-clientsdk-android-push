@@ -46,8 +46,8 @@ public class MainActivity extends Activity {
         }
 
         push = MFPPush.getInstance();
-        push.initializeBluemixPush(getApplicationContext());
-        push.register(new MFPPushResponseListener<String>() {
+        push.initialize(getApplicationContext());
+        push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
                 updateTextView("Device is registered with Push Service.");
@@ -61,10 +61,9 @@ public class MainActivity extends Activity {
             }
         });
 
-
-        //       push.initializeBluemixPushWithClientSecret(getApplicationContext(),"");
+//        push.initializeWithClientSecret(getApplicationContext(),"");
 //
-//        push.registerWithUserId("", new MFPPushResponseListener<String>() {
+//        push.registerDeviceWithUserId("", new MFPPushResponseListener<String>() {
 //            @Override
 //            public void onSuccess(String deviceId) {
 //                updateTextView("Device is registered with Push Service.");
