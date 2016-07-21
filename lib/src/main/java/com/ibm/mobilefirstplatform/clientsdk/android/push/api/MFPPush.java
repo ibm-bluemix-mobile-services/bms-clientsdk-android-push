@@ -237,7 +237,7 @@ public class MFPPush {
      * @param context                 this is the Context of the application from getApplicationContext()
      * @param pushClientSecret ClientSecret from the push service.
      */
-    public void initializeWithClientSecret(Context context, String pushClientSecret) {
+    public void initialize(Context context, String pushClientSecret) {
         try {
             if (validateString(pushClientSecret)){
                 // Get the applicationId and backend route from core
@@ -620,9 +620,9 @@ public class MFPPush {
                     logger.info("MFPPush:registerInBackground() - Successfully registered with GCM. Returned deviceToken is: " + deviceToken);
                     computeRegId();
                     if (validateString(userId)) {
-                        registerDeviceWithUserId(userId);
+                        registerWithUserId(userId);
                     } else {
-                        registerDevice();
+                        register();
                     }
                 } catch (IOException ex) {
                     msg = ex.getMessage();
@@ -646,7 +646,7 @@ public class MFPPush {
         }
     }
 
-    private boolean registerDeviceWithUserId(final String userId) {
+    private boolean registerWithUserId(final String userId) {
 
         if (isInitialized == true) {
             if (validateString(userId) && validateString(clientSecret)) {
@@ -713,7 +713,7 @@ public class MFPPush {
         return true;
     }
 
-    private boolean registerDevice() {
+    private boolean register() {
 
         if (isInitialized) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);

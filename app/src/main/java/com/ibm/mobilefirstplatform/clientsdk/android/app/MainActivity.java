@@ -34,11 +34,11 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
-        String appRoute = "";
-        String appGuid = "";
+        String appRoute = "http://ananthbroadcasttest.mybluemix.net";
+        String appGuid = "08433a1c-98fc-46e5-9776-0ee85e2b9ee8";
 
         try {
-            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, "");
+            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);
            // MFPPush.overrideServerHost = "http://10.0.2.2:9080";
 
         } catch (MalformedURLException e){
@@ -47,6 +47,7 @@ public class MainActivity extends Activity {
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext());
+        push.registerDevice();
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
