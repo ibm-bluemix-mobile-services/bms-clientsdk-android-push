@@ -217,13 +217,20 @@ public class MFPPush {
      *
      * @param context  this is the Context of the application from getApplicationContext()
      */
-    public void initialize(Context context) {
+    public void initialize(Context context, String pushAppGUID ) {
         try {
-            // Get the applicationId and backend route from core
-            applicationId = BMSClient.getInstance().getBluemixAppGUID();
-            appContext = context.getApplicationContext();
-            isInitialized = true;
-            validateAndroidContext();
+
+            if (validateString(pushAppGUID)) {
+                // Get the applicationId and backend route from core
+                applicationId = pushAppGUID;
+                appContext = context.getApplicationContext();
+                isInitialized = true;
+                validateAndroidContext();
+            }else {
+                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid pushAppGUID Value");
+                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid pushAppGUID Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid pushAppGUID Value");
+            }
         } catch (Exception e) {
             logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
             throw new RuntimeException(e);
@@ -237,20 +244,20 @@ public class MFPPush {
      * @param context                 this is the Context of the application from getApplicationContext()
      * @param pushClientSecret ClientSecret from the push service.
      */
-    public void initialize(Context context, String pushClientSecret) {
+    public void initialize(Context context, String pushAppGUID, String pushClientSecret) {
         try {
-            if (validateString(pushClientSecret)){
+            if (validateString(pushClientSecret) && validateString(pushAppGUID)){
                 // Get the applicationId and backend route from core
                 clientSecret = pushClientSecret;
-                applicationId = BMSClient.getInstance().getBluemixAppGUID();
+                applicationId = pushAppGUID;
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
             }
             else {
-                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret Value");
-                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret Value");
+                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and pushAppGUID Value");
+                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and pushAppGUID Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and pushAppGUID Value");
             }
 
         } catch (Exception e) {

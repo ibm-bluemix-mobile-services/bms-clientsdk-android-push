@@ -34,11 +34,11 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
-        String appRoute = "http://ananthbroadcasttest.mybluemix.net";
-        String appGuid = "08433a1c-98fc-46e5-9776-0ee85e2b9ee8";
+        String appRoute = "";
+        String appGuid = "";
 
         try {
-            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);
+            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, "");
            // MFPPush.overrideServerHost = "http://10.0.2.2:9080";
 
         } catch (MalformedURLException e){
@@ -46,8 +46,9 @@ public class MainActivity extends Activity {
         }
 
         push = MFPPush.getInstance();
-        push.initialize(getApplicationContext());
-        
+        push.initialize(getApplicationContext(),"pushAppId");
+        //push.initialize(getApplicationContext(),"pushAppId","clientSecret");
+       // push.registerDeviceWithUserId("userId", new MFPPushResponseListener<String>() {
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
@@ -57,7 +58,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onFailure(MFPPushException ex) {
-                updateTextView("Error registering with Push Service...\n" +ex.toString()
+                updateTextView("Error registering with Push Service...\n" + ex.toString()
                         + "Push notifications will not be received.");
             }
         });
