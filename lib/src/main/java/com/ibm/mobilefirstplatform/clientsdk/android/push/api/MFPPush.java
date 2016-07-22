@@ -733,9 +733,10 @@ public class MFPPush {
                     try {
                         String retDeviceId = (new JSONObject(response.getResponseText())).getString(DEVICE_ID);
                         String retToken = (new JSONObject(response.getResponseText())).getString(TOKEN);
+                        String userIdFromResponse = (new JSONObject(response.getResponseText())).getString(USER_ID);
 
                         if (!(retDeviceId.equals(regId))
-                                || !(retToken.equals(deviceToken))) {
+                                || !(retToken.equals(deviceToken)) || !(userIdFromResponse.equals("anonymous"))) {
                             deviceId = retDeviceId;
                             MFPPushUtils
                                     .storeContentInSharedPreferences(
