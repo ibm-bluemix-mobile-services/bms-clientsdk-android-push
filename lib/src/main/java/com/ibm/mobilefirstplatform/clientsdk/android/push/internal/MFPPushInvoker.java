@@ -20,10 +20,14 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
 
 import org.json.JSONObject;
+
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_CLIENT_SECRET;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_USER_ID;
 
 public class MFPPushInvoker implements ResponseListener{
 
@@ -70,7 +74,7 @@ public class MFPPushInvoker implements ResponseListener{
 
     public MFPPushInvoker addHeaders(String headerName, String headerValue) {
 
-        if (headerName == null && headerValue == null) {
+        if (headerName != null && headerValue != null) {
             request.addHeader(headerName, headerValue);
         }
         return this;

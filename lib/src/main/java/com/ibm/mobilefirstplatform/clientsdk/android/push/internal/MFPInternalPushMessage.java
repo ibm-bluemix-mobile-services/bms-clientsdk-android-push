@@ -66,7 +66,6 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		catch (JSONException e){
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get id.  "+ e.toString());
 		}
-		MFPPushUtils.generateMetricsEvents(id);
 	}
 
 	private MFPInternalPushMessage(Parcel source) {

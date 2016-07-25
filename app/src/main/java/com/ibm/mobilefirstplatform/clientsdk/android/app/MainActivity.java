@@ -38,38 +38,56 @@ public class MainActivity extends Activity {
         String appGuid = "";
 
         try {
-            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);
+            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, "");
+           // MFPPush.overrideServerHost = "http://10.0.2.2:9080";
+
         } catch (MalformedURLException e){
             e.printStackTrace();
         }
 
-        MFPPush.getInstance().initialize(getApplicationContext());
         push = MFPPush.getInstance();
-        push.register(new MFPPushResponseListener<String>() {
-                    @Override
-                    public void onSuccess(String deviceId) {
-                        updateTextView("Device is registered with Push Service.");
-                        displayTags();
-                    }
+        push.initialize(getApplicationContext(),"pushAppId");
+        //push.initialize(getApplicationContext(),"pushAppId","clientSecret");
+       // push.registerDeviceWithUserId("userId", new MFPPushResponseListener<String>() {
+        push.registerDevice(new MFPPushResponseListener<String>() {
+            @Override
+            public void onSuccess(String deviceId) {
+                updateTextView("Device is registered with Push Service.");
+                displayTags();
+            }
 
-                    @Override
-                    public void onFailure(MFPPushException ex) {
-                        updateTextView("Error registering with Push Service...\n"
-                                + "Push notifications will not be received.");
-                    }
-                });
+            @Override
+            public void onFailure(MFPPushException ex) {
+                updateTextView("Error registering with Push Service...\n" + ex.toString()
+                        + "Push notifications will not be received.");
+            }
+        });
 
-
+//        push.initializeWithClientSecret(getApplicationContext(),"");
+//
+//        push.registerDeviceWithUserId("", new MFPPushResponseListener<String>() {
+//            @Override
+//            public void onSuccess(String deviceId) {
+//                updateTextView("Device is registered with Push Service.");
+//                displayTags();
+//            }
+//
+//            @Override
+//            public void onFailure(MFPPushException ex) {
+//                updateTextView("Error registering with Push Service...\n"
+//                        + "Push notifications will not be received.");
+//            }
+//        });
         final Activity activity = this;
 
 
-            notificationListener = new MFPPushNotificationListener() {
+        notificationListener = new MFPPushNotificationListener() {
 
-                @Override
-                public void onReceive(final MFPSimplePushNotification message) {
-                    showNotification(activity, message);
+            @Override
+            public void onReceive(final MFPSimplePushNotification message) {
+                showNotification(activity, message);
 
-                }
+            }
         };
     }
 

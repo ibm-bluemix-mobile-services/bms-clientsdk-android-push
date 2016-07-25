@@ -43,6 +43,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,8 @@ import java.util.List;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_CLIENT_SECRET;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_USER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
@@ -61,20 +64,21 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushInte
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.GCM_MESSAGE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
 
 /**
  * <class>MFPPush</class> provides methods required by an android application to
  * be able to receive push notifications.
- * <p/>
+ * <p>
  * <br>
  * </br>
- * <p/>
+ * <p>
  * Follow the below steps to enable android application for push notifications:
- * <p/>
+ * <p>
  * <br>
  * </br>
- * <p/>
+ * <p>
  * <pre>
  * 1. The below permissions have to be set in the AndroidManifest.xml of the android application
  *
@@ -176,6 +180,9 @@ public class MFPPush {
     private String applicationId = null;
     private String errorString = null;
 
+    private String clientSecret;
+    private boolean isInitialized = false;
+
     private boolean isTokenUpdatedOnServer = false;
 
     private List<MFPInternalPushMessage> pending = new ArrayList<MFPInternalPushMessage>();
@@ -203,12 +210,58 @@ public class MFPPush {
         return instance;
     }
 
-    public void initialize(Context context){
+
+    /**
+     * MFPPush Intitialization method with clientSecret and tenantId.
+     * <p>
+     *
+     * @param context This is the Context of the application from getApplicationContext()
+     * @param pushAppGUID The unique ID of the Push service instance that the application must connect to.
+     */
+    public void initialize(Context context, String pushAppGUID ) {
         try {
-            // Get the applicationId and backend route from core
-            applicationId = BMSClient.getInstance().getBluemixAppGUID();
-            appContext = context.getApplicationContext();
-            validateAndroidContext();
+
+            if (validateString(pushAppGUID)) {
+                // Get the applicationId and backend route from core
+                applicationId = pushAppGUID;
+                appContext = context.getApplicationContext();
+                isInitialized = true;
+                validateAndroidContext();
+            }else {
+                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
+                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
+            }
+        } catch (Exception e) {
+            logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * MFPPush Intitialization method with clientSecret and tenantId.
+     * <p>
+     *
+     * @param context                 this is the Context of the application from getApplicationContext()
+     * @param pushAppGUID   The unique ID of the Push service instance that the application must connect to.
+     * @param pushClientSecret ClientSecret from the push service.
+     */
+    public void initialize(Context context, String pushAppGUID, String pushClientSecret) {
+        try {
+            if (validateString(pushClientSecret) && validateString(pushAppGUID)){
+                // Get the applicationId and backend route from core
+                clientSecret = pushClientSecret;
+                applicationId = pushAppGUID;
+                appContext = context.getApplicationContext();
+                isInitialized = true;
+                validateAndroidContext();
+            }
+            else {
+                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
+                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
+            }
+
         } catch (Exception e) {
             logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
             throw new RuntimeException(e);
@@ -218,7 +271,7 @@ public class MFPPush {
     /**
      * Request MFPPush to deliver incoming push messages to listener.onReceive()
      * method.
-     * <p/>
+     * <p>
      * This method is typically called from the onResume() method of the
      * activity that is handling push notifications.
      *
@@ -249,7 +302,7 @@ public class MFPPush {
      * notificationListener.onReceive() method. After hold(), MFPPush will store
      * the latest push message in private shared preference and deliver that
      * message during the next {@link #listen(MFPPushNotificationListener)}.
-     * <p/>
+     * <p>
      * This method is typically called from the onPause() method of the activity
      * that is handling push notifications.
      */
@@ -260,7 +313,7 @@ public class MFPPush {
             try {
                 appContext.unregisterReceiver(onMessage);
             } catch (Exception e) {
-                logger.warn("MFPPush:hold() - Exception while unregistering receiver. " +e.getMessage());
+                logger.warn("MFPPush:hold() - Exception while unregistering receiver. " + e.getMessage());
             }
             onMessageReceiverRegistered = false;
         }
@@ -285,31 +338,64 @@ public class MFPPush {
      *                 {@link MFPPushResponseListener}.onSuccess method is called
      *                 with the deviceId. {@link MFPPushResponseListener}.onFailure
      *                 method is called otherwise
+     * @param userId   -  The UserId for registration.
      */
-    public void register(MFPPushResponseListener<String> listener) {
-        this.registerResponseListener = listener;
-        logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
-        getSenderIdFromServerAndRegisterInBackground();
+    public void registerDeviceWithUserId(String userId, MFPPushResponseListener<String> listener) {
+
+        if ( isInitialized ) {
+            this.registerResponseListener = listener;
+            if (validateString(userId)) {
+
+                logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
+                getSenderIdFromServerAndRegisterInBackground(userId);
+            } else {
+                logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
+                System.out.print("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
+                registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value"));
+            }
+        }else {
+            logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
+        }
+
+    }
+
+    /**
+     * Registers the device for Push notifications with the given alias and
+     * consumerId
+     *
+     * @param listener - Mandatory listener class. When the device is successfully
+     *                 registered with Push service the
+     *                 {@link MFPPushResponseListener}.onSuccess method is called
+     *                 with the deviceId. {@link MFPPushResponseListener}.onFailure
+     *                 method is called otherwise
+     */
+    public void registerDevice(MFPPushResponseListener<String> listener) {
+
+        if ( isInitialized ) {
+            this.registerResponseListener = listener;
+            logger.info("MFPPush:register() - Registering for MFPPush service.");
+            getSenderIdFromServerAndRegisterInBackground(null);
+        } else {
+            logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
+        }
     }
 
     /**
      * Subscribes to the given tag
      *
-     * @param tagName
-     *            name of the tag
-     * @param listener
-     *            Mandatory listener class. When the subscription is created
-     *            successfully the {@link MFPPushResponseListener}.onSuccess
-     *            method is called with the tagName for which subscription is
-     *            created. {@link MFPPushResponseListener}.onFailure method is
-     *            called otherwise
+     * @param tagName  name of the tag
+     * @param listener Mandatory listener class. When the subscription is created
+     *                 successfully the {@link MFPPushResponseListener}.onSuccess
+     *                 method is called with the tagName for which subscription is
+     *                 created. {@link MFPPushResponseListener}.onFailure method is
+     *                 called otherwise
      */
     public void subscribe(final String tagName,
                           final MFPPushResponseListener<String> listener) {
         if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getSubscriptionsUrl();
-            logger.debug("MFPPush:subscribe() - The tag subscription path is: "+ path);
+            logger.debug("MFPPush:subscribe() - The tag subscription path is: " + path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
             invoker.setJSONRequestBody(buildSubscription(tagName));
             invoker.setResponseListener(new ResponseListener() {
@@ -342,27 +428,25 @@ public class MFPPush {
     /**
      * Unsubscribes to the given tag
      *
-     * @param tagName
-     *            name of the tag
-     * @param listener
-     *            Mandatory listener class. When the subscription is deleted
-     *            successfully the {@link MFPPushResponseListener}.onSuccess
-     *            method is called with the tagName for which subscription is
-     *            deleted. {@link MFPPushResponseListener}.onFailure method is
-     *            called otherwise
+     * @param tagName  name of the tag
+     * @param listener Mandatory listener class. When the subscription is deleted
+     *                 successfully the {@link MFPPushResponseListener}.onSuccess
+     *                 method is called with the tagName for which subscription is
+     *                 deleted. {@link MFPPushResponseListener}.onFailure method is
+     *                 called otherwise
      */
     public void unsubscribe(final String tagName,
                             final MFPPushResponseListener<String> listener) {
         if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
-            logger.debug("MFPPush:unsubscribe() - The tag unsubscription path is: "+ path);
+            logger.debug("MFPPush:unsubscribe() - The tag unsubscription path is: " + path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
 
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
-                    logger.info("MFPPush:unsubscribe() - Tag unsubscription successful.  The response is: "+ response.toString());
+                    logger.info("MFPPush:unsubscribe() - Tag unsubscription successful.  The response is: " + response.toString());
                     listener.onSuccess(tagName);
                 }
 
@@ -387,17 +471,16 @@ public class MFPPush {
     /**
      * Unregister the device from Push Server
      *
-     * @param listener
-     *            Mandatory listener class. When the subscription is deleted
-     *            successfully the {@link MFPPushResponseListener}.onSuccess
-     *            method is called with the tagName for which subscription is
-     *            deleted. {@link MFPPushResponseListener}.onFailure method is
-     *            called otherwise
+     * @param listener Mandatory listener class. When the subscription is deleted
+     *                 successfully the {@link MFPPushResponseListener}.onSuccess
+     *                 method is called with the tagName for which subscription is
+     *                 deleted. {@link MFPPushResponseListener}.onFailure method is
+     *                 called otherwise
      */
     public void unregister(final MFPPushResponseListener<String> listener) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getUnregisterUrl(deviceId);
-        logger.debug("MFPPush:unregister() - The device unregister url is: "+ path);
+        logger.debug("MFPPush:unregister() - The device unregister url is: " + path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
 
         invoker.setResponseListener(new ResponseListener() {
@@ -405,7 +488,7 @@ public class MFPPush {
             public void onSuccess(Response response) {
                 logger.info("MFPPush:unregister() - Successfully unregistered device. Response is: " + response.toString());
                 isTokenUpdatedOnServer = false;
-                 isRegisteredForPush = false;
+                isRegisteredForPush = false;
                 listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
             }
 
@@ -428,12 +511,11 @@ public class MFPPush {
     /**
      * Get the list of tags
      *
-     * @param listener
-     *            Mandatory listener class. When the list of tags are
-     *            successfully retrieved the {@link MFPPushResponseListener}
-     *            .onSuccess method is called with the list of tagNames
-     *            {@link MFPPushResponseListener}.onFailure method is called
-     *            otherwise
+     * @param listener Mandatory listener class. When the list of tags are
+     *                 successfully retrieved the {@link MFPPushResponseListener}
+     *                 .onSuccess method is called with the list of tagNames
+     *                 {@link MFPPushResponseListener}.onFailure method is called
+     *                 otherwise
      */
     public void getTags(final MFPPushResponseListener<List<String>> listener) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
@@ -444,11 +526,11 @@ public class MFPPush {
 
             @Override
             public void onSuccess(Response response) {
-                logger.info("MFPPush:getTags() - Successfully retreived tags.  The response is: "+ response.toString());
+                logger.info("MFPPush:getTags() - Successfully retreived tags.  The response is: " + response.toString());
                 List<String> tagNames = new ArrayList<String>();
                 try {
                     String responseText = response.getResponseText();
-                    JSONArray tags = (JSONArray)(new JSONObject(responseText)).get(TAGS);
+                    JSONArray tags = (JSONArray) (new JSONObject(responseText)).get(TAGS);
                     Log.d("JSONArray of tags is: ", tags.toString());
                     int tagsCnt = tags.length();
                     for (int tagsIdx = 0; tagsIdx < tagsCnt; tagsIdx++) {
@@ -458,7 +540,7 @@ public class MFPPush {
                     }
                     listener.onSuccess(tagNames);
                 } catch (JSONException e) {
-                    logger.error("MFPPush: getTags() - Error while retrieving tags.  Error is: " +e.getMessage());
+                    logger.error("MFPPush: getTags() - Error while retrieving tags.  Error is: " + e.getMessage());
                     listener.onFailure(new MFPPushException(e));
                 }
             }
@@ -473,7 +555,8 @@ public class MFPPush {
                     errorString = throwable.toString();
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
-                }                listener.onFailure(new MFPPushException(errorString));
+                }
+                listener.onFailure(new MFPPushException(errorString));
             }
         });
         invoker.execute();
@@ -482,12 +565,11 @@ public class MFPPush {
     /**
      * Get the list of tags subscribed to
      *
-     * @param listener
-     *            Mandatory listener class. When the list of tags subscribed to
-     *            are successfully retrieved the {@link MFPPushResponseListener}
-     *            .onSuccess method is called with the list of tagNames
-     *            {@link MFPPushResponseListener}.onFailure method is called
-     *            otherwise
+     * @param listener Mandatory listener class. When the list of tags subscribed to
+     *                 are successfully retrieved the {@link MFPPushResponseListener}
+     *                 .onSuccess method is called with the list of tagNames
+     *                 {@link MFPPushResponseListener}.onFailure method is called
+     *                 otherwise
      */
     public void getSubscriptions(
             final MFPPushResponseListener<List<String>> listener) {
@@ -511,7 +593,7 @@ public class MFPPush {
                     listener.onSuccess(tagNames);
 
                 } catch (JSONException e) {
-                    logger.error("MFPPush: getSubscriptions() - Failure while getting subscriptions.  Failure response is: "+ e.getMessage());
+                    logger.error("MFPPush: getSubscriptions() - Failure while getting subscriptions.  Failure response is: " + e.getMessage());
                     listener.onFailure(new MFPPushException(e));
                 }
             }
@@ -533,7 +615,7 @@ public class MFPPush {
         invoker.execute();
     }
 
-    private void registerInBackground() {
+    private void registerInBackground(final String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
@@ -544,13 +626,17 @@ public class MFPPush {
                     }
                     deviceToken = gcm.register(gcmSenderId);
                     gcm.close();
-                    logger.info("MFPPush:registerInBackground() - Successfully registered with GCM. Returned deviceToken is: "+ deviceToken);
+                    logger.info("MFPPush:registerInBackground() - Successfully registered with GCM. Returned deviceToken is: " + deviceToken);
                     computeRegId();
-                    verifyDeviceRegistration();
+                    if (validateString(userId)) {
+                        registerWithUserId(userId);
+                    } else {
+                        register();
+                    }
                 } catch (IOException ex) {
                     msg = ex.getMessage();
                     //Failed to register at GCM Server.
-                    logger.error("MFPPush:registerInBackground() - Failed to register at GCM Server. Exception is: "+ ex.getMessage());
+                    logger.error("MFPPush:registerInBackground() - Failed to register at GCM Server. Exception is: " + ex.getMessage());
                     registerResponseListener
                             .onFailure(new MFPPushException(msg));
                 }
@@ -562,65 +648,139 @@ public class MFPPush {
     private void computeRegId() {
         logger.debug("MFPPush:computeRegId() Computing device's registrationId");
 
-        if(regId == null){
-			AuthorizationManager authorizationManager = BMSClient.getInstance().getAuthorizationManager();
+        if (regId == null) {
+            AuthorizationManager authorizationManager = BMSClient.getInstance().getAuthorizationManager();
             regId = authorizationManager.getDeviceIdentity().getId();
             logger.debug("MFPPush:computeRegId() - DeviceId obtained from AuthorizationManager is : " + regId);
         }
     }
 
-    private boolean verifyDeviceRegistration() {
+    private boolean registerWithUserId(final String userId) {
 
-        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
-        String path = builder.getDeviceIdUrl(regId);
-        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-        invoker.setJSONRequestBody(null);
-        invoker.setResponseListener(new ResponseListener() {
-            @Override
-            public void onSuccess(Response response) {
-                try {
-                    String retDeviceId = (new JSONObject(response.getResponseText())).getString(DEVICE_ID);
-                    String retToken = (new JSONObject(response.getResponseText())).getString(TOKEN);
+        if (isInitialized == true) {
+            if (validateString(userId) && validateString(clientSecret)) {
 
-                    if (!(retDeviceId.equals(regId))
-                            || !(retToken.equals(deviceToken))) {
-                        deviceId = retDeviceId;
-                        MFPPushUtils
-                                .storeContentInSharedPreferences(
-                                        appContext, applicationId,
-                                        DEVICE_ID, deviceId);
+                MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
+                String path = builder.getDeviceIdUrl(regId);
+                MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
+                invoker.setJSONRequestBody(null);
 
-                        hasRegisterParametersChanged = true;
-                        updateTokenCallback(deviceToken);
-                    } else {
-                        deviceId = retDeviceId;
-                        isTokenUpdatedOnServer = true;
-                        MFPPushUtils
-                                .storeContentInSharedPreferences(
-                                        appContext, applicationId,
-                                        DEVICE_ID, deviceId);
-                        registerResponseListener
-                                .onSuccess(response.toString());
+                invoker.setResponseListener(new ResponseListener() {
+                    @Override
+                    public void onSuccess(Response response) {
+                        try {
+                            String retDeviceId = (new JSONObject(response.getResponseText())).getString(DEVICE_ID);
+                            String retToken = (new JSONObject(response.getResponseText())).getString(TOKEN);
+                            String userIdFromResponse = (new JSONObject(response.getResponseText())).getString(USER_ID);
+
+                            if (!(retDeviceId.equals(regId))
+                                    || !(retToken.equals(deviceToken)) || !(userId.equals(userIdFromResponse))) {
+                                deviceId = retDeviceId;
+                                MFPPushUtils
+                                        .storeContentInSharedPreferences(
+                                                appContext, applicationId,
+                                                DEVICE_ID, deviceId);
+
+                                hasRegisterParametersChanged = true;
+                                updateTokenCallback(deviceToken,userId);
+                            } else {
+                                deviceId = retDeviceId;
+                                isTokenUpdatedOnServer = true;
+                                MFPPushUtils
+                                        .storeContentInSharedPreferences(
+                                                appContext, applicationId,
+                                                DEVICE_ID, deviceId);
+                                registerResponseListener
+                                        .onSuccess(response.toString());
+                            }
+                        } catch (JSONException e1) {
+                            logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Exception caught while parsing JSON response.");
+                            e1.printStackTrace();
+                        }
                     }
-                } catch (JSONException e1) {
-                    logger.error("MFPPush:VerifyDeviceRegistration() - Exception caught while parsing JSON response.");
-                    e1.printStackTrace();
-                }
-            }
 
-            @Override
-            public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-                // Device is not registered.
-                isNewRegistration = true;
-                updateTokenCallback(deviceToken);
+                    @Override
+                    public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
+                        // Device is not registered.
+                        isNewRegistration = true;
+                        updateTokenCallback(deviceToken,userId);
+                    }
+                });
+                invoker.execute();
+            } else {
+
+                String error = "Error while registration - Please verify your UserId and ClientSecret value";
+                logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Please verify your UserId and ClientSecret value");
+                System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
             }
-        });
-        invoker.execute();
+        } else {
+            String error = "Error while registration -. Not initialized MFPPush";
+            logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Error while registration -. Not initialized MFPPush");
+            System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
+        }
 
         return true;
     }
 
-    private void updateTokenCallback(String deviceToken) {
+    private boolean register() {
+
+        if (isInitialized) {
+            MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
+            String path = builder.getDeviceIdUrl(regId);
+            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
+            invoker.setJSONRequestBody(null);
+            invoker.setResponseListener(new ResponseListener() {
+                @Override
+                public void onSuccess(Response response) {
+                    try {
+                        String retDeviceId = (new JSONObject(response.getResponseText())).getString(DEVICE_ID);
+                        String retToken = (new JSONObject(response.getResponseText())).getString(TOKEN);
+                        String userIdFromResponse = (new JSONObject(response.getResponseText())).getString(USER_ID);
+
+                        if (!(retDeviceId.equals(regId))
+                                || !(retToken.equals(deviceToken)) || !(userIdFromResponse.equals("anonymous"))) {
+                            deviceId = retDeviceId;
+                            MFPPushUtils
+                                    .storeContentInSharedPreferences(
+                                            appContext, applicationId,
+                                            DEVICE_ID, deviceId);
+
+                            hasRegisterParametersChanged = true;
+                            updateTokenCallback(deviceToken,null);
+                        } else {
+                            deviceId = retDeviceId;
+                            isTokenUpdatedOnServer = true;
+                            MFPPushUtils
+                                    .storeContentInSharedPreferences(
+                                            appContext, applicationId,
+                                            DEVICE_ID, deviceId);
+                            registerResponseListener
+                                    .onSuccess(response.toString());
+                        }
+                    } catch (JSONException e1) {
+                        logger.error("MFPPush:VerifyDeviceRegistration() - Exception caught while parsing JSON response.");
+                        e1.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
+                    // Device is not registered.
+                    isNewRegistration = true;
+                    updateTokenCallback(deviceToken,null);
+                }
+            });
+            invoker.execute();
+
+        } else {
+            String error = "Error while registration -. Not initialized MFPPush";
+            logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Error while registration -. Not initialized MFPPush");
+            System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
+        }
+        return true;
+    }
+
+    private void updateTokenCallback(String deviceToken, String userId) {
         if (isNewRegistration) {
             logger.debug("MFPPush:updateTokenCallback() - Device is registering with push server for the first time.");
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
@@ -630,7 +790,10 @@ public class MFPPush {
 
             //Add header for xtify deviceId for migration
             final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);
-            invoker.addHeaders(MFPPushConstants.IBM_MBAAS_XID_HEADER,sharedPreferences.getString(applicationId + MFPPushConstants.DEVICE_ID,null));
+            if(validateString(userId)){
+                invoker.addHeaders(IMFPUSH_USER_ID, userId);
+                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            }
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -663,6 +826,10 @@ public class MFPPush {
             String path = builder.getDeviceIdUrl(deviceId);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT);
             invoker.setJSONRequestBody(buildDevice());
+            if(validateString(userId)){
+                invoker.addHeaders(IMFPUSH_USER_ID, userId);
+                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            }
             invoker.setResponseListener(new ResponseListener() {
 
                 @Override
@@ -894,11 +1061,11 @@ public class MFPPush {
         return gotMessages;
     }
 
-    private void getSenderIdFromServerAndRegisterInBackground() {
+    private void getSenderIdFromServerAndRegisterInBackground(final String userId) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getSettingsUrl();
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-        logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground() - The url for getting gcm configuration is: "+ path);
+        logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground() - The url for getting gcm configuration is: " + path);
         invoker.setJSONRequestBody(null);
         invoker.setResponseListener(new ResponseListener() {
 
@@ -920,7 +1087,7 @@ public class MFPPush {
                 } else {
                     gcmSenderId = senderId;
                     MFPPushUtils.storeContentInSharedPreferences(appContext, applicationId, SENDER_ID, gcmSenderId);
-                    registerInBackground();
+                    registerInBackground(userId);
                 }
             }
 
@@ -940,6 +1107,14 @@ public class MFPPush {
         });
 
         invoker.execute();
+    }
+
+    public Boolean validateString(String object) {
+        if (object == null || object.isEmpty()  || object == "") {
+            return false;
+        } else {
+            return true;
+        }
     }
 }
 
