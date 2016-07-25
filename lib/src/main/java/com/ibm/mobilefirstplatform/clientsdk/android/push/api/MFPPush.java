@@ -216,14 +216,14 @@ public class MFPPush {
      * <p>
      *
      * @param context This is the Context of the application from getApplicationContext()
-     * @param pushInstanceId The unique ID of the Push service instance that the application must connect to.
+     * @param pushAppGUID The unique ID of the Push service instance that the application must connect to.
      */
-    public void initialize(Context context, String pushInstanceId ) {
+    public void initialize(Context context, String pushAppGUID ) {
         try {
 
-            if (validateString(pushInstanceId)) {
+            if (validateString(pushAppGUID)) {
                 // Get the applicationId and backend route from core
-                applicationId = pushInstanceId;
+                applicationId = pushAppGUID;
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
@@ -243,15 +243,15 @@ public class MFPPush {
      * <p>
      *
      * @param context                 this is the Context of the application from getApplicationContext()
-     * @param pushInstanceId   The unique ID of the Push service instance that the application must connect to.
+     * @param pushAppGUID   The unique ID of the Push service instance that the application must connect to.
      * @param pushClientSecret ClientSecret from the push service.
      */
-    public void initialize(Context context, String pushInstanceId, String pushClientSecret) {
+    public void initialize(Context context, String pushAppGUID, String pushClientSecret) {
         try {
-            if (validateString(pushClientSecret) && validateString(pushInstanceId)){
+            if (validateString(pushClientSecret) && validateString(pushAppGUID)){
                 // Get the applicationId and backend route from core
                 clientSecret = pushClientSecret;
-                applicationId = pushInstanceId;
+                applicationId = pushAppGUID;
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
