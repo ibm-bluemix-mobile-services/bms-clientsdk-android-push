@@ -215,21 +215,22 @@ public class MFPPush {
      * MFPPush Intitialization method with clientSecret and tenantId.
      * <p>
      *
-     * @param context  this is the Context of the application from getApplicationContext()
+     * @param context This is the Context of the application from getApplicationContext()
+     * @param pushInstanceId The unique ID of the Push service instance that the application must connect to.
      */
-    public void initialize(Context context, String pushAppGUID ) {
+    public void initialize(Context context, String pushInstanceId ) {
         try {
 
-            if (validateString(pushAppGUID)) {
+            if (validateString(pushInstanceId)) {
                 // Get the applicationId and backend route from core
-                applicationId = pushAppGUID;
+                applicationId = pushInstanceId;
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
             }else {
-                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid pushAppGUID Value");
-                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid pushAppGUID Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid pushAppGUID Value");
+                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
+                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
             }
         } catch (Exception e) {
             logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
@@ -242,22 +243,23 @@ public class MFPPush {
      * <p>
      *
      * @param context                 this is the Context of the application from getApplicationContext()
+     * @param pushInstanceId   The unique ID of the Push service instance that the application must connect to.
      * @param pushClientSecret ClientSecret from the push service.
      */
-    public void initialize(Context context, String pushAppGUID, String pushClientSecret) {
+    public void initialize(Context context, String pushInstanceId, String pushClientSecret) {
         try {
-            if (validateString(pushClientSecret) && validateString(pushAppGUID)){
+            if (validateString(pushClientSecret) && validateString(pushInstanceId)){
                 // Get the applicationId and backend route from core
                 clientSecret = pushClientSecret;
-                applicationId = pushAppGUID;
+                applicationId = pushInstanceId;
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
             }
             else {
-                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and pushAppGUID Value");
-                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and pushAppGUID Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and pushAppGUID Value");
+                logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
+                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
             }
 
         } catch (Exception e) {
