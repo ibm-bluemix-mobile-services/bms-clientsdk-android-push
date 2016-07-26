@@ -19,6 +19,25 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+####2.0.4
+* Updated with userId based notifications support.
+* To register UserId based notifications follow the below steps,
+
+    1. MFPPush push = MFPPush.getInstance();
+    2. push.initialize(getApplicationContext(),"your appGuid of push", "clientSecret");
+    3. registerDeviceWithUserId("your userId"",new MFPPushResponseListener<String>() {
+            @Override
+            public void onSuccess(String deviceId) {
+                updateTextView("Device is registered with Push Service.");
+                displayTags();
+            }
+
+            @Override
+            public void onFailure(MFPPushException ex) {
+                updateTextView("Error registering with Push Service...\n" + ex.toString()
+                + "Push notifications will not be received.");
+            }
+        });
 
 ####2.0.2
 * Update references of core to 2.0.1
