@@ -216,14 +216,14 @@ public class MFPPush {
      * <p>
      *
      * @param context This is the Context of the application from getApplicationContext()
-     * @param pushAppGUID The unique ID of the Push service instance that the application must connect to.
+     * @param appGUID The unique ID of the Push service instance that the application must connect to.
      */
-    public void initialize(Context context, String pushAppGUID ) {
+    public void initialize(Context context, String appGUID ) {
         try {
 
-            if (validateString(pushAppGUID)) {
+            if (validateString(appGUID)) {
                 // Get the applicationId and backend route from core
-                applicationId = pushAppGUID;
+                applicationId = appGUID;
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
@@ -243,15 +243,15 @@ public class MFPPush {
      * <p>
      *
      * @param context                 this is the Context of the application from getApplicationContext()
-     * @param pushAppGUID   The unique ID of the Push service instance that the application must connect to.
+     * @param appGUID   The unique ID of the Push service instance that the application must connect to.
      * @param pushClientSecret ClientSecret from the push service.
      */
-    public void initialize(Context context, String pushAppGUID, String pushClientSecret) {
+    public void initialize(Context context, String appGUID, String pushClientSecret) {
         try {
-            if (validateString(pushClientSecret) && validateString(pushAppGUID)){
+            if (validateString(pushClientSecret) && validateString(appGUID)){
                 // Get the applicationId and backend route from core
                 clientSecret = pushClientSecret;
-                applicationId = pushAppGUID;
+                applicationId = appGUID;
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
