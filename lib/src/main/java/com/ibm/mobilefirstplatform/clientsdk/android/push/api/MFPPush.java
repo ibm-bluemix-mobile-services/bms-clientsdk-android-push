@@ -1,5 +1,5 @@
 /*
-    Copyright 2015 IBM Corp.
+    Copyright 2016-17 IBM Corp.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -52,7 +52,6 @@ import java.util.List;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_CLIENT_SECRET;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_USER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
@@ -767,7 +766,7 @@ public class MFPPush {
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     // Device is not registered.
                     isNewRegistration = true;
-                    updateTokenCallback(deviceToken,null);
+                    updateTokenCallback(deviceToken, null);
                 }
             });
             invoker.execute();
@@ -786,13 +785,15 @@ public class MFPPush {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDevicesUrl();
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
-            invoker.setJSONRequestBody(buildDevice());
+
 
             //Add header for xtify deviceId for migration
             final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);
             if(validateString(userId)){
-                invoker.addHeaders(IMFPUSH_USER_ID, userId);
+                invoker.setJSONRequestBody(buildDevice(userId));
                 invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            } else {
+                invoker.setJSONRequestBody(buildDevice(""));
             }
             invoker.setResponseListener(new ResponseListener() {
 
@@ -825,10 +826,12 @@ public class MFPPush {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDeviceIdUrl(deviceId);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT);
-            invoker.setJSONRequestBody(buildDevice());
+
             if(validateString(userId)){
-                invoker.addHeaders(IMFPUSH_USER_ID, userId);
+                invoker.setJSONRequestBody(buildDevice(userId));
                 invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            } else {
+                invoker.setJSONRequestBody(buildDevice(""));
             }
             invoker.setResponseListener(new ResponseListener() {
 
@@ -905,12 +908,20 @@ public class MFPPush {
         };
     }
 
-    private JSONObject buildDevice() {
+    private JSONObject buildDevice(String userId) {
         JSONObject device = new JSONObject();
         try {
-            device.put(DEVICE_ID, regId);
-            device.put(TOKEN, deviceToken);
-            device.put(PLATFORM, "G");
+            if(validateString(userId)){
+                device.put(DEVICE_ID, regId);
+                device.put(TOKEN, deviceToken);
+                device.put(PLATFORM, "G");
+                device.put(USER_ID, userId);
+            } else {
+                device.put(DEVICE_ID, regId);
+                device.put(TOKEN, deviceToken);
+                device.put(PLATFORM, "G");
+            }
+
         } catch (JSONException e) {
             logger.error("MFPPush: buildDevice() - Error while building device JSON object.");
             throw new RuntimeException(e);

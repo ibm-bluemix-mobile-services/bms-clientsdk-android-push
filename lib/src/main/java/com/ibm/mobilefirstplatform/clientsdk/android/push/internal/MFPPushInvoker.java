@@ -1,5 +1,5 @@
 /*
-    Copyright 2015 IBM Corp.
+    Copyright 2016-17 IBM Corp.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -20,14 +20,12 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
 
 import org.json.JSONObject;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_CLIENT_SECRET;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_USER_ID;
 
 public class MFPPushInvoker implements ResponseListener{
 
