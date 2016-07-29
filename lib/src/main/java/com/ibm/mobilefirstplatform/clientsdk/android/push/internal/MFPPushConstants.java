@@ -1,5 +1,5 @@
 /*
-    Copyright 2015 IBM Corp.
+    Copyright 2016-17 IBM Corp.
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -21,7 +21,7 @@ public interface MFPPushConstants {
 	public static final String PLATFORM = "platform";
 	public static final String DEVICE_ID = "deviceId";
 	public static final String USER_ID = "userId";
-	public static final String IMFPUSH_USER_ID  = "pushUser";
+	//public static final String IMFPUSH_USER_ID  = "pushUser";
 	public static final String IMFPUSH_CLIENT_SECRET  = "clientSecret";
 	public static final String TAG_NAME = "tagName";
 	public static final String TAGS = "tags";
