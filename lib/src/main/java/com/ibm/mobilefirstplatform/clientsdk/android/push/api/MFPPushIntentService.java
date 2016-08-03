@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -123,6 +124,7 @@ public class MFPPushIntentService extends IntentService {
 			generateNotification(context, message.getAlert(),
 					getNotificationTitle(context), message.getAlert(),
 					getNotificationIcon(), intent, message.getSound());
+
 		}
 	}
 
@@ -173,17 +175,47 @@ public class MFPPushIntentService extends IntentService {
 			String title, String msg, int icon, Intent intent, String sound) {
 		int androidSDKVersion = Build.VERSION.SDK_INT;
 		long when = System.currentTimeMillis();
+		Notification notification = null;
+		MFPInternalPushMessage message = intent.getParcelableExtra(GCM_EXTRA_MESSAGE);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(
+				this);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(
-                this);
-        Notification notification = builder.setContentIntent(PendingIntent
-				.getActivity(context, 0, intent,
-						PendingIntent.FLAG_UPDATE_CURRENT))
-                .setSmallIcon(icon).setTicker(ticker).setWhen(when)
-                .setAutoCancel(true).setContentTitle(title)
-                .setContentText(msg).setSound(getNotificationSoundUri(context, sound))
-				.build();
+		if (androidSDKVersion > 10) {
+			builder.setContentIntent(PendingIntent
+					.getActivity(context, 0, intent,
+							PendingIntent.FLAG_UPDATE_CURRENT))
+					.setSmallIcon(icon).setTicker(ticker).setWhen(when)
+					.setAutoCancel(true).setContentTitle(title)
+					.setContentText(msg).setSound(getNotificationSoundUri(context, sound));
 
+			if (androidSDKVersion > 19) {
+				//As new material theme is very light, the icon is not shown clearly
+				//hence setting the background of icon to black
+				builder.setColor(Color.BLACK);
+				Boolean isBridgeSet = message.getBridge();
+				int visibility = message.getVisibility();
+				if(!isBridgeSet) {
+					// show notification only on current device.
+					builder.setLocalOnly(true);
+				}
+			}
+
+			if(androidSDKVersion > 15) {
+				int priority = message.getPriority();
+				if (priority != 0) {
+					builder.setPriority(priority);
+				}
+			}
+			notification = builder.build();
+
+		} else {
+			notification = builder.setContentIntent(PendingIntent
+					.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+					.setSmallIcon(icon).setTicker(ticker).setWhen(when)
+					.setAutoCancel(true).setContentTitle(title)
+					.setContentText(msg).setSound(getNotificationSoundUri(context, sound))
+					.build();
+		}
         NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 
