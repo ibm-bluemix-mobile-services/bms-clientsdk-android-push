@@ -34,20 +34,20 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
-        String appRoute = "";
-        String appGuid = "";
+        String appRoute = "Your-app-route-here";
+        String appGuid = "Your-app-GUID-here";
 
         try {
-            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, "");
-           // MFPPush.overrideServerHost = "http://10.0.2.2:9080";
-
+            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);
         } catch (MalformedURLException e){
             e.printStackTrace();
         }
 
         push = MFPPush.getInstance();
-        push.initialize(getApplicationContext(),"appGuid");
-        //push.initialize(getApplicationContext(),"appGuid","clientSecret");
+        push.initialize(getApplicationContext(),appGuid);
+
+        //Uncomment this code to use Push notifications with userId support
+        // push.initialize(getApplicationContext(),"appGuid","clientSecret");
        // push.registerDeviceWithUserId("userId", new MFPPushResponseListener<String>() {
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
@@ -63,6 +63,7 @@ public class MainActivity extends Activity {
             }
         });
 
+        //Uncomment this code to use Push notification with userId support.
 //        push.initializeWithClientSecret(getApplicationContext(),"");
 //
 //        push.registerDeviceWithUserId("", new MFPPushResponseListener<String>() {

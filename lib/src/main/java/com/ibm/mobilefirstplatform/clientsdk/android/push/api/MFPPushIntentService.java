@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
@@ -170,6 +171,7 @@ public class MFPPushIntentService extends IntentService {
 
 	private void generateNotification(Context context, String ticker,
 			String title, String msg, int icon, Intent intent, String sound) {
+		int androidSDKVersion = Build.VERSION.SDK_INT;
 		long when = System.currentTimeMillis();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
@@ -179,11 +181,11 @@ public class MFPPushIntentService extends IntentService {
 						PendingIntent.FLAG_UPDATE_CURRENT))
                 .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                 .setAutoCancel(true).setContentTitle(title)
-                .setContentText(msg).setSound(getNotificationSoundUri(context, sound)).build();
+                .setContentText(msg).setSound(getNotificationSoundUri(context, sound))
+				.build();
+
         NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
-
-		//builder.setSound(getNotificationSoundUri(context,sound));
 
 		notificationManager.notify(randomObj.nextInt(), notification);
 	}
