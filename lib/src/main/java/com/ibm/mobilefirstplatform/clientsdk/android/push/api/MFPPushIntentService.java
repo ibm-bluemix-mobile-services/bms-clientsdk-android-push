@@ -188,6 +188,13 @@ public class MFPPushIntentService extends IntentService {
 					.setAutoCancel(true).setContentTitle(title)
 					.setContentText(msg).setSound(getNotificationSoundUri(context, sound));
 
+			if(androidSDKVersion > 15) {
+				int priority = message.getPriority();
+				if (priority != 0) {
+					builder.setPriority(priority);
+				}
+			}
+
 			if (androidSDKVersion > 19) {
 				//As new material theme is very light, the icon is not shown clearly
 				//hence setting the background of icon to black
@@ -198,15 +205,20 @@ public class MFPPushIntentService extends IntentService {
 					// show notification only on current device.
 					builder.setLocalOnly(true);
 				}
-			}
 
-			if(androidSDKVersion > 15) {
-				int priority = message.getPriority();
-				if (priority != 0) {
-					builder.setPriority(priority);
+				notification = builder.build();
+
+				if (message.getVisibility() == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
+					builder.setContentIntent(PendingIntent
+							.getActivity(context, 0, intent,
+									PendingIntent.FLAG_UPDATE_CURRENT))
+							.setSmallIcon(icon).setTicker(ticker).setWhen(when)
+							.setAutoCancel(true).setContentTitle(title)
+							.setContentText(message.getRedact()).setSound(getNotificationSoundUri(context, sound));
+
+					notification.publicVersion = builder.build();
 				}
 			}
-			notification = builder.build();
 
 		} else {
 			notification = builder.setContentIntent(PendingIntent
@@ -216,6 +228,7 @@ public class MFPPushIntentService extends IntentService {
 					.setContentText(msg).setSound(getNotificationSoundUri(context, sound))
 					.build();
 		}
+
         NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 
