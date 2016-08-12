@@ -126,7 +126,7 @@ public class MFPPushIntentService extends IntentService {
 
 			generateNotification(context, message.getAlert(),
 					getNotificationTitle(context), message.getAlert(),
-					getCustomNotificationIcon(context, "drawable", "push_notification_icon"), intent, message.getSound());
+					getCustomNotificationIcon(context, "push_notification_icon"), intent, message.getSound());
 		}
 	}
 
@@ -160,18 +160,18 @@ public class MFPPushIntentService extends IntentService {
 		return "";
 	}
 
-	private int getNotificationIcon() {
-		int notificationIcon;
-		try {
-			notificationIcon = MFPPushUtils.getResourceId(getApplicationContext(),
-					"drawable", "push_notification_icon");
-		} catch (Exception e) {
-			//Failed to find the icon resource.  Add the icon file(push_notification_icon.png) under /res/drawable foler.
-			//Notification will be showin with a default star icon from Android.
-			notificationIcon = android.R.drawable.btn_star;
-		}
-		return notificationIcon;
-	}
+//	private int getNotificationIcon() {
+//		int notificationIcon;
+//		try {
+//			notificationIcon = MFPPushUtils.getResourceId(getApplicationContext(),
+//					"drawable", "push_notification_icon");
+//		} catch (Exception e) {
+//			//Failed to find the icon resource.  Add the icon file(push_notification_icon.png) under /res/drawable foler.
+//			//Notification will be showin with a default star icon from Android.
+//			notificationIcon = android.R.drawable.btn_star;
+//		}
+//		return notificationIcon;
+//	}
 
 
 	private void generateNotification(Context context, String ticker,
@@ -192,13 +192,13 @@ public class MFPPushIntentService extends IntentService {
 
 			if(androidSDKVersion > 15) {
 				String priority = message.getPriority();
-				if (priority.equalsIgnoreCase("max")) {
+				if (priority != null && priority.equalsIgnoreCase("max")) {
 					builder.setPriority(Notification.PRIORITY_MAX);
-				} else if (priority.equalsIgnoreCase("min")) {
+				} else if (priority!= null && priority.equalsIgnoreCase("min")) {
 					builder.setPriority(Notification.PRIORITY_MIN);
-				} else if (priority.equalsIgnoreCase("high")) {
+				} else if (priority != null && priority.equalsIgnoreCase("high")) {
 					builder.setPriority((Notification.PRIORITY_HIGH));
-				} else if (priority.equalsIgnoreCase("low")) {
+				} else if (priority != null && priority.equalsIgnoreCase("low")) {
 					builder.setPriority(Notification.PRIORITY_LOW);
 				} else {
 					builder.setPriority(Notification.PRIORITY_DEFAULT);
@@ -219,7 +219,7 @@ public class MFPPushIntentService extends IntentService {
 				notification = builder.build();
 				int receivedVisibility = 1;
 				String vbility = message.getVisibility();
-				if (vbility == "private") {
+				if (vbility != null && vbility.equalsIgnoreCase("private")) {
 					receivedVisibility = 0;
 				}
 				if (receivedVisibility == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
@@ -236,7 +236,7 @@ public class MFPPushIntentService extends IntentService {
 
 			if (androidSDKVersion > 21) {
 				String setPriority = message.getPriority();
-				if (setPriority.equalsIgnoreCase("max")) {
+				if (setPriority != null && setPriority.equalsIgnoreCase("max")) {
 					builder.setContentText("Heads up Notification.")
 							.setFullScreenIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT), true);
 					notification = builder.build();
@@ -283,36 +283,42 @@ public class MFPPushIntentService extends IntentService {
         return uri;
     }
 
-	public int getCustomNotificationIcon(Context context, String resourceCategory, String resourceName) {
+	public int getCustomNotificationIcon(Context context, String resourceName) {
 		int resourceId = -1;
+
 		try {
-			@SuppressWarnings("rawtypes")
-			Class[] classes = Class.forName(context.getPackageName() + ".R").getDeclaredClasses();
-			for (int i = 0; i < classes.length; i++) {
-				if (classes[i].getSimpleName().equals(resourceCategory)) {
-					resourceId = classes[i].getField(resourceName).getInt(null);
-					break;
-				}
-			}
+			resourceId = getResourceIdForCustomIcon(context, "drawable", resourceName);
 		} catch (Exception e) {
+			logger.error(("Exception while parsing icon file."));
+			resourceId = android.R.drawable.btn_star;
+		}
+
+		if (resourceId == -1) {
 			resourceId = android.R.drawable.btn_star;
 		}
 		return resourceId;
 	}
 
 
-
     public static int getResourceId(Context context, String resourceCategory, String resourceName)  {
         int resourceId = -1;
-        try
-        {
+        try {
             resourceId = context.getResources().getIdentifier(resourceName, "raw", context.getPackageName());
-
         } catch (Exception e) {
             logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
         }
         return resourceId;
     }
+
+	public static int getResourceIdForCustomIcon(Context context, String resourceCategory, String resourceName)  {
+		int resourceId = -1;
+		try {
+			resourceId = context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
+		} catch (Exception e) {
+			logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
+		}
+		return resourceId;
+	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
