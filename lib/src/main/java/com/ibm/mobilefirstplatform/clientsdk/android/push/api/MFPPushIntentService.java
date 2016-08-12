@@ -35,6 +35,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 
 import java.util.LinkedList;
@@ -160,19 +161,6 @@ public class MFPPushIntentService extends IntentService {
 		return "";
 	}
 
-//	private int getNotificationIcon() {
-//		int notificationIcon;
-//		try {
-//			notificationIcon = MFPPushUtils.getResourceId(getApplicationContext(),
-//					"drawable", "push_notification_icon");
-//		} catch (Exception e) {
-//			//Failed to find the icon resource.  Add the icon file(push_notification_icon.png) under /res/drawable foler.
-//			//Notification will be showin with a default star icon from Android.
-//			notificationIcon = android.R.drawable.btn_star;
-//		}
-//		return notificationIcon;
-//	}
-
 
 	private void generateNotification(Context context, String ticker,
 			String title, String msg, int icon, Intent intent, String sound) {
@@ -192,13 +180,13 @@ public class MFPPushIntentService extends IntentService {
 
 			if(androidSDKVersion > 15) {
 				String priority = message.getPriority();
-				if (priority != null && priority.equalsIgnoreCase("max")) {
+				if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
 					builder.setPriority(Notification.PRIORITY_MAX);
-				} else if (priority!= null && priority.equalsIgnoreCase("min")) {
+				} else if (priority!= null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MIN)) {
 					builder.setPriority(Notification.PRIORITY_MIN);
-				} else if (priority != null && priority.equalsIgnoreCase("high")) {
+				} else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_HIGH)) {
 					builder.setPriority((Notification.PRIORITY_HIGH));
-				} else if (priority != null && priority.equalsIgnoreCase("low")) {
+				} else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_LOW)) {
 					builder.setPriority(Notification.PRIORITY_LOW);
 				} else {
 					builder.setPriority(Notification.PRIORITY_DEFAULT);
@@ -219,7 +207,7 @@ public class MFPPushIntentService extends IntentService {
 				notification = builder.build();
 				int receivedVisibility = 1;
 				String vbility = message.getVisibility();
-				if (vbility != null && vbility.equalsIgnoreCase("private")) {
+				if (vbility != null && vbility.equalsIgnoreCase(MFPPushConstants.VISIBILITY_PRIVATE)) {
 					receivedVisibility = 0;
 				}
 				if (receivedVisibility == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
@@ -236,8 +224,8 @@ public class MFPPushIntentService extends IntentService {
 
 			if (androidSDKVersion > 21) {
 				String setPriority = message.getPriority();
-				if (setPriority != null && setPriority.equalsIgnoreCase("max")) {
-					builder.setContentText("Heads up Notification.")
+				if (setPriority != null && setPriority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
+					builder.setContentText(msg)
 							.setFullScreenIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT), true);
 					notification = builder.build();
 				}

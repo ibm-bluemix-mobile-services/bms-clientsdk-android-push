@@ -21,7 +21,6 @@ public interface MFPPushConstants {
 	public static final String PLATFORM = "platform";
 	public static final String DEVICE_ID = "deviceId";
 	public static final String USER_ID = "userId";
-	//public static final String IMFPUSH_USER_ID  = "pushUser";
 	public static final String IMFPUSH_CLIENT_SECRET  = "clientSecret";
 	public static final String TAG_NAME = "tagName";
 	public static final String TAGS = "tags";
@@ -29,5 +28,11 @@ public interface MFPPushConstants {
 	public static final String ID = "id";
 	public static final String SENDER_ID = "senderId";
 	public static final double MIN_SUPPORTED_ANDRIOD_VERSION = 4.0;
-	public static final String IBM_MBAAS_XID_HEADER = "X-IBM-Mbaas-Migration-XID";
+	public static final String PRIORITY_HIGH = "high";
+	public static final String PRIORITY_LOW = "low";
+	public static final String PRIORITY_MAX = "max";
+	public static final String PRIORITY_MIN = "min";
+	public static final String VISIBILITY_PUBLIC = "public";
+	public static final String VISIBILITY_PRIVATE = "private";
+	public static final String VISIBILITY_SECRET = "secret";
 }

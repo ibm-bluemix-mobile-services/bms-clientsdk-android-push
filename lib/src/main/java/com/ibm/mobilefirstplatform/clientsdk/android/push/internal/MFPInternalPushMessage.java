@@ -13,7 +13,6 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.internal;
 
-import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -43,13 +42,6 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_EXTRA_REDACT = "redact";
 	private static final String GCM_EXTRA_CATEGORY = "category";
 	private static final String GCM_EXTRA_KEY = "key";
-	private static final String PRIORITY_HIGH = "high";
-	private static final String PRIORITY_LOW = "low";
-	private static final String PRIORITY_MAX = "max";
-	private static final String PRIORITY_MIN = "min";
-	private static final String VISIBILITY_PUBLIC = "public";
-	private static final String VISIBILITY_PRIVATE = "private";
-	private static final String VISIBILITY_SECRET = "secret";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -75,8 +67,6 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 		Bundle info = intent.getExtras();
 		MFPPushUtils.dumpIntent(intent);
-//		String tPriority = null;
-//		String tVisibility = null;
 
 		alert = info.getString(GCM_EXTRA_ALERT);
 		url = info.getString(GCM_EXTRA_URL);
@@ -84,25 +74,6 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		sound = info.getString(GCM_EXTRA_SOUND);
 		bridge = info.getBoolean(GCM_EXTRA_BRIDGE);
 		priority = info.getString(GCM_EXTRA_PRIORITY);
-//		tPriority = info.getString(GCM_EXTRA_PRIORITY);
-//		if (tPriority != null && !(tPriority.isEmpty())) {
-//			//priority = Integer.parseInt(tPriority);
-//			if(tPriority.equalsIgnoreCase(PRIORITY_HIGH)) {
-//				priority = 1;
-//			} else if (tPriority.equalsIgnoreCase(PRIORITY_LOW)) {
-//				priority = -1;
-//			} else if (tPriority.equalsIgnoreCase(PRIORITY_MAX)) {
-//				priority = 2;
-//			} else if (tPriority.equalsIgnoreCase(PRIORITY_MIN)) {
-//				priority = -2;
-//			} else  {
-//				priority = 0;
-//			}
-//		}
-//		tVisibility = info.getString(GCM_EXTRA_VISIBILITY);
-//		if (tVisibility != null && !(tVisibility.isEmpty())) {
-//			visibility = Integer.parseInt(tVisibility);
-//		}
 		visibility = info.getString(GCM_EXTRA_VISIBILITY);
 		redact = info.getString(GCM_EXTRA_REDACT);
 		key = info.getString(GCM_EXTRA_KEY);
