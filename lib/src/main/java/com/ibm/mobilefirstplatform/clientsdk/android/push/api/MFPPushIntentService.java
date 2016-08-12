@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -65,6 +66,7 @@ public class MFPPushIntentService extends IntentService {
 	public static final String IBM_PUSH_NOTIFICATION = ".IBMPushNotification";
 	public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
 	public static final String GCM_EXTRA_MESSAGE = "message";
+	protected static int RES_PUSH_NOTIFICATION_ICON = -1;
 
 	public static boolean isAppForeground = true;
 
@@ -121,10 +123,10 @@ public class MFPPushIntentService extends IntentService {
 			intent = new Intent(MFPPushUtils.getIntentPrefix(context)
 					+ IBM_PUSH_NOTIFICATION);
 			intent.putExtra(GCM_EXTRA_MESSAGE, message);
+
 			generateNotification(context, message.getAlert(),
 					getNotificationTitle(context), message.getAlert(),
-					getNotificationIcon(), intent, message.getSound());
-
+					getCustomNotificationIcon(context, "drawable", "push_notification_icon"), intent, message.getSound());
 		}
 	}
 
@@ -134,7 +136,7 @@ public class MFPPushIntentService extends IntentService {
 		int notificationTitle = -1;
 		try {
 			notificationTitle = MFPPushUtils.getResourceId(getApplicationContext(),
-					"string", "push_notification_title");
+					"string", "push_notification_title.png");
 			return context.getString(notificationTitle);
 		} catch (Exception e) {
 			// ignore the exception
@@ -171,6 +173,7 @@ public class MFPPushIntentService extends IntentService {
 		return notificationIcon;
 	}
 
+
 	private void generateNotification(Context context, String ticker,
 			String title, String msg, int icon, Intent intent, String sound) {
 		int androidSDKVersion = Build.VERSION.SDK_INT;
@@ -179,7 +182,6 @@ public class MFPPushIntentService extends IntentService {
 		MFPInternalPushMessage message = intent.getParcelableExtra(GCM_EXTRA_MESSAGE);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(
 				this);
-
 		if (androidSDKVersion > 10) {
 			builder.setContentIntent(PendingIntent
 					.getActivity(context, 0, intent,
@@ -189,9 +191,17 @@ public class MFPPushIntentService extends IntentService {
 					.setContentText(msg).setSound(getNotificationSoundUri(context, sound));
 
 			if(androidSDKVersion > 15) {
-				int priority = message.getPriority();
-				if (priority != 0) {
-					builder.setPriority(priority);
+				String priority = message.getPriority();
+				if (priority.equalsIgnoreCase("max")) {
+					builder.setPriority(Notification.PRIORITY_MAX);
+				} else if (priority.equalsIgnoreCase("min")) {
+					builder.setPriority(Notification.PRIORITY_MIN);
+				} else if (priority.equalsIgnoreCase("high")) {
+					builder.setPriority((Notification.PRIORITY_HIGH));
+				} else if (priority.equalsIgnoreCase("low")) {
+					builder.setPriority(Notification.PRIORITY_LOW);
+				} else {
+					builder.setPriority(Notification.PRIORITY_DEFAULT);
 				}
 			}
 
@@ -200,15 +210,19 @@ public class MFPPushIntentService extends IntentService {
 				//hence setting the background of icon to black
 				builder.setColor(Color.BLACK);
 				Boolean isBridgeSet = message.getBridge();
-				int visibility = message.getVisibility();
+				String visibility = message.getVisibility();
 				if(!isBridgeSet) {
 					// show notification only on current device.
 					builder.setLocalOnly(true);
 				}
 
 				notification = builder.build();
-
-				if (message.getVisibility() == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
+				int receivedVisibility = 1;
+				String vbility = message.getVisibility();
+				if (vbility == "private") {
+					receivedVisibility = 0;
+				}
+				if (receivedVisibility == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
 					builder.setContentIntent(PendingIntent
 							.getActivity(context, 0, intent,
 									PendingIntent.FLAG_UPDATE_CURRENT))
@@ -217,6 +231,15 @@ public class MFPPushIntentService extends IntentService {
 							.setContentText(message.getRedact()).setSound(getNotificationSoundUri(context, sound));
 
 					notification.publicVersion = builder.build();
+				}
+			}
+
+			if (androidSDKVersion > 21) {
+				String setPriority = message.getPriority();
+				if (setPriority.equalsIgnoreCase("max")) {
+					builder.setContentText("Heads up Notification.")
+							.setFullScreenIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT), true);
+					notification = builder.build();
 				}
 			}
 
@@ -259,6 +282,23 @@ public class MFPPushIntentService extends IntentService {
 
         return uri;
     }
+
+	public int getCustomNotificationIcon(Context context, String resourceCategory, String resourceName) {
+		int resourceId = -1;
+		try {
+			@SuppressWarnings("rawtypes")
+			Class[] classes = Class.forName(context.getPackageName() + ".R").getDeclaredClasses();
+			for (int i = 0; i < classes.length; i++) {
+				if (classes[i].getSimpleName().equals(resourceCategory)) {
+					resourceId = classes[i].getField(resourceName).getInt(null);
+					break;
+				}
+			}
+		} catch (Exception e) {
+			resourceId = android.R.drawable.btn_star;
+		}
+		return resourceId;
+	}
 
 
 

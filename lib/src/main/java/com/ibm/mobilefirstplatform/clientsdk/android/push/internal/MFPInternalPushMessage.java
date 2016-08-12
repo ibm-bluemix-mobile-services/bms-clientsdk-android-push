@@ -60,8 +60,8 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String mid = null;
 	private String sound = null;
 	private boolean bridge = true;
-	private int priority = 0;
-	private int visibility = 1;
+	private String priority = null;
+	private String visibility = null;
 	private String redact = null;
 	private String key = null;
 	private String category = null;
@@ -75,21 +75,35 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 		Bundle info = intent.getExtras();
 		MFPPushUtils.dumpIntent(intent);
-		String tPriority = null;
-		String tVisibility = null;
+//		String tPriority = null;
+//		String tVisibility = null;
+
 		alert = info.getString(GCM_EXTRA_ALERT);
 		url = info.getString(GCM_EXTRA_URL);
 		payload = info.getString(GCM_EXTRA_PAYLOAD);
 		sound = info.getString(GCM_EXTRA_SOUND);
 		bridge = info.getBoolean(GCM_EXTRA_BRIDGE);
-		tPriority = info.getString(GCM_EXTRA_PRIORITY);
-		if (tPriority != null && !(tPriority.isEmpty())) {
-			priority = Integer.parseInt(tPriority);
-		}
-		tVisibility = info.getString(GCM_EXTRA_VISIBILITY);
-		if (tVisibility != null && !(tVisibility.isEmpty())) {
-			visibility = Integer.parseInt(tVisibility);
-		}
+		priority = info.getString(GCM_EXTRA_PRIORITY);
+//		tPriority = info.getString(GCM_EXTRA_PRIORITY);
+//		if (tPriority != null && !(tPriority.isEmpty())) {
+//			//priority = Integer.parseInt(tPriority);
+//			if(tPriority.equalsIgnoreCase(PRIORITY_HIGH)) {
+//				priority = 1;
+//			} else if (tPriority.equalsIgnoreCase(PRIORITY_LOW)) {
+//				priority = -1;
+//			} else if (tPriority.equalsIgnoreCase(PRIORITY_MAX)) {
+//				priority = 2;
+//			} else if (tPriority.equalsIgnoreCase(PRIORITY_MIN)) {
+//				priority = -2;
+//			} else  {
+//				priority = 0;
+//			}
+//		}
+//		tVisibility = info.getString(GCM_EXTRA_VISIBILITY);
+//		if (tVisibility != null && !(tVisibility.isEmpty())) {
+//			visibility = Integer.parseInt(tVisibility);
+//		}
+		visibility = info.getString(GCM_EXTRA_VISIBILITY);
 		redact = info.getString(GCM_EXTRA_REDACT);
 		key = info.getString(GCM_EXTRA_KEY);
 		category = info.getString(GCM_EXTRA_CATEGORY);
@@ -104,8 +118,6 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	}
 
 	private MFPInternalPushMessage(Parcel source) {
-		String tPriority = null;
-		String tVisibility = null;
 		id = source.readString();
 		alert = source.readString();
 		url = source.readString();
@@ -113,36 +125,11 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		mid = source.readString();
 		sound = source.readString();
 		bridge = Boolean.valueOf(source.readString());
-		tPriority = source.readString();
-		if (tPriority != null && !(tPriority.isEmpty())) {
-			if(tPriority.equalsIgnoreCase(PRIORITY_HIGH)) {
-				priority = 1;
-			} else if (tPriority.equalsIgnoreCase(PRIORITY_LOW)) {
-				priority = -1;
-			} else if (tPriority.equalsIgnoreCase(PRIORITY_MAX)) {
-				priority = 2;
-			} else if (tPriority.equalsIgnoreCase(PRIORITY_MIN)) {
-				priority = -2;
-			} else  {
-				priority = 0;
-			}
-		}
-		tVisibility = source.readString();
-		if (tVisibility != null && !(tVisibility.isEmpty())) {
-			if (tVisibility.equalsIgnoreCase(VISIBILITY_PUBLIC)) {
-				visibility = 1;
-			} else if (tVisibility.equalsIgnoreCase(VISIBILITY_PRIVATE)) {
-				visibility = 0;
-			} else if (tVisibility.equalsIgnoreCase(VISIBILITY_SECRET)) {
-				visibility = -1;
-			} else {
-				visibility = 1;
-			}
-		}
+		priority = source.readString();
+		visibility = source.readString();
 		redact = source.readString();
-		key = source.readString();
 		category = source.readString();
-
+		key = source.readString();
 	}
 
 	public MFPInternalPushMessage(JSONObject json) {
@@ -182,12 +169,12 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get bridge.  "+ e.toString());
 		}
 		try {
-			priority = json.getInt(GCM_EXTRA_PRIORITY);
+			priority = json.getString(GCM_EXTRA_PRIORITY);
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get priority.  "+ e.toString());
 		}
 		try {
-			visibility = json.getInt(GCM_EXTRA_VISIBILITY);
+			visibility = json.getString(GCM_EXTRA_VISIBILITY);
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get visibility.  "+ e.toString());
 		}
@@ -279,9 +266,9 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		this.htmlContent = htmlContent;
 	}
 
-	public void setPriority(int priority) { this.priority = priority; }
+	public void setPriority(String priority) { this.priority = priority; }
 
-	public void setVisibility (int visibility) { this.visibility = visibility; }
+	public void setVisibility (String visibility) { this.visibility = visibility; }
 
 	public void setRedact(String redact) {this.redact = redact; }
 
@@ -315,8 +302,8 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		dest.writeString(mid);
 		dest.writeString(sound);
 		dest.writeString(String.valueOf(bridge));
-		dest.writeInt(priority);
-		dest.writeInt(visibility);
+		dest.writeString(priority);
+		dest.writeString(visibility);
 		dest.writeString(redact);
 		dest.writeString(category);
 		dest.writeString(key);
@@ -353,9 +340,9 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 	public boolean getBridge() { return bridge; }
 
-	public int getPriority() { return priority; }
+	public String getPriority() { return priority; }
 
-	public int getVisibility() { return visibility; }
+	public String getVisibility() { return visibility; }
 
 	public String getRedact() { return redact; }
 
