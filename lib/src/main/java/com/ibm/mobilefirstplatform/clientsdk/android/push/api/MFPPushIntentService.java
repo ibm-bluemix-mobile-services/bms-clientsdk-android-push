@@ -27,7 +27,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -67,7 +66,6 @@ public class MFPPushIntentService extends IntentService {
 	public static final String IBM_PUSH_NOTIFICATION = ".IBMPushNotification";
 	public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
 	public static final String GCM_EXTRA_MESSAGE = "message";
-	protected static int RES_PUSH_NOTIFICATION_ICON = -1;
 
 	public static boolean isAppForeground = true;
 
@@ -246,7 +244,6 @@ public class MFPPushIntentService extends IntentService {
 		notificationManager.notify(randomObj.nextInt(), notification);
 	}
 
-
     private Uri getNotificationSoundUri(Context context, String sound) {
         Uri uri = null;
 
@@ -271,22 +268,21 @@ public class MFPPushIntentService extends IntentService {
         return uri;
     }
 
-	public int getCustomNotificationIcon(Context context, String resourceName) {
+	public int getCustomNotificationIcon(Context context, String resourceName){
 		int resourceId = -1;
 
 		try {
 			resourceId = getResourceIdForCustomIcon(context, "drawable", resourceName);
 		} catch (Exception e) {
-			logger.error(("Exception while parsing icon file."));
+			logger.error("Exception while parsing icon file.");
 			resourceId = android.R.drawable.btn_star;
 		}
 
-		if (resourceId == -1) {
+		if (resourceId == 0) {
 			resourceId = android.R.drawable.btn_star;
 		}
 		return resourceId;
 	}
-
 
     public static int getResourceId(Context context, String resourceCategory, String resourceName)  {
         int resourceId = -1;
@@ -300,8 +296,9 @@ public class MFPPushIntentService extends IntentService {
 
 	public static int getResourceIdForCustomIcon(Context context, String resourceCategory, String resourceName)  {
 		int resourceId = -1;
+
 		try {
-			resourceId = context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
+			resourceId = context.getResources().getIdentifier("drawable/"+resourceName, "drawable", context.getPackageName());
 		} catch (Exception e) {
 			logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
 		}
