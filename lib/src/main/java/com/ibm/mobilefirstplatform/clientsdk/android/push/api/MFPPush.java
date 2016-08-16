@@ -22,6 +22,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.os.Bundle;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -31,7 +32,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushInvoker;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
@@ -47,7 +47,7 @@ import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.logging.Logger;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
@@ -65,6 +65,8 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
+
 
 /**
  * <class>MFPPush</class> provides methods required by an android application to
@@ -976,6 +978,18 @@ public class MFPPush {
                 MFPSimplePushNotification simpleNotification = new MFPSimplePushNotification(
                         message);
                 notificationListener.onReceive(simpleNotification);
+                sendUpstreamMessage(message.getKey(), message.getId());
+            }
+        }
+    }
+
+    private void sendUpstreamMessage(String key, String nid) {
+        if(key != null) {
+            try {
+                Thread t = new Thread(new UpstreamMessage(key, nid));
+                t.start();
+            } catch(Exception e) {
+                logger.error("MFPPush: sendUpstreamMessage() - Error sending upstream message.");
             }
         }
     }
@@ -1127,5 +1141,37 @@ public class MFPPush {
             return true;
         }
     }
+
+    class UpstreamMessage implements Runnable {
+
+        String key;
+        String nid;
+
+        public UpstreamMessage(String key, String nid) {
+            this.key = key;
+            this.nid = nid;
+        }
+
+        @Override
+        public void run() {
+            GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(appContext);
+            AtomicInteger msgId = new AtomicInteger();
+            String id = Integer.toString(msgId.incrementAndGet());
+            Bundle data = new Bundle();
+            data.putString("action", DISMISS_NOTIFICATION);
+            if (nid != null) {
+                data.putString("nid", nid);
+            }
+            try {
+                gcm.send(key, id, data);
+            } catch (IOException e) {
+                logger.error("MFPPush: UpstreamMessage.run() - Failed to send upstream message.");
+            }
+
+        }
+    }
+
 }
+
+
 

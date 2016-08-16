@@ -42,6 +42,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_EXTRA_REDACT = "redact";
 	private static final String GCM_EXTRA_CATEGORY = "category";
 	private static final String GCM_EXTRA_KEY = "key";
+	private static final String GCM_EXTRA_NOTIFICATIONID = "notificationId";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -60,6 +61,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 	private String htmlTitle = null;
 	private String htmlContent = null;
+	private int notificationId;
 
 	protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
 
@@ -78,6 +80,8 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		redact = info.getString(GCM_EXTRA_REDACT);
 		key = info.getString(GCM_EXTRA_KEY);
 		category = info.getString(GCM_EXTRA_CATEGORY);
+
+		System.out.println("The key is: "+ key);
 
 		try {
 			JSONObject towers = new JSONObject(payload);
@@ -181,6 +185,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			json.put(GCM_EXTRA_REDACT, redact);
 			json.put(GCM_EXTRA_CATEGORY, category);
 			json.put(GCM_EXTRA_KEY, key);
+			json.put(GCM_EXTRA_NOTIFICATIONID, notificationId);
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON.  "+ e.toString());
 		}
@@ -320,4 +325,12 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	public String getCategory() { return category; }
 
 	public String getKey() { return key; }
+
+	public int getNotificationId() {
+		return notificationId;
+	}
+
+	public void setNotificationId(int notificationId) {
+		this.notificationId = notificationId;
+	}
 }

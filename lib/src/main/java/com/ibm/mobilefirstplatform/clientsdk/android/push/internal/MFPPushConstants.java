@@ -35,4 +35,7 @@ public interface MFPPushConstants {
 	public static final String VISIBILITY_PUBLIC = "public";
 	public static final String VISIBILITY_PRIVATE = "private";
 	public static final String VISIBILITY_SECRET = "secret";
+	public static final String DISMISS_NOTIFICATION = "com.ibm.mobilefirstplatform.clientsdk.android.push.DISMISS_NOTIFICATION";
+	public static final String NOTIFICATIONID = "notificationId";
+
 }
