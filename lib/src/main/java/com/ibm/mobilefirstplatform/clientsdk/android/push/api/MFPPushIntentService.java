@@ -312,42 +312,6 @@ public class MFPPushIntentService extends IntentService {
 		notificationManager.notify(notificationId, notification);
 	}
 
-//	private void getBitMapBigPictureNotification (final String strURL) {
-//		new AsyncTask<Void, Void, Bitmap>() {
-//			Bitmap bitmap = null;
-//			@Override
-//			protected Bitmap doInBackground(Void... params) {
-//				try {
-//					URL url = new URL(strURL);
-//					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//					connection.setDoInput(true);
-//					connection.connect();
-//					InputStream input = connection.getInputStream();
-//					bitmap = BitmapFactory.decodeStream(input);
-//					return bitmap;
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//					return null;
-//				}
-//			}
-//		}.execute(null, null, null);
-//	}
-
-//	public Bitmap getBitMapBigPictureNotification (String strURL) {
-//		try {
-//			URL url = new URL(strURL);
-//			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//			connection.setDoInput(true);
-//			connection.connect();
-//			InputStream input = connection.getInputStream();
-//			Bitmap myBitmap = BitmapFactory.decodeStream(input);
-//			return myBitmap;
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
-
     private Uri getNotificationSoundUri(Context context, String sound) {
         Uri uri = null;
 
