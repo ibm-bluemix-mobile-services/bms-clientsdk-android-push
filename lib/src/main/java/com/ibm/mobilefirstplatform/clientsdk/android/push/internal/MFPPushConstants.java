@@ -37,5 +37,8 @@ public interface MFPPushConstants {
 	public static final String VISIBILITY_SECRET = "secret";
 	public static final String DISMISS_NOTIFICATION = "com.ibm.mobilefirstplatform.clientsdk.android.push.DISMISS_NOTIFICATION";
 	public static final String NOTIFICATIONID = "notificationId";
-
+	public static final String URL = "url";
+	public static final String TITLE = "title";
+	public static final String TYPE = "type";
+	public static final String PICTURE_NOTIFICATION = "picture_notification";
 }

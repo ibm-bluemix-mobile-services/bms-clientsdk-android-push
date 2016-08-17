@@ -30,9 +30,14 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.URL;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TYPE;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TITLE;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PICTURE_NOTIFICATION;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
@@ -183,7 +188,52 @@ public class MFPPushIntentService extends IntentService {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(
 				this);
 
-		//Bitmap bitmap = getBitmapFromURL("http://www.pocketables.com/images/2013/01/android-4.2-notification-toggles.jpg");
+		if (message.getGcmStyle() != null) {
+			try {
+				JSONObject gcmStyleObject = new JSONObject(message.getGcmStyle());
+				String type = gcmStyleObject.getString(TYPE);
+				Bitmap remote_picture = null;
+
+				if (type != null && type.equalsIgnoreCase(PICTURE_NOTIFICATION)) {
+					if (androidSDKVersion > 21) {
+						NotificationCompat.BigPictureStyle notificationStyle = new NotificationCompat.BigPictureStyle();
+						notificationStyle.setSummaryText(gcmStyleObject.getString(TITLE));
+
+						try {
+							remote_picture = new getBitMapBigPictureNotification().execute(gcmStyleObject.getString(URL)).get();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						if (remote_picture !=  null) {
+							notificationStyle.bigPicture(remote_picture);
+						}
+						NotificationManager notificationManager = (NotificationManager) context
+								.getSystemService(Context.NOTIFICATION_SERVICE);
+
+						NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
+								context);
+						notification = mBuilder.setSmallIcon(icon).setTicker(ticker).setWhen(0)
+								.setAutoCancel(true)
+								.setContentTitle(title)
+								.setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
+								.setContentIntent(PendingIntent
+										.getActivity(context, 0, intent,
+												PendingIntent.FLAG_UPDATE_CURRENT))
+								.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+
+								.setContentText(msg)
+								.setStyle(notificationStyle).build();
+
+
+						notification.flags = Notification.FLAG_AUTO_CANCEL;
+						notificationManager.notify(notificationId, notification);
+					}
+				}
+			} catch (JSONException e) {
+				//e.printStackTrace();
+				//Error while parsing JSON
+			}
+		}
 
 		if (androidSDKVersion > 10) {
 			builder.setContentIntent(PendingIntent
@@ -262,20 +312,41 @@ public class MFPPushIntentService extends IntentService {
 		notificationManager.notify(notificationId, notification);
 	}
 
-	public Bitmap gitBitMapBigPictureNotification (String strURL) {
-		try {
-			URL url = new URL(strURL);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setDoInput(true);
-			connection.connect();
-			InputStream input = connection.getInputStream();
-			Bitmap myBitmap = BitmapFactory.decodeStream(input);
-			return myBitmap;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+//	private void getBitMapBigPictureNotification (final String strURL) {
+//		new AsyncTask<Void, Void, Bitmap>() {
+//			Bitmap bitmap = null;
+//			@Override
+//			protected Bitmap doInBackground(Void... params) {
+//				try {
+//					URL url = new URL(strURL);
+//					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//					connection.setDoInput(true);
+//					connection.connect();
+//					InputStream input = connection.getInputStream();
+//					bitmap = BitmapFactory.decodeStream(input);
+//					return bitmap;
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//					return null;
+//				}
+//			}
+//		}.execute(null, null, null);
+//	}
+
+//	public Bitmap getBitMapBigPictureNotification (String strURL) {
+//		try {
+//			URL url = new URL(strURL);
+//			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//			connection.setDoInput(true);
+//			connection.connect();
+//			InputStream input = connection.getInputStream();
+//			Bitmap myBitmap = BitmapFactory.decodeStream(input);
+//			return myBitmap;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
 
     private Uri getNotificationSoundUri(Context context, String sound) {
         Uri uri = null;
@@ -405,5 +476,25 @@ public class MFPPushIntentService extends IntentService {
             }
         }
     }
+
+	class getBitMapBigPictureNotification extends AsyncTask<String, Void, Bitmap> {
+		private Exception exception;
+
+		protected Bitmap doInBackground(String... urls) {
+			try {
+				URL url = new URL(urls[0]);
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setDoInput(true);
+				connection.connect();
+				InputStream input = connection.getInputStream();
+				Bitmap myBitmap = BitmapFactory.decodeStream(input);
+				return myBitmap;
+			} catch (Exception e) {
+				this.exception = e;
+				return null;
+			}
+		}
+
+	}
 
 }
