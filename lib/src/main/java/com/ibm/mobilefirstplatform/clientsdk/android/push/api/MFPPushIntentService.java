@@ -33,14 +33,19 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LINES;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TEXT;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.URL;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TYPE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TITLE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PICTURE_NOTIFICATION;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.BIGTEXT_NOTIFICATION;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.INBOX_NOTIFICATION;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import com.ibm.mobilefirst.clientsdk.android.push.R;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
@@ -65,7 +70,7 @@ import org.json.JSONException;
  * MFPPushIntentService responsible for handling communication from GCM (Google
  * Cloud Messaging). This class should be configured as the GCM intent service
  * in AndroidManifest.xml of the android application as follows:
- *
+ * <p/>
  * <pre>
  * <p></p>
  * {@code
@@ -80,237 +85,279 @@ import org.json.JSONException;
 
 public class MFPPushIntentService extends IntentService {
 
-	public static final String IBM_PUSH_NOTIFICATION = ".IBMPushNotification";
-	public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
-	public static final String GCM_EXTRA_MESSAGE = "message";
+    public static final String IBM_PUSH_NOTIFICATION = ".IBMPushNotification";
+    public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
+    public static final String GCM_EXTRA_MESSAGE = "message";
 
-	public static boolean isAppForeground = true;
+    public static boolean isAppForeground = true;
 
-	private static Random randomObj = new Random();
+    private static Random randomObj = new Random();
 
-	private LinkedList<Intent> intentsQueue = new LinkedList<Intent>();
+    private LinkedList<Intent> intentsQueue = new LinkedList<Intent>();
 
-	private static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPushIntentService.class.getSimpleName());
+    private static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPushIntentService.class.getSimpleName());
 
-	public MFPPushIntentService() {
-		super("MFPPushIntentService");
-	}
+    public MFPPushIntentService() {
+        super("MFPPushIntentService");
+    }
 
-	public static boolean isAppForeground() {
-		return isAppForeground;
-	}
+    public static boolean isAppForeground() {
+        return isAppForeground;
+    }
 
-	public static void setAppForeground(boolean isAppForeground) {
-		MFPPushIntentService.isAppForeground = isAppForeground;
-	}
+    public static void setAppForeground(boolean isAppForeground) {
+        MFPPushIntentService.isAppForeground = isAppForeground;
+    }
 
-	private BroadcastReceiver resultReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			if (getResultCode() == Activity.RESULT_FIRST_USER
-					|| !isAppForeground()) {
-				logger.debug("MFPPushIntentService: App is not running in foreground. Create a notification.");
-				onUnhandled(context, intent);
-			}
-		}
-	};
+    private BroadcastReceiver resultReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (getResultCode() == Activity.RESULT_FIRST_USER
+                    || !isAppForeground()) {
+                logger.debug("MFPPushIntentService: App is not running in foreground. Create a notification.");
+                onUnhandled(context, intent);
+            }
+        }
+    };
 
-	private void saveInSharedPreferences(MFPInternalPushMessage message) {
-		SharedPreferences sharedPreferences = getSharedPreferences(
-				MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
-		String msgString = message.toJson().toString();
-		//PREFS_NOTIFICATION_COUNT value provides the count of number of undelivered notifications stored in the sharedpreferences
-		int count = sharedPreferences.getInt(MFPPush.PREFS_NOTIFICATION_COUNT, 0);
-		//Increment the count and use it for the next notification
-		count++;
-		MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_MSG + count, msgString);
+    private void saveInSharedPreferences(MFPInternalPushMessage message) {
+        SharedPreferences sharedPreferences = getSharedPreferences(
+                MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
+        String msgString = message.toJson().toString();
+        //PREFS_NOTIFICATION_COUNT value provides the count of number of undelivered notifications stored in the sharedpreferences
+        int count = sharedPreferences.getInt(MFPPush.PREFS_NOTIFICATION_COUNT, 0);
+        //Increment the count and use it for the next notification
+        count++;
+        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_MSG + count, msgString);
 
-		MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, count);
-	}
+        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, count);
+    }
 
-	private void onUnhandled(Context context, Intent intent) {
-		String action = intent.getAction();
-		if ((MFPPushUtils.getIntentPrefix(context) + GCM_MESSAGE).equals(action)) {
-			MFPInternalPushMessage message = intent
-					.getParcelableExtra(GCM_EXTRA_MESSAGE);
+    private void onUnhandled(Context context, Intent intent) {
+        String action = intent.getAction();
+        if ((MFPPushUtils.getIntentPrefix(context) + GCM_MESSAGE).equals(action)) {
+            MFPInternalPushMessage message = intent
+                    .getParcelableExtra(GCM_EXTRA_MESSAGE);
 
             int notificationId = randomObj.nextInt();
             message.setNotificationId(notificationId);
-			saveInSharedPreferences(message);
+            saveInSharedPreferences(message);
 
-			intent = new Intent(MFPPushUtils.getIntentPrefix(context)
-					+ IBM_PUSH_NOTIFICATION);
-			intent.putExtra(GCM_EXTRA_MESSAGE, message);
+            intent = new Intent(MFPPushUtils.getIntentPrefix(context)
+                    + IBM_PUSH_NOTIFICATION);
+            intent.putExtra(GCM_EXTRA_MESSAGE, message);
 
-			generateNotification(context, message.getAlert(),
-					getNotificationTitle(context), message.getAlert(),
-					getCustomNotificationIcon(context, "push_notification_icon"), intent, message.getSound(), notificationId);
-		}
-	}
+            generateNotification(context, message.getAlert(),
+                    getNotificationTitle(context), message.getAlert(),
+                    getCustomNotificationIcon(context, "push_notification_icon"), intent, message.getSound(), notificationId);
+        }
+    }
 
-	private String getNotificationTitle(Context context) {
-		// Check if push_notification_title is defined, if not get the
-		// application name
-		int notificationTitle = -1;
-		try {
-			notificationTitle = MFPPushUtils.getResourceId(getApplicationContext(),
-					"string", "push_notification_title.png");
-			return context.getString(notificationTitle);
-		} catch (Exception e) {
-			// ignore the exception
-		}
+    private String getNotificationTitle(Context context) {
+        // Check if push_notification_title is defined, if not get the
+        // application name
+        int notificationTitle = -1;
+        try {
+            notificationTitle = MFPPushUtils.getResourceId(getApplicationContext(),
+                    "string", "push_notification_title.png");
+            return context.getString(notificationTitle);
+        } catch (Exception e) {
+            // ignore the exception
+        }
 
-		if (notificationTitle == -1) {
-			ApplicationInfo appInfo = null;
-			PackageManager packManager = context.getPackageManager();
-			try {
-				appInfo = packManager.getApplicationInfo(
-						context.getPackageName(), 0);
-			} catch (Exception e) {
-				logger.warn("MFPPushIntentService:getNotificationTitle() - Notification will not have a title because application name is not available.");
-			}
+        if (notificationTitle == -1) {
+            ApplicationInfo appInfo = null;
+            PackageManager packManager = context.getPackageManager();
+            try {
+                appInfo = packManager.getApplicationInfo(
+                        context.getPackageName(), 0);
+            } catch (Exception e) {
+                logger.warn("MFPPushIntentService:getNotificationTitle() - Notification will not have a title because application name is not available.");
+            }
 
-			if (appInfo != null) {
-				return (String) packManager.getApplicationLabel(appInfo);
-			}
-		}
+            if (appInfo != null) {
+                return (String) packManager.getApplicationLabel(appInfo);
+            }
+        }
 
-		return "";
-	}
-
-
-	private void generateNotification(Context context, String ticker,
-			String title, String msg, int icon, Intent intent, String sound, int notificationId) {
-		int androidSDKVersion = Build.VERSION.SDK_INT;
-		long when = System.currentTimeMillis();
-		Notification notification = null;
-		MFPInternalPushMessage message = intent.getParcelableExtra(GCM_EXTRA_MESSAGE);
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(
-				this);
-
-		if (message.getGcmStyle() != null) {
-			try {
-				JSONObject gcmStyleObject = new JSONObject(message.getGcmStyle());
-				String type = gcmStyleObject.getString(TYPE);
-				Bitmap remote_picture = null;
-
-				if (type != null && type.equalsIgnoreCase(PICTURE_NOTIFICATION)) {
-					if (androidSDKVersion > 21) {
-						NotificationCompat.BigPictureStyle notificationStyle = new NotificationCompat.BigPictureStyle();
-						notificationStyle.setSummaryText(gcmStyleObject.getString(TITLE));
-
-						try {
-							remote_picture = new getBitMapBigPictureNotification().execute(gcmStyleObject.getString(URL)).get();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						if (remote_picture !=  null) {
-							notificationStyle.bigPicture(remote_picture);
-						}
-						NotificationManager notificationManager = (NotificationManager) context
-								.getSystemService(Context.NOTIFICATION_SERVICE);
-
-						NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
-								context);
-						notification = mBuilder.setSmallIcon(icon).setTicker(ticker).setWhen(0)
-								.setAutoCancel(true)
-								.setContentTitle(title)
-								.setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
-								.setContentIntent(PendingIntent
-										.getActivity(context, 0, intent,
-												PendingIntent.FLAG_UPDATE_CURRENT))
-								.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-
-								.setContentText(msg)
-								.setStyle(notificationStyle).build();
+        return "";
+    }
 
 
-						notification.flags = Notification.FLAG_AUTO_CANCEL;
-						notificationManager.notify(notificationId, notification);
-					}
-				}
-			} catch (JSONException e) {
-				//e.printStackTrace();
-				//Error while parsing JSON
-			}
-		}
+    private void generateNotification(Context context, String ticker,
+                                      String title, String msg, int icon, Intent intent, String sound, int notificationId) {
+        int androidSDKVersion = Build.VERSION.SDK_INT;
+        long when = System.currentTimeMillis();
+        Notification notification = null;
+        MFPInternalPushMessage message = intent.getParcelableExtra(GCM_EXTRA_MESSAGE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                this);
 
-		if (androidSDKVersion > 10) {
-			builder.setContentIntent(PendingIntent
-					.getActivity(context, 0, intent,
-							PendingIntent.FLAG_UPDATE_CURRENT))
-					.setSmallIcon(icon).setTicker(ticker).setWhen(when)
-					.setAutoCancel(true).setContentTitle(title)
-					.setContentText(msg).setSound(getNotificationSoundUri(context, sound));
+        if (message.getGcmStyle() != null && androidSDKVersion > 21) {
+            NotificationCompat.Builder mBuilder = null;
+            NotificationManager notificationManager = (NotificationManager) context
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
 
-			if(androidSDKVersion > 15) {
-				String priority = message.getPriority();
-				if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
-					builder.setPriority(Notification.PRIORITY_MAX);
-				} else if (priority!= null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MIN)) {
-					builder.setPriority(Notification.PRIORITY_MIN);
-				} else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_HIGH)) {
-					builder.setPriority((Notification.PRIORITY_HIGH));
-				} else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_LOW)) {
-					builder.setPriority(Notification.PRIORITY_LOW);
-				} else {
-					builder.setPriority(Notification.PRIORITY_DEFAULT);
-				}
-			}
+            try {
+                JSONObject gcmStyleObject = new JSONObject(message.getGcmStyle());
+                String type = gcmStyleObject.getString(TYPE);
 
-			if (androidSDKVersion > 19) {
-				//As new material theme is very light, the icon is not shown clearly
-				//hence setting the background of icon to black
-				builder.setColor(Color.BLACK);
-				Boolean isBridgeSet = message.getBridge();
-				String visibility = message.getVisibility();
-				if(!isBridgeSet) {
-					// show notification only on current device.
-					builder.setLocalOnly(true);
-				}
+                if (type != null && type.equalsIgnoreCase(PICTURE_NOTIFICATION)) {
+                    Bitmap remote_picture = null;
+                    NotificationCompat.BigPictureStyle notificationStyle = new NotificationCompat.BigPictureStyle();
+                    notificationStyle.setBigContentTitle(ticker);
+                    notificationStyle.setSummaryText(gcmStyleObject.getString(TITLE));
 
-				notification = builder.build();
-				int receivedVisibility = 1;
-				String vbility = message.getVisibility();
-				if (vbility != null && vbility.equalsIgnoreCase(MFPPushConstants.VISIBILITY_PRIVATE)) {
-					receivedVisibility = 0;
-				}
-				if (receivedVisibility == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
-					builder.setContentIntent(PendingIntent
-							.getActivity(context, 0, intent,
-									PendingIntent.FLAG_UPDATE_CURRENT))
-							.setSmallIcon(icon).setTicker(ticker).setWhen(when)
-							.setAutoCancel(true).setContentTitle(title)
-							.setContentText(message.getRedact()).setSound(getNotificationSoundUri(context, sound));
+                    try {
+                        remote_picture = new getBitMapBigPictureNotification().execute(gcmStyleObject.getString(URL)).get();
+                    } catch (Exception e) {
+                        logger.error("MFPPushIntentService: Error while fetching image file.");
+                    }
+                    if (remote_picture != null) {
+                        notificationStyle.bigPicture(remote_picture);
+                    }
 
-					notification.publicVersion = builder.build();
-				}
-			}
+                    mBuilder = new NotificationCompat.Builder(
+                            context);
+                    notification = mBuilder
+                            .setSmallIcon(icon)
+                            .setLargeIcon(remote_picture)
+                            .setAutoCancel(true)
+                            .setContentTitle(title)
+                            .setContentIntent(PendingIntent
+                                    .getActivity(context, 0, intent,
+                                            PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                            .setContentText(msg)
+                            .setStyle(notificationStyle).build();
 
-			if (androidSDKVersion > 21) {
-				String setPriority = message.getPriority();
-				if (setPriority != null && setPriority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
-					//heads-up notification
-					builder.setContentText(msg)
-							.setFullScreenIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT), true);
-					notification = builder.build();
-				}
-			}
+                } else if (type != null && type.equalsIgnoreCase(BIGTEXT_NOTIFICATION)) {
+                    NotificationCompat.BigTextStyle notificationStyle = new NotificationCompat.BigTextStyle();
+                    notificationStyle.setBigContentTitle(ticker);
+                    notificationStyle.setSummaryText(gcmStyleObject.getString(TITLE));
+                    notificationStyle.bigText(gcmStyleObject.getString(TEXT));
 
-		} else {
-			notification = builder.setContentIntent(PendingIntent
-					.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
-					.setSmallIcon(icon).setTicker(ticker).setWhen(when)
-					.setAutoCancel(true).setContentTitle(title)
-					.setContentText(msg).setSound(getNotificationSoundUri(context, sound))
-					.build();
-		}
+                    mBuilder = new NotificationCompat.Builder(
+                            context);
+                    notification = mBuilder
+                            .setSmallIcon(icon)
+                            .setAutoCancel(true)
+                            .setContentTitle(title)
+                            .setContentIntent(PendingIntent
+                                    .getActivity(context, 0, intent,
+                                            PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                            .setContentText(msg)
+                            .setStyle(notificationStyle).build();
+                } else if (type != null && type.equalsIgnoreCase(INBOX_NOTIFICATION)) {
+                    NotificationCompat.InboxStyle notificationStyle = new NotificationCompat.InboxStyle();
+                    notificationStyle.setBigContentTitle(ticker);
+                    notificationStyle.setSummaryText(gcmStyleObject.getString(TITLE));
 
-        NotificationManager notificationManager = (NotificationManager) context
-				.getSystemService(Context.NOTIFICATION_SERVICE);
+                    String lines = gcmStyleObject.getString(LINES).replaceAll("\\[", "").replaceAll("\\]", "");
+                    String[] lineArray = lines.split(",");
 
-		notificationManager.notify(notificationId, notification);
-	}
+                    for (String line : lineArray) {
+                        notificationStyle.addLine(line);
+                    }
+
+                    mBuilder = new NotificationCompat.Builder(
+                            context);
+                    notification = mBuilder
+                            .setSmallIcon(icon)
+                            .setAutoCancel(true)
+                            .setContentTitle(title)
+                            .setContentIntent(PendingIntent
+                                    .getActivity(context, 0, intent,
+                                            PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                            .setContentText(msg)
+                            .setStyle(notificationStyle).build();
+                }
+
+                notification.flags = Notification.FLAG_AUTO_CANCEL;
+                notificationManager.notify(notificationId, notification);
+            } catch (JSONException e) {
+                logger.error("Error while parsing JSON.");
+            }
+
+        } else {
+            if (androidSDKVersion > 10) {
+                builder.setContentIntent(PendingIntent
+                        .getActivity(context, 0, intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT))
+                        .setSmallIcon(icon).setTicker(ticker).setWhen(when)
+                        .setAutoCancel(true).setContentTitle(title)
+                        .setContentText(msg).setSound(getNotificationSoundUri(context, sound));
+
+                if (androidSDKVersion > 15) {
+                    String priority = message.getPriority();
+                    if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
+                        builder.setPriority(Notification.PRIORITY_MAX);
+                    } else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MIN)) {
+                        builder.setPriority(Notification.PRIORITY_MIN);
+                    } else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_HIGH)) {
+                        builder.setPriority((Notification.PRIORITY_HIGH));
+                    } else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_LOW)) {
+                        builder.setPriority(Notification.PRIORITY_LOW);
+                    } else {
+                        builder.setPriority(Notification.PRIORITY_DEFAULT);
+                    }
+                }
+
+                if (androidSDKVersion > 19) {
+                    //As new material theme is very light, the icon is not shown clearly
+                    //hence setting the background of icon to black
+                    builder.setColor(Color.BLACK);
+                    Boolean isBridgeSet = message.getBridge();
+                    if (!isBridgeSet) {
+                        // show notification only on current device.
+                        builder.setLocalOnly(true);
+                    }
+
+                    notification = builder.build();
+                    int receivedVisibility = 1;
+                    String visibility = message.getVisibility();
+                    if (visibility != null && visibility.equalsIgnoreCase(MFPPushConstants.VISIBILITY_PRIVATE)) {
+                        receivedVisibility = 0;
+                    }
+                    if (receivedVisibility == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
+                        builder.setContentIntent(PendingIntent
+                                .getActivity(context, 0, intent,
+                                        PendingIntent.FLAG_UPDATE_CURRENT))
+                                .setSmallIcon(icon).setTicker(ticker).setWhen(when)
+                                .setAutoCancel(true).setContentTitle(title)
+                                .setContentText(message.getRedact()).setSound(getNotificationSoundUri(context, sound));
+
+                        notification.publicVersion = builder.build();
+                    }
+                }
+
+                if (androidSDKVersion > 21) {
+                    String setPriority = message.getPriority();
+                    if (setPriority != null && setPriority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
+                        //heads-up notification
+                        builder.setContentText(msg)
+                                .setFullScreenIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT), true);
+                        notification = builder.build();
+                    }
+                }
+
+            } else {
+                notification = builder.setContentIntent(PendingIntent
+                        .getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                        .setSmallIcon(icon).setTicker(ticker).setWhen(when)
+                        .setAutoCancel(true).setContentTitle(title)
+                        .setContentText(msg).setSound(getNotificationSoundUri(context, sound))
+                        .build();
+            }
+
+            NotificationManager notificationManager = (NotificationManager) context
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+
+            notificationManager.notify(notificationId, notification);
+        }
+    }
 
     private Uri getNotificationSoundUri(Context context, String sound) {
         Uri uri = null;
@@ -321,11 +368,11 @@ public class MFPPushIntentService extends IntentService {
             String soundResourceString = sound;
             try {
                 if (soundResourceString.contains(".")) {
-                soundResourceString = soundResourceString.substring(0, soundResourceString.indexOf("."));
+                    soundResourceString = soundResourceString.substring(0, soundResourceString.indexOf("."));
                 }
-                int resourceId = getResourceId (context, "raw", soundResourceString);
-                if(resourceId == -1) {
-                logger.error("Specified sound file is not found in res/raw");
+                int resourceId = getResourceId(context, "raw", soundResourceString);
+                if (resourceId == -1) {
+                    logger.error("Specified sound file is not found in res/raw");
                 }
                 uri = Uri.parse("android.resource://" + context.getPackageName() + "/" + resourceId);
             } catch (Exception e) {
@@ -336,23 +383,23 @@ public class MFPPushIntentService extends IntentService {
         return uri;
     }
 
-	public int getCustomNotificationIcon(Context context, String resourceName){
-		int resourceId = -1;
+    public int getCustomNotificationIcon(Context context, String resourceName) {
+        int resourceId = -1;
 
-		try {
-			resourceId = getResourceIdForCustomIcon(context, "drawable", resourceName);
-		} catch (Exception e) {
-			logger.error("Exception while parsing icon file.");
-			resourceId = android.R.drawable.btn_star;
-		}
+        try {
+            resourceId = getResourceIdForCustomIcon(context, "drawable", resourceName);
+        } catch (Exception e) {
+            logger.error("Exception while parsing icon file.");
+            resourceId = android.R.drawable.btn_star;
+        }
 
-		if (resourceId == 0) {
-			resourceId = android.R.drawable.btn_star;
-		}
-		return resourceId;
-	}
+        if (resourceId == 0) {
+            resourceId = android.R.drawable.btn_star;
+        }
+        return resourceId;
+    }
 
-    public static int getResourceId(Context context, String resourceCategory, String resourceName)  {
+    public static int getResourceId(Context context, String resourceCategory, String resourceName) {
         int resourceId = -1;
         try {
             resourceId = context.getResources().getIdentifier(resourceName, "raw", context.getPackageName());
@@ -362,54 +409,54 @@ public class MFPPushIntentService extends IntentService {
         return resourceId;
     }
 
-	public static int getResourceIdForCustomIcon(Context context, String resourceCategory, String resourceName)  {
-		int resourceId = -1;
+    public static int getResourceIdForCustomIcon(Context context, String resourceCategory, String resourceName) {
+        int resourceId = -1;
 
-		try {
-			resourceId = context.getResources().getIdentifier("drawable/"+resourceName, "drawable", context.getPackageName());
-		} catch (Exception e) {
-			logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
-		}
-		return resourceId;
-	}
+        try {
+            resourceId = context.getResources().getIdentifier("drawable/" + resourceName, "drawable", context.getPackageName());
+        } catch (Exception e) {
+            logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
+        }
+        return resourceId;
+    }
 
-	@Override
-	protected void onHandleIntent(Intent intent) {
-		Bundle extras = intent.getExtras();
-		intent = handleMessageIntent(intent, extras);
-		MFPPushBroadcastReceiver.completeWakefulIntent(intent);
-	}
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        Bundle extras = intent.getExtras();
+        intent = handleMessageIntent(intent, extras);
+        MFPPushBroadcastReceiver.completeWakefulIntent(intent);
+    }
 
     private Intent handleMessageIntent(Intent intent, Bundle extras) {
-            String action = extras.getString("action");
-            if(action != null && action.equals(DISMISS_NOTIFICATION)) {
-                logger.debug("Dismissal message from GCM Server");
-                dismissNotification(extras.getString("nid"));
-            } else {
+        String action = extras.getString("action");
+        if (action != null && action.equals(DISMISS_NOTIFICATION)) {
+            logger.debug("Dismissal message from GCM Server");
+            dismissNotification(extras.getString("nid"));
+        } else {
 
-                GoogleCloudMessaging gcm = GoogleCloudMessaging
-                        .getInstance(getApplicationContext());
-                String messageType = gcm.getMessageType(intent);
+            GoogleCloudMessaging gcm = GoogleCloudMessaging
+                    .getInstance(getApplicationContext());
+            String messageType = gcm.getMessageType(intent);
 
-                if (!extras.isEmpty()) {
-                    if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                        logger.debug("MFPPushIntentService:handleMessageIntent() - Received a message from GCM Server." + intent.getExtras());
-                        MFPInternalPushMessage message = new MFPInternalPushMessage(intent);
-                        intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
-                                + GCM_MESSAGE);
-                        intent.putExtra(GCM_EXTRA_MESSAGE, message);
+            if (!extras.isEmpty()) {
+                if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+                    logger.debug("MFPPushIntentService:handleMessageIntent() - Received a message from GCM Server." + intent.getExtras());
+                    MFPInternalPushMessage message = new MFPInternalPushMessage(intent);
+                    intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
+                            + GCM_MESSAGE);
+                    intent.putExtra(GCM_EXTRA_MESSAGE, message);
 
-                        if (!isAppForeground()) {
-                            logger.debug("MFPPushIntentService:handleMessageIntent() - App is not on foreground. Queue the intent for later re-sending when app is on foreground");
-                            intentsQueue.add(intent);
-                        }
-                        getApplicationContext().sendOrderedBroadcast(intent, null,
-                                resultReceiver, null, Activity.RESULT_FIRST_USER, null,
-                                null);
+                    if (!isAppForeground()) {
+                        logger.debug("MFPPushIntentService:handleMessageIntent() - App is not on foreground. Queue the intent for later re-sending when app is on foreground");
+                        intentsQueue.add(intent);
                     }
+                    getApplicationContext().sendOrderedBroadcast(intent, null,
+                            resultReceiver, null, Activity.RESULT_FIRST_USER, null,
+                            null);
                 }
             }
-            return intent;
+        }
+        return intent;
     }
 
     protected void dismissNotification(String nid) {
@@ -424,9 +471,9 @@ public class MFPPushIntentService extends IntentService {
                     String msg = sharedPreferences.getString(key, null);
                     if (msg != null) {
                         JSONObject messageObject = new JSONObject(msg);
-                        if(messageObject != null && !messageObject.isNull("nid")) {
+                        if (messageObject != null && !messageObject.isNull("nid")) {
                             String id = messageObject.getString("nid");
-                            if(id != null && id.equals(nid)) {
+                            if (id != null && id.equals(nid)) {
                                 MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
                                 MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, countOfStoredMessages - 1);
                                 NotificationManager mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -441,24 +488,22 @@ public class MFPPushIntentService extends IntentService {
         }
     }
 
-	class getBitMapBigPictureNotification extends AsyncTask<String, Void, Bitmap> {
-		private Exception exception;
+    class getBitMapBigPictureNotification extends AsyncTask<String, Void, Bitmap> {
 
-		protected Bitmap doInBackground(String... urls) {
-			try {
-				URL url = new URL(urls[0]);
-				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-				connection.setDoInput(true);
-				connection.connect();
-				InputStream input = connection.getInputStream();
-				Bitmap myBitmap = BitmapFactory.decodeStream(input);
-				return myBitmap;
-			} catch (Exception e) {
-				this.exception = e;
-				return null;
-			}
-		}
+        protected Bitmap doInBackground(String... urls) {
+            try {
+                URL url = new URL(urls[0]);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                return myBitmap;
+            } catch (Exception e) {
+                return null;
+            }
+        }
 
-	}
+    }
 
 }

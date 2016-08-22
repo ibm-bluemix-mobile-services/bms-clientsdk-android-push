@@ -40,5 +40,9 @@ public interface MFPPushConstants {
 	public static final String URL = "url";
 	public static final String TITLE = "title";
 	public static final String TYPE = "type";
+	public static final String TEXT = "text";
+	public static final String LINES = "lines";
 	public static final String PICTURE_NOTIFICATION = "picture_notification";
+	public static final String BIGTEXT_NOTIFICATION = "bigtext_notification";
+	public static final String INBOX_NOTIFICATION = "inbox_notification";
 }
