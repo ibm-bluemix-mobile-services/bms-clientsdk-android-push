@@ -32,6 +32,11 @@ public class MFPPushUrlBuilder {
 	private static final String DEVICEID = "deviceId";
 	private static final String SETTINGS = "settings" + FORWARDSLASH
 			+ "gcmConfPublic";
+	private static final String STAGE_TEST = "stage1-test";
+	private static final String STAGE_DEV = "stage1-dev";
+	private static final String STAGE_TEST_URL = "stage1-test.ng.bluemix.net";
+	private static final String STAGE_DEV_URL = "stage1-dev.ng.bluemix.net";
+	private static final String STAGE_PROD_URL = ".stage1.ng.bluemix.net";
 
     String reWriteDomain = "";
 	private final StringBuilder pwUrl_ = new StringBuilder();
@@ -43,15 +48,15 @@ public class MFPPushUrlBuilder {
 			pwUrl_.append(BMSClient.getInstance().getDefaultProtocol());
 			pwUrl_.append("://");
 			pwUrl_.append(IMFPUSH);
-            if ((BMSClient.getInstance().getBluemixRegionSuffix().contains("stage1-test") == true) ||
-                (BMSClient.getInstance().getBluemixRegionSuffix().contains("stage1-dev") == true)){
+            if ((BMSClient.getInstance().getBluemixRegionSuffix().contains(STAGE_TEST) == true) ||
+                (BMSClient.getInstance().getBluemixRegionSuffix().contains(STAGE_DEV) == true)){
                 
-                pwUrl_.append(".stage1.ng.bluemix.net");
-                if (BMSClient.getInstance().getBluemixRegionSuffix().contains("stage1-test") == true) {
-                    reWriteDomain = "stage1-test.ng.bluemix.net";
+                pwUrl_.append(STAGE_PROD_URL);
+                if (BMSClient.getInstance().getBluemixRegionSuffix().contains(STAGE_TEST) == true) {
+                    reWriteDomain = STAGE_TEST_URL;
                 }
                 else {
-                    reWriteDomain = "stage1-dev.ng.bluemix.net";
+                    reWriteDomain = STAGE_DEV_URL;
                 }
                 
             }else {
@@ -89,26 +94,26 @@ public class MFPPushUrlBuilder {
 	}
 
 	public String getSubscriptionsUrl(String deviceId, String tagName) {
-		StringBuilder suscriptionsOfTagUrl = new StringBuilder(
+		StringBuilder subscriptionsOfTagUrl = new StringBuilder(
 				getSubscriptionsUrl());
-		suscriptionsOfTagUrl.append(QUESTIONMARK);
+		subscriptionsOfTagUrl.append(QUESTIONMARK);
 		boolean isFirstParam = true;
 		if (deviceId != null) {
-			suscriptionsOfTagUrl.append(DEVICEID).append(EQUALTO)
+			subscriptionsOfTagUrl.append(DEVICEID).append(EQUALTO)
 					.append(deviceId);
 			isFirstParam = false;
 		}
 
 		if (tagName != null) {
 			if (!isFirstParam) {
-				suscriptionsOfTagUrl.append(AMPERSAND);
+				subscriptionsOfTagUrl.append(AMPERSAND);
 			}
 
-			suscriptionsOfTagUrl.append(TAGNAME).append(EQUALTO)
+			subscriptionsOfTagUrl.append(TAGNAME).append(EQUALTO)
 					.append(tagName);
 		}
 
-		return suscriptionsOfTagUrl.toString();
+		return subscriptionsOfTagUrl.toString();
 	}
 
 	public String getDeviceIdUrl(String deviceId) {
