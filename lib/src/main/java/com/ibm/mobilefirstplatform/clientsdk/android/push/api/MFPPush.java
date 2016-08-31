@@ -31,7 +31,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.InteractiveNotificationActionButton;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushInvoker;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder;
@@ -1139,10 +1138,6 @@ public class MFPPush {
         } else {
             return true;
         }
-    }
-
-    public void addInteractiveButtonGroup(InteractiveNotificationActionButton button1, InteractiveNotificationActionButton button2){
-
     }
 
     class UpstreamMessage implements Runnable {
