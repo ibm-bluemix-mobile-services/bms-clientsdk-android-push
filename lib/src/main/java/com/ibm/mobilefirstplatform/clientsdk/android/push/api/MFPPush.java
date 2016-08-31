@@ -976,18 +976,18 @@ public class MFPPush {
                 MFPSimplePushNotification simpleNotification = new MFPSimplePushNotification(
                         message);
                 notificationListener.onReceive(simpleNotification);
-                sendUpstreamMessage(message.getKey(), message.getId());
+                relayNotificationSync(message.getKey(), message.getId());
             }
         }
     }
 
-    private void sendUpstreamMessage(String key, String nid) {
+    private void relayNotificationSync(String key, String nid) {
         if(key != null) {
             try {
-                Thread t = new Thread(new UpstreamMessage(key, nid));
+                Thread t = new Thread(new UpstreamSyncMessage(key, nid));
                 t.start();
             } catch(Exception e) {
-                logger.error("MFPPush: sendUpstreamMessage() - Error sending upstream message.");
+                logger.error("MFPPush: UpstreamSyncMessage() - Error sending upstream message.");
             }
         }
     }
@@ -1140,12 +1140,12 @@ public class MFPPush {
         }
     }
 
-    class UpstreamMessage implements Runnable {
+    class UpstreamSyncMessage implements Runnable {
 
         String key;
         String nid;
 
-        public UpstreamMessage(String key, String nid) {
+        public UpstreamSyncMessage(String key, String nid) {
             this.key = key;
             this.nid = nid;
         }
@@ -1163,7 +1163,7 @@ public class MFPPush {
             try {
                 gcm.send(key, id, data);
             } catch (IOException e) {
-                logger.error("MFPPush: UpstreamMessage.run() - Failed to send upstream message.");
+                logger.error("MFPPush: UpstreamSyncMessage.run() - Failed to send upstream message.");
             }
 
         }
