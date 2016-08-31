@@ -31,6 +31,7 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.InteractiveNotificationActionButton;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushInvoker;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder;
@@ -43,7 +44,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -189,7 +189,6 @@ public class MFPPush {
     private List<MFPInternalPushMessage> pending = new ArrayList<MFPInternalPushMessage>();
     private GoogleCloudMessaging gcm;
 
-    private MFPPushUrlBuilder urlBuilder = null;
     private MFPPushNotificationListener notificationListener = null;
     private MFPPushResponseListener<String> registerResponseListener = null;
 
@@ -1140,6 +1139,10 @@ public class MFPPush {
         } else {
             return true;
         }
+    }
+
+    public void addInteractiveButtonGroup(InteractiveNotificationActionButton button1, InteractiveNotificationActionButton button2){
+
     }
 
     class UpstreamMessage implements Runnable {

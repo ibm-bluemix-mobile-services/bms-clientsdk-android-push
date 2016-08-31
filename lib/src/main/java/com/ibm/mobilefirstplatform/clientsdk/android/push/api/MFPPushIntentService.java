@@ -34,6 +34,7 @@ import android.os.AsyncTask;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LINES;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TEXT;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.URL;
@@ -45,7 +46,6 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-import com.ibm.mobilefirst.clientsdk.android.push.R;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
@@ -149,7 +149,7 @@ public class MFPPushIntentService extends IntentService {
 
             generateNotification(context, message.getAlert(),
                     getNotificationTitle(context), message.getAlert(),
-                    getCustomNotificationIcon(context, "push_notification_icon"), intent, message.getSound(), notificationId);
+                    getCustomNotificationIcon(context, "push_notification_icon"), intent, getNotificationSound(message), notificationId);
         }
     }
 
@@ -159,7 +159,7 @@ public class MFPPushIntentService extends IntentService {
         int notificationTitle = -1;
         try {
             notificationTitle = MFPPushUtils.getResourceId(getApplicationContext(),
-                    "string", "push_notification_title.png");
+                    "string", "push_notification_title");
             return context.getString(notificationTitle);
         } catch (Exception e) {
             // ignore the exception
@@ -186,6 +186,7 @@ public class MFPPushIntentService extends IntentService {
 
     private void generateNotification(Context context, String ticker,
                                       String title, String msg, int icon, Intent intent, String sound, int notificationId) {
+
         int androidSDKVersion = Build.VERSION.SDK_INT;
         long when = System.currentTimeMillis();
         Notification notification = null;
@@ -211,7 +212,7 @@ public class MFPPushIntentService extends IntentService {
                     try {
                         remote_picture = new getBitMapBigPictureNotification().execute(gcmStyleObject.getString(URL)).get();
                     } catch (Exception e) {
-                        logger.error("MFPPushIntentService: Error while fetching image file.");
+                        logger.error("MFPPushIntentService:generateNotification() - Error while fetching image file.");
                     }
                     if (remote_picture != null) {
                         notificationStyle.bigPicture(remote_picture);
@@ -278,7 +279,7 @@ public class MFPPushIntentService extends IntentService {
                 notification.flags = Notification.FLAG_AUTO_CANCEL;
                 notificationManager.notify(notificationId, notification);
             } catch (JSONException e) {
-                logger.error("Error while parsing JSON.");
+                logger.error("MFPPushIntentService:generateNotification() - Error while parsing JSON.");
             }
 
         } else {
@@ -291,18 +292,8 @@ public class MFPPushIntentService extends IntentService {
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound));
 
                 if (androidSDKVersion > 15) {
-                    String priority = message.getPriority();
-                    if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
-                        builder.setPriority(Notification.PRIORITY_MAX);
-                    } else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MIN)) {
-                        builder.setPriority(Notification.PRIORITY_MIN);
-                    } else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_HIGH)) {
-                        builder.setPriority((Notification.PRIORITY_HIGH));
-                    } else if (priority != null && priority.equalsIgnoreCase(MFPPushConstants.PRIORITY_LOW)) {
-                        builder.setPriority(Notification.PRIORITY_LOW);
-                    } else {
-                        builder.setPriority(Notification.PRIORITY_DEFAULT);
-                    }
+                    int priority = getPriorityOfMessage(message);
+                    builder.setPriority(priority);
                 }
 
                 if (androidSDKVersion > 19) {
@@ -359,6 +350,37 @@ public class MFPPushIntentService extends IntentService {
         }
     }
 
+    private int getPriorityOfMessage (MFPInternalPushMessage message) {
+        String priorityFromServer = message.getPriority();
+        int priorityPreSet = MFPPushNotificationOptions.getInstance().getPriority().getValue();
+        if (priorityFromServer != null) {
+            if (priorityFromServer.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
+                return Notification.PRIORITY_MAX;
+            } else if (priorityFromServer.equalsIgnoreCase(MFPPushConstants.PRIORITY_MIN)) {
+                return Notification.PRIORITY_MIN;
+            } else if (priorityFromServer.equalsIgnoreCase(MFPPushConstants.PRIORITY_HIGH)) {
+                return Notification.PRIORITY_HIGH;
+            } else if (priorityFromServer.equalsIgnoreCase(MFPPushConstants.PRIORITY_LOW)) {
+                return Notification.PRIORITY_LOW;
+            }
+        } else if (priorityPreSet != 0){
+            return MFPPushNotificationOptions.getInstance().getPriority().getValue();
+        }
+        return Notification.PRIORITY_DEFAULT;
+    }
+
+    private String getNotificationSound(MFPInternalPushMessage message) {
+        String soundFromServer = message.getSound();
+        String soundPreSet = MFPPushNotificationOptions.getInstance().getSound();
+
+        if (soundFromServer != null) {
+            return soundFromServer;
+        } else if (soundPreSet != null) {
+            return soundPreSet;
+        }
+        return null;
+    }
+
     private Uri getNotificationSoundUri(Context context, String sound) {
         Uri uri = null;
 
@@ -372,11 +394,11 @@ public class MFPPushIntentService extends IntentService {
                 }
                 int resourceId = getResourceId(context, "raw", soundResourceString);
                 if (resourceId == -1) {
-                    logger.error("Specified sound file is not found in res/raw");
+                    logger.error("MFPPushIntentService:getNotificationSoundUri() - Specified sound file is not found in res/raw");
                 }
                 uri = Uri.parse("android.resource://" + context.getPackageName() + "/" + resourceId);
             } catch (Exception e) {
-                logger.error("Exception while parsing sound file");
+                logger.error("MFPPushIntentService:getNotificationSoundUri() - Exception while parsing sound file");
             }
         }
 
@@ -389,7 +411,7 @@ public class MFPPushIntentService extends IntentService {
         try {
             resourceId = getResourceIdForCustomIcon(context, "drawable", resourceName);
         } catch (Exception e) {
-            logger.error("Exception while parsing icon file.");
+            logger.error("MFPPushIntentService: getCustomNotification() - Exception while parsing icon file.");
             resourceId = android.R.drawable.btn_star;
         }
 
@@ -404,7 +426,7 @@ public class MFPPushIntentService extends IntentService {
         try {
             resourceId = context.getResources().getIdentifier(resourceName, "raw", context.getPackageName());
         } catch (Exception e) {
-            logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
+            logger.error("MFPPushIntentService: getResourceId() - Failed to find resource R." + resourceCategory + "." + resourceName, e);
         }
         return resourceId;
     }
@@ -415,7 +437,7 @@ public class MFPPushIntentService extends IntentService {
         try {
             resourceId = context.getResources().getIdentifier("drawable/" + resourceName, "drawable", context.getPackageName());
         } catch (Exception e) {
-            logger.error("Failed to find resource R." + resourceCategory + "." + resourceName, e);
+            logger.error("MFPPushIntentService: Failed to find resource R." + resourceCategory + "." + resourceName, e);
         }
         return resourceId;
     }
@@ -430,8 +452,8 @@ public class MFPPushIntentService extends IntentService {
     private Intent handleMessageIntent(Intent intent, Bundle extras) {
         String action = extras.getString("action");
         if (action != null && action.equals(DISMISS_NOTIFICATION)) {
-            logger.debug("Dismissal message from GCM Server");
-            dismissNotification(extras.getString("nid"));
+            logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
+            dismissNotification(extras.getString(NID));
         } else {
 
             GoogleCloudMessaging gcm = GoogleCloudMessaging
@@ -471,8 +493,8 @@ public class MFPPushIntentService extends IntentService {
                     String msg = sharedPreferences.getString(key, null);
                     if (msg != null) {
                         JSONObject messageObject = new JSONObject(msg);
-                        if (messageObject != null && !messageObject.isNull("nid")) {
-                            String id = messageObject.getString("nid");
+                        if (messageObject != null && !messageObject.isNull(NID)) {
+                            String id = messageObject.getString(NID);
                             if (id != null && id.equals(nid)) {
                                 MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
                                 MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, countOfStoredMessages - 1);

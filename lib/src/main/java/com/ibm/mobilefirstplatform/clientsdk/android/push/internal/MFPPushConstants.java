@@ -45,4 +45,5 @@ public interface MFPPushConstants {
 	public static final String PICTURE_NOTIFICATION = "picture_notification";
 	public static final String BIGTEXT_NOTIFICATION = "bigtext_notification";
 	public static final String INBOX_NOTIFICATION = "inbox_notification";
+	public static final String NID = "nid";
 }
