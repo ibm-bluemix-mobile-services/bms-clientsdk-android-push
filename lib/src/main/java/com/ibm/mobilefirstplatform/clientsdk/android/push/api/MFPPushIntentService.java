@@ -32,10 +32,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DRAWABLE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LINES;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.RAW;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TEXT;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.URL;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TYPE;
@@ -352,7 +355,12 @@ public class MFPPushIntentService extends IntentService {
 
     private int getPriorityOfMessage (MFPInternalPushMessage message) {
         String priorityFromServer = message.getPriority();
-        int priorityPreSet = MFPPushNotificationOptions.getInstance().getPriority().getValue();
+        MFPPushNotificationOptions.Priority priorityPreSet = MFPPushNotificationOptions.getInstance().getPriority();
+        int priorityPreSetValue = 0;
+        if (priorityPreSet != null) {
+            priorityPreSetValue = MFPPushNotificationOptions.getInstance().getPriority().getValue();
+        }
+
         if (priorityFromServer != null) {
             if (priorityFromServer.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
                 return Notification.PRIORITY_MAX;
@@ -363,8 +371,8 @@ public class MFPPushIntentService extends IntentService {
             } else if (priorityFromServer.equalsIgnoreCase(MFPPushConstants.PRIORITY_LOW)) {
                 return Notification.PRIORITY_LOW;
             }
-        } else if (priorityPreSet != 0){
-            return MFPPushNotificationOptions.getInstance().getPriority().getValue();
+        } else if (priorityPreSetValue != 0){
+            return priorityPreSetValue;
         }
         return Notification.PRIORITY_DEFAULT;
     }
@@ -392,7 +400,7 @@ public class MFPPushIntentService extends IntentService {
                 if (soundResourceString.contains(".")) {
                     soundResourceString = soundResourceString.substring(0, soundResourceString.indexOf("."));
                 }
-                int resourceId = getResourceId(context, "raw", soundResourceString);
+                int resourceId = getResourceId(context, RAW, soundResourceString);
                 if (resourceId == -1) {
                     logger.error("MFPPushIntentService:getNotificationSoundUri() - Specified sound file is not found in res/raw");
                 }
@@ -409,7 +417,7 @@ public class MFPPushIntentService extends IntentService {
         int resourceId = -1;
 
         try {
-            resourceId = getResourceIdForCustomIcon(context, "drawable", resourceName);
+            resourceId = getResourceIdForCustomIcon(context, DRAWABLE, resourceName);
         } catch (Exception e) {
             logger.error("MFPPushIntentService: getCustomNotification() - Exception while parsing icon file.");
             resourceId = android.R.drawable.btn_star;
@@ -424,7 +432,7 @@ public class MFPPushIntentService extends IntentService {
     public static int getResourceId(Context context, String resourceCategory, String resourceName) {
         int resourceId = -1;
         try {
-            resourceId = context.getResources().getIdentifier(resourceName, "raw", context.getPackageName());
+            resourceId = context.getResources().getIdentifier(resourceName, RAW, context.getPackageName());
         } catch (Exception e) {
             logger.error("MFPPushIntentService: getResourceId() - Failed to find resource R." + resourceCategory + "." + resourceName, e);
         }
@@ -435,7 +443,7 @@ public class MFPPushIntentService extends IntentService {
         int resourceId = -1;
 
         try {
-            resourceId = context.getResources().getIdentifier("drawable/" + resourceName, "drawable", context.getPackageName());
+            resourceId = context.getResources().getIdentifier(DRAWABLE+"/" + resourceName, DRAWABLE, context.getPackageName());
         } catch (Exception e) {
             logger.error("MFPPushIntentService: Failed to find resource R." + resourceCategory + "." + resourceName, e);
         }
@@ -450,7 +458,7 @@ public class MFPPushIntentService extends IntentService {
     }
 
     private Intent handleMessageIntent(Intent intent, Bundle extras) {
-        String action = extras.getString("action");
+        String action = extras.getString(ACTION);
         if (action != null && action.equals(DISMISS_NOTIFICATION)) {
             logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
             dismissNotification(extras.getString(NID));

@@ -48,9 +48,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_CLIENT_SECRET;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
@@ -1156,9 +1158,9 @@ public class MFPPush {
             AtomicInteger msgId = new AtomicInteger();
             String id = Integer.toString(msgId.incrementAndGet());
             Bundle data = new Bundle();
-            data.putString("action", DISMISS_NOTIFICATION);
+            data.putString(ACTION, DISMISS_NOTIFICATION);
             if (nid != null) {
-                data.putString("nid", nid);
+                data.putString(NID, nid);
             }
             try {
                 gcm.send(key, id, data);
