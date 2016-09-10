@@ -37,11 +37,7 @@ public class MainActivity extends Activity {
         String appRoute = "Your-app-route-here";
         String appGuid = "Your-app-GUID-here";
 
-        try {
-            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);
-        } catch (MalformedURLException e){
-            e.printStackTrace();
-        }
+        BMSClient.getInstance().initialize(getApplicationContext(),BMSClient.REGION_US_SOUTH);
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid);
