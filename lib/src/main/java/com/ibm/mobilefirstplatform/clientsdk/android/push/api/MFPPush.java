@@ -616,6 +616,19 @@ public class MFPPush {
         invoker.execute();
     }
 
+    /**
+     * Get the Push Application GUID
+     *
+     */
+    public String getAppId(){
+
+        if (!applicationId.isEmpty()){
+            return  applicationId;
+        } else {
+            return  "";
+        }
+    }
+
     private void registerInBackground(final String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
