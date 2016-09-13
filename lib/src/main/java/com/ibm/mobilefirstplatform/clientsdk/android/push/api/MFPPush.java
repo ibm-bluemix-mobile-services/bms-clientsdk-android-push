@@ -213,6 +213,7 @@ public class MFPPush {
 
 
     /**
+     * @deprecated As of release 2.+, replaced by {@link #initialize(Context, String, String)}
      * MFPPush Intitialization method with clientSecret and tenantId.
      * <p>
      *
@@ -399,6 +400,9 @@ public class MFPPush {
             logger.debug("MFPPush:subscribe() - The tag subscription path is: " + path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
             invoker.setJSONRequestBody(buildSubscription(tagName));
+            if(validateString(clientSecret)){
+                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            }
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -443,7 +447,9 @@ public class MFPPush {
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
             logger.debug("MFPPush:unsubscribe() - The tag unsubscription path is: " + path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
-
+            if(validateString(clientSecret)){
+                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            }
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -483,7 +489,9 @@ public class MFPPush {
         String path = builder.getUnregisterUrl(deviceId);
         logger.debug("MFPPush:unregister() - The device unregister url is: " + path);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
-
+        if(validateString(clientSecret)){
+            invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+        }
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
@@ -522,7 +530,9 @@ public class MFPPush {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getTagsUrl();
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-
+        if(validateString(clientSecret)){
+            invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+        }
         invoker.setResponseListener(new ResponseListener() {
 
             @Override
@@ -578,7 +588,9 @@ public class MFPPush {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getSubscriptionsUrl(deviceId, null);
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
-
+        if(validateString(clientSecret)){
+            invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+        }
         invoker.setResponseListener(new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
@@ -614,6 +626,19 @@ public class MFPPush {
             }
         });
         invoker.execute();
+    }
+
+    /**
+     * Get the Push Application GUID
+     *
+     */
+    public String getAppId(){
+
+        if (!applicationId.isEmpty()){
+            return  applicationId;
+        } else {
+            return  "";
+        }
     }
 
     private void registerInBackground(final String userId) {
@@ -665,6 +690,9 @@ public class MFPPush {
                 String path = builder.getDeviceIdUrl(regId);
                 MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
                 invoker.setJSONRequestBody(null);
+                if(validateString(clientSecret)){
+                    invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+                }
 
                 invoker.setResponseListener(new ResponseListener() {
                     @Override
@@ -730,6 +758,9 @@ public class MFPPush {
             String path = builder.getDeviceIdUrl(regId);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
             invoker.setJSONRequestBody(null);
+            if(validateString(clientSecret)){
+                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+            }
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -1092,6 +1123,10 @@ public class MFPPush {
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
         logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground() - The url for getting gcm configuration is: " + path);
         invoker.setJSONRequestBody(null);
+
+        if(validateString(clientSecret)){
+            invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
+        }
         invoker.setResponseListener(new ResponseListener() {
 
             @Override

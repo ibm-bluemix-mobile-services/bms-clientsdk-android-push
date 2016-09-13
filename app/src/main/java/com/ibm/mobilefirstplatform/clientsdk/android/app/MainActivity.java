@@ -34,17 +34,13 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
-        String appRoute = "Your-app-route-here";
         String appGuid = "Your-app-GUID-here";
+        String clientSecret = "Your-app-ClientSecret-here";
 
-        try {
-            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);
-        } catch (MalformedURLException e){
-            e.printStackTrace();
-        }
+        BMSClient.getInstance().initialize(getApplicationContext(),BMSClient.REGION_US_SOUTH);
 
         push = MFPPush.getInstance();
-        push.initialize(getApplicationContext(),appGuid);
+        push.initialize(getApplicationContext(), appGuid, clientSecret);
 
         //Uncomment this code to use Push notifications with userId support
         // push.initialize(getApplicationContext(),"appGuid","clientSecret");
