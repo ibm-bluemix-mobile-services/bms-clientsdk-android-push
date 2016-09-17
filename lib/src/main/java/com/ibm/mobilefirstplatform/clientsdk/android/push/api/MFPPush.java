@@ -628,6 +628,11 @@ public class MFPPush {
         }
     }
 
+    /**
+     * Set the default push notification options for notifications.
+     * 
+     * @param options - The MFPPushNotificationOptions with the default parameters
+     */
     public void setNotificationOptions(MFPPushNotificationOptions options){
         this.options = options;
     }
