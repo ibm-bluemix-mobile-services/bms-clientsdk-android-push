@@ -230,7 +230,7 @@ public class MFPPushIntentService extends IntentService {
                             .setContentTitle(title)
                             .setContentIntent(PendingIntent
                                     .getActivity(context, 0, intent,
-                                            PendingIntent.FLAG_UPDATE_CURRENT))
+                                            PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_ONE_SHOT))
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -249,7 +249,7 @@ public class MFPPushIntentService extends IntentService {
                             .setContentTitle(title)
                             .setContentIntent(PendingIntent
                                     .getActivity(context, 0, intent,
-                                            PendingIntent.FLAG_UPDATE_CURRENT))
+                                            PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_ONE_SHOT))
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -273,7 +273,7 @@ public class MFPPushIntentService extends IntentService {
                             .setContentTitle(title)
                             .setContentIntent(PendingIntent
                                     .getActivity(context, 0, intent,
-                                            PendingIntent.FLAG_UPDATE_CURRENT))
+                                            PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_ONE_SHOT))
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -289,7 +289,7 @@ public class MFPPushIntentService extends IntentService {
             if (androidSDKVersion > 10) {
                 builder.setContentIntent(PendingIntent
                         .getActivity(context, 0, intent,
-                                PendingIntent.FLAG_UPDATE_CURRENT))
+                                PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_ONE_SHOT))
                         .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                         .setAutoCancel(true).setContentTitle(title)
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound));
@@ -318,7 +318,7 @@ public class MFPPushIntentService extends IntentService {
                     if (receivedVisibility == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
                         builder.setContentIntent(PendingIntent
                                 .getActivity(context, 0, intent,
-                                        PendingIntent.FLAG_UPDATE_CURRENT))
+                                        PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_ONE_SHOT))
                                 .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                                 .setAutoCancel(true).setContentTitle(title)
                                 .setContentText(message.getRedact()).setSound(getNotificationSoundUri(context, sound));
@@ -339,7 +339,7 @@ public class MFPPushIntentService extends IntentService {
 
             } else {
                 notification = builder.setContentIntent(PendingIntent
-                        .getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                        .getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_ONE_SHOT))
                         .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                         .setAutoCancel(true).setContentTitle(title)
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound))
@@ -355,10 +355,11 @@ public class MFPPushIntentService extends IntentService {
 
     private int getPriorityOfMessage (MFPInternalPushMessage message) {
         String priorityFromServer = message.getPriority();
-        MFPPushNotificationOptions.Priority priorityPreSet = MFPPushNotificationOptions.getInstance().getPriority();
+        MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions();
         int priorityPreSetValue = 0;
-        if (priorityPreSet != null) {
-            priorityPreSetValue = MFPPushNotificationOptions.getInstance().getPriority().getValue();
+
+        if (options != null && options.getPriority()!=null) {
+            priorityPreSetValue = options.getPriority().getValue();
         }
 
         if (priorityFromServer != null) {
@@ -379,8 +380,12 @@ public class MFPPushIntentService extends IntentService {
 
     private String getNotificationSound(MFPInternalPushMessage message) {
         String soundFromServer = message.getSound();
-        String soundPreSet = MFPPushNotificationOptions.getInstance().getSound();
+        String soundPreSet = null;
+        MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions();
 
+        if (options != null && options.getSound()!=null){
+            soundPreSet = options.getSound();
+        }
         if (soundFromServer != null) {
             return soundFromServer;
         } else if (soundPreSet != null) {

@@ -197,6 +197,7 @@ public class MFPPush {
     private boolean isNewRegistration = false;
     private boolean hasRegisterParametersChanged = false;
     public static boolean isRegisteredForPush = false;
+    public static MFPPushNotificationOptions options = null;
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
@@ -210,7 +211,6 @@ public class MFPPush {
         }
         return instance;
     }
-
 
     /**
      * MFPPush Intitialization method with clientSecret and tenantId.
@@ -279,7 +279,15 @@ public class MFPPush {
      * @param notificationListener MFPPushNotificationListener object whose onReceive() method
      *                             will be called upon receipt of a push message.
      */
-    public void listen(MFPPushNotificationListener notificationListener) {
+    public void listen(MFPPushNotificationListener notificationListener, Intent intent) {
+        logger.info("Intent is: "+ intent.getExtras());
+        System.out.println("Intent is: " + intent.getExtras());
+        MFPInternalPushMessage message = intent
+                .getParcelableExtra(GCM_EXTRA_MESSAGE);
+
+        if (message != null) {
+            logger.info("The message is: " + message.toString());
+        }
         if (!onMessageReceiverRegistered) {
             appContext.registerReceiver(onMessage, new IntentFilter(
                     getIntentPrefix(appContext) + GCM_MESSAGE));
@@ -616,6 +624,14 @@ public class MFPPush {
         invoker.execute();
     }
 
+    public void setNotificationOptions(MFPPushNotificationOptions options){
+        this.options = options;
+    }
+
+    public MFPPushNotificationOptions getNotificationOptions() {
+        return options;
+    }
+
     private void registerInBackground(final String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
@@ -787,7 +803,6 @@ public class MFPPush {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDevicesUrl();
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
-
 
             //Add header for xtify deviceId for migration
             final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);

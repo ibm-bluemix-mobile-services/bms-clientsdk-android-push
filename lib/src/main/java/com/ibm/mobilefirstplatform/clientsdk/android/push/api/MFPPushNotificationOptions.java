@@ -50,14 +50,7 @@ public class MFPPushNotificationOptions {
         this.icon = icon;
     }
 
-    private MFPPushNotificationOptions() {}
-
-    public synchronized static MFPPushNotificationOptions getInstance() {
-        if (instance == null) {
-            instance = new MFPPushNotificationOptions();
-        }
-        return instance;
-    }
+    public MFPPushNotificationOptions() {}
 
     public static enum Priority {
         MAX(2), HIGH(1), DEFAULT(0), LOW(-1), MIN(-2);
