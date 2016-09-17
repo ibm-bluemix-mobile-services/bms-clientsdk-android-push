@@ -616,6 +616,18 @@ public class MFPPush {
         invoker.execute();
     }
 
+    /**
+     * Get the Push Application GUID
+     *
+     */
+    public String getApplicationId() {
+        if (!applicationId.isEmpty()) {
+            return applicationId;
+        } else {
+            return null;
+        }
+    }
+
     public void setNotificationOptions(MFPPushNotificationOptions options){
         this.options = options;
     }

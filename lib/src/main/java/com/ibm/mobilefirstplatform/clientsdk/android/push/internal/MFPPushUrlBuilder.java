@@ -38,7 +38,7 @@ public class MFPPushUrlBuilder {
 	private static final String STAGE_DEV_URL = "stage1-dev.ng.bluemix.net";
 	private static final String STAGE_PROD_URL = ".stage1.ng.bluemix.net";
 
-    String reWriteDomain = "";
+    String reWriteDomain = null;
 	private final StringBuilder pwUrl_ = new StringBuilder();
 
 	public MFPPushUrlBuilder(String applicationId) {
@@ -48,20 +48,19 @@ public class MFPPushUrlBuilder {
 			pwUrl_.append(BMSClient.getInstance().getDefaultProtocol());
 			pwUrl_.append("://");
 			pwUrl_.append(IMFPUSH);
-            if ((BMSClient.getInstance().getBluemixRegionSuffix().contains(STAGE_TEST) == true) ||
-                (BMSClient.getInstance().getBluemixRegionSuffix().contains(STAGE_DEV) == true)){
-                
+			String regionSuffix = BMSClient.getInstance().getBluemixRegionSuffix();
+            if (regionSuffix != null && regionSuffix.contains(STAGE_TEST) || regionSuffix.contains(STAGE_DEV)){
                 pwUrl_.append(STAGE_PROD_URL);
-                if (BMSClient.getInstance().getBluemixRegionSuffix().contains(STAGE_TEST) == true) {
+                if (regionSuffix.contains(STAGE_TEST)) {
                     reWriteDomain = STAGE_TEST_URL;
                 }
                 else {
                     reWriteDomain = STAGE_DEV_URL;
                 }
-                
+
             }else {
                 pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
-                reWriteDomain = "";
+                reWriteDomain = null;
             }
 		}
 
@@ -132,7 +131,7 @@ public class MFPPushUrlBuilder {
 		return deviceUnregisterUrl.toString();
 	}
     public String getRewriteDomain(){
-        
+
         return reWriteDomain;
     }
 
