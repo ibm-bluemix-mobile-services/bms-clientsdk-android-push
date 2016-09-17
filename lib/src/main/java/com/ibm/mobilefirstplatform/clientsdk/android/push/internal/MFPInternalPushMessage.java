@@ -36,6 +36,14 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_EXTRA_MID = "mid";
 	private static final String GCM_EXTRA_TYPE = "type";
 	private static final String GCM_EXTRA_SOUND = "sound";
+	private static final String GCM_EXTRA_BRIDGE = "bridge";
+	private static final String GCM_EXTRA_VISIBILITY = "visibility";
+	private static final String GCM_EXTRA_PRIORITY = "priority";
+	private static final String GCM_EXTRA_REDACT = "redact";
+	private static final String GCM_EXTRA_CATEGORY = "category";
+	private static final String GCM_EXTRA_KEY = "key";
+	private static final String GCM_EXTRA_NOTIFICATIONID = "notificationId";
+	private static final String GCM_EXTRA_STYLE = "gcmstyle";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -45,9 +53,17 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String payload = null;
 	private String mid = null;
 	private String sound = null;
+	private boolean bridge = true;
+	private String priority = null;
+	private String visibility = null;
+	private String redact = null;
+	private String key = null;
+	private String category = null;
 
 	private String htmlTitle = null;
 	private String htmlContent = null;
+	private int notificationId;
+	private String gcmStyle = null;
 
 	protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
 
@@ -55,10 +71,19 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 		Bundle info = intent.getExtras();
 		MFPPushUtils.dumpIntent(intent);
+
 		alert = info.getString(GCM_EXTRA_ALERT);
 		url = info.getString(GCM_EXTRA_URL);
 		payload = info.getString(GCM_EXTRA_PAYLOAD);
 		sound = info.getString(GCM_EXTRA_SOUND);
+		bridge = info.getBoolean(GCM_EXTRA_BRIDGE);
+		priority = info.getString(GCM_EXTRA_PRIORITY);
+		visibility = info.getString(GCM_EXTRA_VISIBILITY);
+		redact = info.getString(GCM_EXTRA_REDACT);
+		key = info.getString(GCM_EXTRA_KEY);
+		category = info.getString(GCM_EXTRA_CATEGORY);
+		gcmStyle = info.getString(GCM_EXTRA_STYLE);
+
 		try {
 			JSONObject towers = new JSONObject(payload);
 			id = towers.getString(GCM_EXTRA_ID);
@@ -75,6 +100,13 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		payload = source.readString();
 		mid = source.readString();
 		sound = source.readString();
+		bridge = Boolean.valueOf(source.readString());
+		priority = source.readString();
+		visibility = source.readString();
+		redact = source.readString();
+		category = source.readString();
+		key = source.readString();
+		gcmStyle = source.readString();
 	}
 
 	public MFPInternalPushMessage(JSONObject json) {
@@ -108,6 +140,41 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get sound.  "+ e.toString());
 		}
+		try {
+			bridge = json.getBoolean(GCM_EXTRA_BRIDGE);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get bridge.  "+ e.toString());
+		}
+		try {
+			priority = json.getString(GCM_EXTRA_PRIORITY);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get priority.  "+ e.toString());
+		}
+		try {
+			visibility = json.getString(GCM_EXTRA_VISIBILITY);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get visibility.  "+ e.toString());
+		}
+		try {
+			redact = json.getString(GCM_EXTRA_REDACT);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get redact.  "+ e.toString());
+		}
+		try {
+			category = json.getString(GCM_EXTRA_CATEGORY);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get category.  "+ e.toString());
+		}
+		try {
+			key = json.getString(GCM_EXTRA_KEY);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get key.  "+ e.toString());
+		}
+		try {
+			key = json.getString(GCM_EXTRA_STYLE);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get style.  "+ e.toString());
+		}
 	}
 
 	public JSONObject toJson() {
@@ -119,6 +186,13 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			json.put(GCM_EXTRA_PAYLOAD, payload);
 			json.put(GCM_EXTRA_MID, mid);
 			json.put(GCM_EXTRA_SOUND,sound);
+			json.put(GCM_EXTRA_BRIDGE, bridge);
+			json.put(GCM_EXTRA_PRIORITY, priority);
+			json.put(GCM_EXTRA_VISIBILITY, visibility);
+			json.put(GCM_EXTRA_REDACT, redact);
+			json.put(GCM_EXTRA_CATEGORY, category);
+			json.put(GCM_EXTRA_KEY, key);
+			json.put(GCM_EXTRA_NOTIFICATIONID, notificationId);
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON.  "+ e.toString());
 		}
@@ -175,10 +249,25 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		this.htmlContent = htmlContent;
 	}
 
+	public void setPriority(String priority) { this.priority = priority; }
+
+	public void setVisibility (String visibility) { this.visibility = visibility; }
+
+	public void setRedact(String redact) {this.redact = redact; }
+
+	public void setCategory (String category) {this.category = category; }
+
+	public void setKey (String key) { this.key = key; }
+
+	public void setGcmStyle (String gcmStyle) { this.gcmStyle = gcmStyle; }
+
+	public String getGcmStyle () {return gcmStyle;}
+
+
 	@Override
 	public String toString() {
 		return "MFPPushMessage [url=" + url + ", alert=" + alert + ", payload="
-				+ payload + ", mid=" + mid + ",sound="+ sound+ "]";
+				+ payload + ", mid=" + mid + ",sound="+ sound+ ",priority="+ priority + ",visibility="+ visibility + ",redact=" + redact + ",category="+category + ",key="+key +"]";
 	}
 
 	/* (non-Javadoc)
@@ -200,6 +289,13 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		dest.writeString(payload);
 		dest.writeString(mid);
 		dest.writeString(sound);
+		dest.writeString(String.valueOf(bridge));
+		dest.writeString(priority);
+		dest.writeString(visibility);
+		dest.writeString(redact);
+		dest.writeString(category);
+		dest.writeString(key);
+		dest.writeString(gcmStyle);
 	}
 
 	public static final Creator<MFPInternalPushMessage> CREATOR = new Creator<MFPInternalPushMessage>() {
@@ -231,5 +327,23 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		return sound;
 	}
 
+	public boolean getBridge() { return bridge; }
 
+	public String getPriority() { return priority; }
+
+	public String getVisibility() { return visibility; }
+
+	public String getRedact() { return redact; }
+
+	public String getCategory() { return category; }
+
+	public String getKey() { return key; }
+
+	public int getNotificationId() {
+		return notificationId;
+	}
+
+	public void setNotificationId(int notificationId) {
+		this.notificationId = notificationId;
+	}
 }

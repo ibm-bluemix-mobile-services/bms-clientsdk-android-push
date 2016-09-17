@@ -22,6 +22,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.os.Bundle;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -31,7 +32,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushInvoker;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
@@ -43,15 +43,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.logging.Logger;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_CLIENT_SECRET;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
@@ -65,6 +66,8 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
+
 
 /**
  * <class>MFPPush</class> provides methods required by an android application to
@@ -187,7 +190,6 @@ public class MFPPush {
     private List<MFPInternalPushMessage> pending = new ArrayList<MFPInternalPushMessage>();
     private GoogleCloudMessaging gcm;
 
-    private MFPPushUrlBuilder urlBuilder = null;
     private MFPPushNotificationListener notificationListener = null;
     private MFPPushResponseListener<String> registerResponseListener = null;
 
@@ -195,6 +197,7 @@ public class MFPPush {
     private boolean isNewRegistration = false;
     private boolean hasRegisterParametersChanged = false;
     public static boolean isRegisteredForPush = false;
+    public static MFPPushNotificationOptions options = null;
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
@@ -208,7 +211,6 @@ public class MFPPush {
         }
         return instance;
     }
-
 
     /**
      * MFPPush Intitialization method with clientSecret and tenantId.
@@ -614,6 +616,31 @@ public class MFPPush {
         invoker.execute();
     }
 
+    /**
+     * Get the Push Application GUID
+     *
+     */
+    public String getApplicationId() {
+        if (!applicationId.isEmpty()) {
+            return applicationId;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Set the default push notification options for notifications.
+     *
+     * @param options - The MFPPushNotificationOptions with the default parameters
+     */
+    public void setNotificationOptions(MFPPushNotificationOptions options){
+        this.options = options;
+    }
+
+    public MFPPushNotificationOptions getNotificationOptions() {
+        return options;
+    }
+
     private void registerInBackground(final String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
@@ -785,7 +812,6 @@ public class MFPPush {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDevicesUrl();
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
-
 
             //Add header for xtify deviceId for migration
             final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);
@@ -976,6 +1002,18 @@ public class MFPPush {
                 MFPSimplePushNotification simpleNotification = new MFPSimplePushNotification(
                         message);
                 notificationListener.onReceive(simpleNotification);
+                relayNotificationSync(message.getKey(), message.getId());
+            }
+        }
+    }
+
+    private void relayNotificationSync(String key, String nid) {
+        if(key != null) {
+            try {
+                Thread t = new Thread(new UpstreamSyncMessage(key, nid));
+                t.start();
+            } catch(Exception e) {
+                logger.error("MFPPush: UpstreamSyncMessage() - Error sending upstream message.");
             }
         }
     }
@@ -1127,5 +1165,37 @@ public class MFPPush {
             return true;
         }
     }
+
+    class UpstreamSyncMessage implements Runnable {
+
+        String key;
+        String nid;
+
+        public UpstreamSyncMessage(String key, String nid) {
+            this.key = key;
+            this.nid = nid;
+        }
+
+        @Override
+        public void run() {
+            GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(appContext);
+            AtomicInteger msgId = new AtomicInteger();
+            String id = Integer.toString(msgId.incrementAndGet());
+            Bundle data = new Bundle();
+            data.putString(ACTION, DISMISS_NOTIFICATION);
+            if (nid != null) {
+                data.putString(NID, nid);
+            }
+            try {
+                gcm.send(key, id, data);
+            } catch (IOException e) {
+                logger.error("MFPPush: UpstreamSyncMessage.run() - Failed to send upstream message.");
+            }
+
+        }
+    }
+
 }
+
+
 
