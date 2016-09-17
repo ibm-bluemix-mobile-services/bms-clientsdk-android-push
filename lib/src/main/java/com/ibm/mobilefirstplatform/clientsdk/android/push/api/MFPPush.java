@@ -280,14 +280,6 @@ public class MFPPush {
      *                             will be called upon receipt of a push message.
      */
     public void listen(MFPPushNotificationListener notificationListener, Intent intent) {
-        logger.info("Intent is: "+ intent.getExtras());
-        System.out.println("Intent is: " + intent.getExtras());
-        MFPInternalPushMessage message = intent
-                .getParcelableExtra(GCM_EXTRA_MESSAGE);
-
-        if (message != null) {
-            logger.info("The message is: " + message.toString());
-        }
         if (!onMessageReceiverRegistered) {
             appContext.registerReceiver(onMessage, new IntentFilter(
                     getIntentPrefix(appContext) + GCM_MESSAGE));
