@@ -279,7 +279,7 @@ public class MFPPush {
      * @param notificationListener MFPPushNotificationListener object whose onReceive() method
      *                             will be called upon receipt of a push message.
      */
-    public void listen(MFPPushNotificationListener notificationListener, Intent intent) {
+    public void listen(MFPPushNotificationListener notificationListener) {
         if (!onMessageReceiverRegistered) {
             appContext.registerReceiver(onMessage, new IntentFilter(
                     getIntentPrefix(appContext) + GCM_MESSAGE));
@@ -630,7 +630,7 @@ public class MFPPush {
 
     /**
      * Set the default push notification options for notifications.
-     * 
+     *
      * @param options - The MFPPushNotificationOptions with the default parameters
      */
     public void setNotificationOptions(MFPPushNotificationOptions options){
