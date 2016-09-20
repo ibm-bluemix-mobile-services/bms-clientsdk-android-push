@@ -171,7 +171,7 @@ public class MFPPush {
     public static final String PREFS_NAME = "com.ibm.mobile.services.push";
     static final String PREFS_NOTIFICATION_MSG = "LatestNotificationMsg";
     static final String PREFS_NOTIFICATION_COUNT = "NotificationCount";
-    static final int INITIALISATION_ERROR = 400;
+    static final int INITIALISATION_ERROR = 403;
 
 
     private static MFPPush instance;
