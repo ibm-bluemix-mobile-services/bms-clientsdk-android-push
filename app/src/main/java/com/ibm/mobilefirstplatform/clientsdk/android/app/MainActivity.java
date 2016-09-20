@@ -34,21 +34,14 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
-        String appRoute = "Your-app-route-here";
         String appGuid = "Your-app-GUID-here";
+        String clientSecret = "Your-app-ClientSecret-here";
 
-        try {
-            BMSClient.getInstance().initialize(getApplicationContext(), appRoute , appGuid, BMSClient.REGION_US_SOUTH);
-        } catch (MalformedURLException e){
-            e.printStackTrace();
-        }
+        BMSClient.getInstance().initialize(getApplicationContext(), BMSClient.REGION_US_SOUTH);
+
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid);
-
-        //Uncomment this code to use Push notifications with userId support
-        // push.initialize(getApplicationContext(),"appGuid","clientSecret");
-       // push.registerDeviceWithUserId("userId", new MFPPushResponseListener<String>() {
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
@@ -64,7 +57,7 @@ public class MainActivity extends Activity {
         });
 
         //Uncomment this code to use Push notification with userId support.
-//        push.initializeWithClientSecret(getApplicationContext(),"");
+//       push.initialize(getApplicationContext(),appGuid,clientSecret);
 //
 //        push.registerDeviceWithUserId("", new MFPPushResponseListener<String>() {
 //            @Override
@@ -79,8 +72,8 @@ public class MainActivity extends Activity {
 //                        + "Push notifications will not be received.");
 //            }
 //        });
+        
         final Activity activity = this;
-
 
         notificationListener = new MFPPushNotificationListener() {
 
