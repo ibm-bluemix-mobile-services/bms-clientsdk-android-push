@@ -198,6 +198,8 @@ public class MFPPush {
     private boolean hasRegisterParametersChanged = false;
     public static boolean isRegisteredForPush = false;
     public static MFPPushNotificationOptions options = null;
+    private boolean isFromNotificationBar = false;
+    private MFPSimplePushNotification notificationFromBar = null;
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
@@ -280,6 +282,7 @@ public class MFPPush {
      *                             will be called upon receipt of a push message.
      */
     public void listen(MFPPushNotificationListener notificationListener) {
+
         if (!onMessageReceiverRegistered) {
             appContext.registerReceiver(onMessage, new IntentFilter(
                     getIntentPrefix(appContext) + GCM_MESSAGE));
@@ -288,12 +291,20 @@ public class MFPPush {
             this.notificationListener = notificationListener;
             setAppForeground(true);
 
-            boolean gotSavedMessages = getMessagesFromSharedPreferences();
-            if (gotSavedMessages) {
-                dispatchPending();
+            if (!isFromNotificationBar) {
+                boolean gotSavedMessages = getMessagesFromSharedPreferences();
+                if (gotSavedMessages) {
+                    dispatchPending();
+                }
+                cancelAllNotification();
+            } else {
+              if (notificationFromBar != null) {
+                notificationListener.onReceive(notificationFromBar);
+              }
+              isFromNotificationBar = false;
+              notificationFromBar = null;
             }
-            cancelAllNotification();
-        } else {
+        }else {
             logger.info("MFPPush:listen() - onMessage broadcast listener has already been registered.");
         }
     }
@@ -801,7 +812,6 @@ public class MFPPush {
         } else {
             String error = "Error while registration -. Not initialized MFPPush";
             logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Error while registration -. Not initialized MFPPush");
-            System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
         }
         return true;
     }
@@ -915,6 +925,10 @@ public class MFPPush {
                 registerResponseListener.onFailure(exception);
             }
         };
+    }
+
+    public MFPPushNotificationListener getNotificationListener() {
+      return notificationListener;
     }
 
     private MFPPushResponseListener<JSONObject> getDeviceUpdateListener() {
@@ -1053,16 +1067,17 @@ public class MFPPush {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            logger.debug("MFPPush:onMessage() - Successfully received message for dispatching.");
+           logger.debug("MFPPush:onMessage() - Successfully received message for dispatching.");
             synchronized (pending) {
                 pending.add((MFPInternalPushMessage) intent
                         .getParcelableExtra(GCM_EXTRA_MESSAGE));
             }
 
-            dispatchPending();
-
             boolean isFromNotificationBar = intent.getBooleanExtra(
                     FROM_NOTIFICATION_BAR, false);
+
+            dispatchPending();
+
             if (!isFromNotificationBar) {
                 setResultCode(Activity.RESULT_OK);
             }
@@ -1109,6 +1124,7 @@ public class MFPPush {
 
         return gotMessages;
     }
+
 
     private void getSenderIdFromServerAndRegisterInBackground(final String userId) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
@@ -1165,6 +1181,46 @@ public class MFPPush {
             return true;
         }
     }
+
+  public boolean updateSharePreferenceAndDispatchNotification(int notificationId) {
+    boolean gotMessages = false;
+    SharedPreferences sharedPreferences = appContext.getSharedPreferences(
+      PREFS_NAME, Context.MODE_PRIVATE);
+
+    int countOfStoredMessages = sharedPreferences.getInt(MFPPush.PREFS_NOTIFICATION_COUNT, 0);
+
+    if (countOfStoredMessages != 0) {
+      for (int index = 1; index <= countOfStoredMessages; index++) {
+
+        String key = PREFS_NOTIFICATION_MSG + index;
+        try {
+          String msg = sharedPreferences.getString(key, null);
+
+          if (msg != null) {
+            gotMessages = true;
+            logger.debug("MFPPush:updateSharePreferenceAndDispatchNotification() - Messages retrieved from shared preferences.");
+            MFPInternalPushMessage pushMessage = new MFPInternalPushMessage(
+              new JSONObject(msg));
+
+            if (notificationId == pushMessage.getNotificationId()){
+              isFromNotificationBar = true;
+              notificationFromBar = new MFPSimplePushNotification(pushMessage);
+
+              synchronized (pending) {
+                pending.remove(pushMessage);
+              }
+              MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
+              MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, countOfStoredMessages-1);
+            }
+          }
+        } catch (JSONException e) {
+          MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
+        }
+      }
+    }
+
+    return gotMessages;
+  }
 
     class UpstreamSyncMessage implements Runnable {
 
