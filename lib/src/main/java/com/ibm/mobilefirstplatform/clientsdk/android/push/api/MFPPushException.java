@@ -12,7 +12,6 @@
 */
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
-import android.util.Log;
 
 public class MFPPushException extends Exception {
 

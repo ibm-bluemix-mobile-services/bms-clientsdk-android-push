@@ -34,10 +34,10 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
-        String appGuid = "52c8608f-b7dd-4d15-a7f4-f39b3d3f687f3432";
+        String appGuid = "Your-app-GUID-here";
         String clientSecret = "Your-app-ClientSecret-here";
 
-        BMSClient.getInstance().initialize(getApplicationContext(), ".stage1.ng.bluemix.net");
+        BMSClient.getInstance().initialize(getApplicationContext(), BMSClient.REGION_US_SOUTH);
 
 
         push = MFPPush.getInstance();
@@ -72,8 +72,8 @@ public class MainActivity extends Activity {
 //                        + "Push notifications will not be received.");
 //            }
 //        });
+        
         final Activity activity = this;
-
 
         notificationListener = new MFPPushNotificationListener() {
 

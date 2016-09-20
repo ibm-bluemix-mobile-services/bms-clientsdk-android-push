@@ -424,7 +424,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                    listener.onFailure(new MFPPushException(errorString,statusCode));
                 }
 
             });
@@ -470,7 +470,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                    listener.onFailure(new MFPPushException(errorString,statusCode));
                 }
             });
             invoker.execute();
@@ -513,7 +513,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString,statusCode));
             }
         });
         invoker.execute();
@@ -569,7 +569,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString,statusCode));
             }
         });
         invoker.execute();
@@ -624,7 +624,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString,statusCode));
             }
         });
         invoker.execute();
