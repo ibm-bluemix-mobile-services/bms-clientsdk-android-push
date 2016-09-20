@@ -171,6 +171,8 @@ public class MFPPush {
     public static final String PREFS_NAME = "com.ibm.mobile.services.push";
     static final String PREFS_NOTIFICATION_MSG = "LatestNotificationMsg";
     static final String PREFS_NOTIFICATION_COUNT = "NotificationCount";
+    static final int INITIALISATION_ERROR = 400;
+
 
     private static MFPPush instance;
     private static Context appContext = null;
@@ -181,6 +183,8 @@ public class MFPPush {
     private String regId = null;
     private String applicationId = null;
     private String errorString = null;
+    private int statusCode = 0;
+
 
     private String clientSecret;
     private boolean isInitialized = false;
@@ -231,7 +235,7 @@ public class MFPPush {
             }else {
                 logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
                 System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value",INITIALISATION_ERROR);
             }
         } catch (Exception e) {
             logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
@@ -260,7 +264,7 @@ public class MFPPush {
             else {
                 logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
                 System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value",INITIALISATION_ERROR);
             }
 
         } catch (Exception e) {
@@ -352,7 +356,7 @@ public class MFPPush {
             } else {
                 logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
                 System.out.print("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
-                registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value"));
+                registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value",INITIALISATION_ERROR));
             }
         }else {
             logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
@@ -411,14 +415,16 @@ public class MFPPush {
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     //Error while subscribing to tags.
                     errorString = null;
+                    statusCode = 0;
                     if (response != null) {
-                        errorString = response.toString();
+                        errorString = response.getResponseText();
+                        statusCode = response.getStatus();
                     } else if (errorString == null && throwable != null) {
                         errorString = throwable.toString();
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    listener.onFailure(new MFPPushException(errorString));
+                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
                 }
 
             });
@@ -455,14 +461,16 @@ public class MFPPush {
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     //Error while subscribing to tags.
                     errorString = null;
+                    statusCode = 0;
                     if (response != null) {
-                        errorString = response.toString();
+                        errorString = response.getResponseText();
+                        statusCode = response.getStatus();
                     } else if (errorString == null && throwable != null) {
                         errorString = throwable.toString();
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    listener.onFailure(new MFPPushException(errorString));
+                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
                 }
             });
             invoker.execute();
@@ -496,14 +504,16 @@ public class MFPPush {
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 errorString = null;
+                statusCode = 0;
                 if (response != null) {
-                    errorString = response.toString();
+                    errorString = response.getResponseText();
+                    statusCode = response.getStatus();
                 } else if (errorString == null && throwable != null) {
                     errorString = throwable.toString();
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString));
+                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
             }
         });
         invoker.execute();
@@ -550,14 +560,16 @@ public class MFPPush {
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 //Error while subscribing to tags.
                 errorString = null;
+                statusCode = 0;
                 if (response != null) {
-                    errorString = response.toString();
+                    errorString = response.getResponseText();
+                    statusCode = response.getStatus();
                 } else if (errorString == null && throwable != null) {
                     errorString = throwable.toString();
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString));
+                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
             }
         });
         invoker.execute();
@@ -603,14 +615,16 @@ public class MFPPush {
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 //Error while subscribing to tags.
                 errorString = null;
+                statusCode = 0;
                 if (response != null) {
-                    errorString = response.toString();
+                    errorString = response.getResponseText();
+                    statusCode = response.getStatus();
                 } else if (errorString == null && throwable != null) {
                     errorString = throwable.toString();
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString));
+                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
             }
         });
         invoker.execute();
@@ -836,14 +850,16 @@ public class MFPPush {
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     logger.error("MFPPush:updateTokenCallback() - Failure during device registration.");
                     errorString = null;
+                    statusCode = 0;
                     if (response != null) {
-                        errorString = response.toString();
+                        errorString = response.getResponseText();
+                        statusCode = response.getStatus();
                     } else if (errorString == null && throwable != null) {
                         errorString = throwable.toString();
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    registerResponseListener.onFailure(new MFPPushException(errorString));
+                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
                 }
             });
             invoker.execute();
@@ -874,14 +890,16 @@ public class MFPPush {
                 public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                     logger.debug("MFPPush:updateTokenCallback() - Failure while updating device registration details.");
                     errorString = null;
+                    statusCode = 0;
                     if (response != null) {
-                        errorString = response.toString();
+                        errorString = response.getResponseText();
+                        statusCode = response.getStatus();
                     } else if (errorString == null && throwable != null) {
                         errorString = throwable.toString();
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    registerResponseListener.onFailure(new MFPPushException(errorString));
+                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
                 }
             });
             invoker.execute();
@@ -1144,14 +1162,16 @@ public class MFPPush {
             public void onFailure(Response response, Throwable throwable, JSONObject object) {
                 logger.error("MFPPush: getSenderIdFromServerAndRegisterInBackground() - Error while getting senderId from push server.");
                 errorString = null;
+                statusCode = 0;
                 if (response != null) {
-                    errorString = response.toString();
+                    errorString = response.getResponseText();
+                    statusCode = response.getStatus();
                 } else if (errorString == null && throwable != null) {
                     errorString = throwable.toString();
                 } else if (errorString == null && object != null) {
                     errorString = object.toString();
                 }
-                registerResponseListener.onFailure(new MFPPushException(errorString));
+                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
             }
         });
 

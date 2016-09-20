@@ -60,7 +60,7 @@ public class MFPPushUrlBuilder {
 
             }else {
                 pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
-                reWriteDomain = null;
+                reWriteDomain = "";
             }
 		}
 

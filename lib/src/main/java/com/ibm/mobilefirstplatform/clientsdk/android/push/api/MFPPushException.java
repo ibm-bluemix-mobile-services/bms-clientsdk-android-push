@@ -12,6 +12,7 @@
 */
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
+import android.util.Log;
 
 public class MFPPushException extends Exception {
 
@@ -39,6 +40,18 @@ public class MFPPushException extends Exception {
 	 */
 	public MFPPushException(String message) {
 		super(message);
+	}
+
+	/**
+	 * Create a MFPPushException with the below information
+	 *
+	 * @param errorMessage  Error message received from Push Server
+	 * @param statusCode  Error code received from Push Server
+	 */
+	public MFPPushException(String errorMessage, int statusCode) {
+		super(", Message : " + errorMessage + ", statusCode : " + statusCode );
+		this.errorMessage = errorMessage;
+		this.statusCode = statusCode;
 	}
 
     /**
