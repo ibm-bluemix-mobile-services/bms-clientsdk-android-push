@@ -6,6 +6,8 @@ import android.os.Bundle;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
+
 /**
  * Created by jialfred on 9/20/16.
  */
@@ -16,24 +18,16 @@ public class MFPPushNotificationOpenActivity extends Activity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-      Intent in = getIntent();
-      MFPInternalPushMessage messageFromParcel = in.getParcelableExtra("message");
-      int notificationId = messageFromParcel.getNotificationId();
-
-      MFPPush.getInstance().updateSharePreferenceAndDispatchNotification(notificationId);
-      finish();
+        MFPPush.getInstance().getMessagesFromSharedPreferences(getIntent().getIntExtra(NOTIFICATIONID, 0));
+        finish();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-      Intent in = getIntent();
-      MFPInternalPushMessage messageFromParcel = in.getParcelableExtra("message");
-      int notificationId = messageFromParcel.getNotificationId();
-
-      MFPPush.getInstance().updateSharePreferenceAndDispatchNotification(notificationId);
-      finish();
+        MFPPush.getInstance().getMessagesFromSharedPreferences(getIntent().getIntExtra(NOTIFICATIONID, 0));
+        finish();
     }
 
 }

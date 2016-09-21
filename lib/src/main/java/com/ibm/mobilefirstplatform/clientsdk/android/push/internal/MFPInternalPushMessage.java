@@ -208,10 +208,10 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			json.put(GCM_EXTRA_REDACT, redact);
 			json.put(GCM_EXTRA_CATEGORY, category);
 			json.put(GCM_EXTRA_KEY, key);
-			json.put(GCM_EXTRA_NOTIFICATIONID, notificationId);
 			json.put(GCM_EXTRA_ICONNAME, iconName);
-			json.put(GCM_EXTRA_NOTIFICATIONID, notificationId);
-		} catch (JSONException e) {
+            json.put(GCM_EXTRA_NOTIFICATIONID, notificationId);
+
+    } catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON.  "+ e.toString());
 		}
 		return json;

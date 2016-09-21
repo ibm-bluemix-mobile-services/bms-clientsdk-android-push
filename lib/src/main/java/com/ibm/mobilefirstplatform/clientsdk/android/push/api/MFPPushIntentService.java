@@ -150,7 +150,7 @@ public class MFPPushIntentService extends IntentService {
                     + IBM_PUSH_NOTIFICATION);
 
           intent.setClass(context, MFPPushNotificationOpenActivity.class);
-          intent.putExtra(GCM_EXTRA_MESSAGE, message);
+          intent.putExtra(NOTIFICATIONID, message.getNotificationId());
 
             generateNotification(context, message.getAlert(),
               getNotificationTitle(context), message.getAlert(),
