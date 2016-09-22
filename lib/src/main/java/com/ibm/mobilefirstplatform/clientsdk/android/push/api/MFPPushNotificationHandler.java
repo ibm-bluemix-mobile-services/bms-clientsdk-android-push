@@ -16,7 +16,8 @@ public class MFPPushNotificationHandler extends Activity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        MFPPush.getInstance().getMessagesFromSharedPreferences(getIntent().getIntExtra(NOTIFICATIONID, 0));
+        MFPPush.getInstance().setIntent(getIntent());
+        MFPPush.getInstance().fireIntentFromNotificationOpen(this);
         finish();
     }
 
@@ -24,7 +25,8 @@ public class MFPPushNotificationHandler extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        MFPPush.getInstance().getMessagesFromSharedPreferences(getIntent().getIntExtra(NOTIFICATIONID, 0));
+        MFPPush.getInstance().setIntent(getIntent());
+        MFPPush.getInstance().fireIntentFromNotificationOpen(this);
         finish();
     }
 

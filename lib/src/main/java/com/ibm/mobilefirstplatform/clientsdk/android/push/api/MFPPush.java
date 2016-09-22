@@ -204,6 +204,7 @@ public class MFPPush {
     public static MFPPushNotificationOptions options = null;
     private boolean isFromNotificationBar = false;
     private MFPInternalPushMessage messageFromBar = null;
+    private Intent pushNotificationIntent = null;
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
@@ -237,7 +238,7 @@ public class MFPPush {
             } else {
                 logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
                 System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value",INITIALISATION_ERROR);
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value", INITIALISATION_ERROR);
             }
         } catch (Exception e) {
             logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
@@ -265,7 +266,7 @@ public class MFPPush {
             } else {
                 logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
                 System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value",INITIALISATION_ERROR);
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value", INITIALISATION_ERROR);
             }
 
         } catch (Exception e) {
@@ -294,8 +295,15 @@ public class MFPPush {
             this.notificationListener = notificationListener;
             setAppForeground(true);
 
+            boolean gotSavedMessages = false;
+
+            if (pushNotificationIntent != null) {
+                gotSavedMessages = getMessagesFromSharedPreferences(pushNotificationIntent.getIntExtra("notificationId", 0));
+            } else {
+                gotSavedMessages = getMessagesFromSharedPreferences(0);
+            }
+
             if (!isFromNotificationBar) {
-                boolean gotSavedMessages = getMessagesFromSharedPreferences(0);
                 if (gotSavedMessages) {
                     dispatchPending();
                 }
@@ -367,7 +375,7 @@ public class MFPPush {
             } else {
                 logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
                 System.out.print("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
-                registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value",INITIALISATION_ERROR));
+                registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value", INITIALISATION_ERROR));
             }
         } else {
             logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
@@ -435,7 +443,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    listener.onFailure(new MFPPushException(errorString,statusCode));
+                    listener.onFailure(new MFPPushException(errorString, statusCode));
                 }
 
             });
@@ -481,7 +489,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    listener.onFailure(new MFPPushException(errorString,statusCode));
+                    listener.onFailure(new MFPPushException(errorString, statusCode));
                 }
             });
             invoker.execute();
@@ -524,7 +532,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString, statusCode));
             }
         });
         invoker.execute();
@@ -580,7 +588,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString, statusCode));
             }
         });
         invoker.execute();
@@ -635,7 +643,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString, statusCode));
             }
         });
         invoker.execute();
@@ -868,7 +876,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                    registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
                 }
             });
             invoker.execute();
@@ -908,7 +916,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                    registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
                 }
             });
             invoker.execute();
@@ -1086,8 +1094,8 @@ public class MFPPush {
                         .getParcelableExtra(GCM_EXTRA_MESSAGE));
             }
 
-            boolean isFromNotificationBar = intent.getBooleanExtra(
-                    FROM_NOTIFICATION_BAR, false);
+//            boolean isFromNotificationBar = intent.getBooleanExtra(
+//                    FROM_NOTIFICATION_BAR, false);
 
             dispatchPending();
 
@@ -1145,12 +1153,25 @@ public class MFPPush {
                     MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
                 }
             }
-          if (notificationId == 0){
-            MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, 0);
-          }
+            if (notificationId == 0) {
+                MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, 0);
+            }
         }
 
         return gotMessages;
+    }
+
+    public void setIntent(Intent pushNotificationIntent) {
+        this.pushNotificationIntent = pushNotificationIntent;
+    }
+
+    public static void fireIntentFromNotificationOpen(Context inContext) {
+        Intent launchIntent = inContext.getPackageManager().getLaunchIntentForPackage(inContext.getPackageName());
+        // Make sure we have a launcher intent.
+        if (launchIntent != null) {
+            launchIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
+            inContext.startActivity(launchIntent);
+        }
     }
 
 
@@ -1197,7 +1218,7 @@ public class MFPPush {
                 } else if (errorString == null && object != null) {
                     errorString = object.toString();
                 }
-                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
             }
         });
 
