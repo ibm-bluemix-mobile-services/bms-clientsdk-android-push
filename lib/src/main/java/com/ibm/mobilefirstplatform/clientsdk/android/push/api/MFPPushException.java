@@ -41,6 +41,18 @@ public class MFPPushException extends Exception {
 		super(message);
 	}
 
+	/**
+	 * Create a MFPPushException with the below information
+	 *
+	 * @param errorMessage  Error message received from Push Server
+	 * @param statusCode  Error code received from Push Server
+	 */
+	public MFPPushException(String errorMessage, int statusCode) {
+		super(", Message : " + errorMessage + ", statusCode : " + statusCode );
+		this.errorMessage = errorMessage;
+		this.statusCode = statusCode;
+	}
+
     /**
      * Create a MFPPushException with the below information
      *
