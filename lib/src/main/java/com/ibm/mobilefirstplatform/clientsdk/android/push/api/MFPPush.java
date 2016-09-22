@@ -1165,12 +1165,12 @@ public class MFPPush {
         this.pushNotificationIntent = pushNotificationIntent;
     }
 
-    public static void fireIntentFromNotificationOpen(Context inContext) {
-        Intent launchIntent = inContext.getPackageManager().getLaunchIntentForPackage(inContext.getPackageName());
-        // Make sure we have a launcher intent.
-        if (launchIntent != null) {
-            launchIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
-            inContext.startActivity(launchIntent);
+    public static void openMainActivityOnNotificationClick (Context ctx) {
+        Intent intentToLaunch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
+
+        if (intentToLaunch != null) {
+            intentToLaunch.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
+            ctx.startActivity(intentToLaunch);
         }
     }
 

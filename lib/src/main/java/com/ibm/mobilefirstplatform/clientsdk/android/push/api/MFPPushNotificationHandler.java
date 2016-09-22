@@ -17,7 +17,7 @@ public class MFPPushNotificationHandler extends Activity {
         super.onCreate(bundle);
 
         MFPPush.getInstance().setIntent(getIntent());
-        MFPPush.getInstance().fireIntentFromNotificationOpen(this);
+        MFPPush.getInstance().openMainActivityOnNotificationClick(this);
         finish();
     }
 
@@ -26,7 +26,7 @@ public class MFPPushNotificationHandler extends Activity {
         super.onNewIntent(intent);
 
         MFPPush.getInstance().setIntent(getIntent());
-        MFPPush.getInstance().fireIntentFromNotificationOpen(this);
+        MFPPush.getInstance().openMainActivityOnNotificationClick(this);
         finish();
     }
 
