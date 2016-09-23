@@ -1122,50 +1122,48 @@ public class MFPPush {
         int countOfStoredMessages = sharedPreferences.getInt(MFPPush.PREFS_NOTIFICATION_COUNT, 0);
 
         if (countOfStoredMessages > 0) {
-            for (int index = 1; index <= countOfStoredMessages; index++) {
+            String key = null;
+            try {
+                Map<String, ?> allEntriesFromSharedPreferences = sharedPreferences.getAll();
+                Map<String, String> notificationEntries = new HashMap<String, String>();
 
-                String key = PREFS_NOTIFICATION_MSG + index;
-                try {
-                    Map<String, ?> allEntriesFromSharedPreferences = sharedPreferences.getAll();
-                    Map<String, String> notificationEntries = new HashMap<String, String>();
-
-                    for (Map.Entry<String, ?> entry : allEntriesFromSharedPreferences.entrySet()) {
-                        String rKey = entry.getKey();
-                        if (entry.getKey().startsWith(PREFS_NOTIFICATION_MSG)) {
-                            notificationEntries.put(rKey, entry.getValue().toString());
-                        }
+                for (Map.Entry<String, ?> entry : allEntriesFromSharedPreferences.entrySet()) {
+                    String rKey = entry.getKey();
+                    if (entry.getKey().startsWith(PREFS_NOTIFICATION_MSG)) {
+                        notificationEntries.put(rKey, entry.getValue().toString());
                     }
-
-                    for (Map.Entry<String, String> entry : notificationEntries.entrySet()){
-                        String nKey = entry.getKey();
-                        String msg = sharedPreferences.getString(nKey, null);
-
-                        if (msg != null) {
-                            gotMessages = true;
-                            logger.debug("MFPPush:getMessagesFromSharedPreferences() - Messages retrieved from shared preferences.");
-                            MFPInternalPushMessage pushMessage = new MFPInternalPushMessage(
-                                    new JSONObject(msg));
-
-                            if (notificationId != 0) {
-                                if (notificationId == pushMessage.getNotificationId()) {
-                                    isFromNotificationBar = true;
-                                    messageFromBar = pushMessage;
-                                    MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, nKey);
-                                    MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, countOfStoredMessages - 1);
-                                    break;
-                                }
-                            } else {
-                                synchronized (pending) {
-                                    pending.add(pushMessage);
-                                }
-                                MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, nKey);
-                            }
-                        }
-                    }
-
-                } catch (JSONException e) {
-                    MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
                 }
+
+                for (Map.Entry<String, String> entry : notificationEntries.entrySet()) {
+                    String nKey = entry.getKey();
+                    key = nKey;
+                    String msg = sharedPreferences.getString(nKey, null);
+
+                    if (msg != null) {
+                        gotMessages = true;
+                        logger.debug("MFPPush:getMessagesFromSharedPreferences() - Messages retrieved from shared preferences.");
+                        MFPInternalPushMessage pushMessage = new MFPInternalPushMessage(
+                                new JSONObject(msg));
+
+                        if (notificationId != 0) {
+                            if (notificationId == pushMessage.getNotificationId()) {
+                                isFromNotificationBar = true;
+                                messageFromBar = pushMessage;
+                                MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, nKey);
+                                MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, countOfStoredMessages - 1);
+                                break;
+                            }
+                        } else {
+                            synchronized (pending) {
+                                pending.add(pushMessage);
+                            }
+                            MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, nKey);
+                        }
+                    }
+                }
+
+            } catch (JSONException e) {
+                MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
             }
             if (notificationId == 0) {
                 MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, 0);
@@ -1179,7 +1177,7 @@ public class MFPPush {
         this.pushNotificationIntent = pushNotificationIntent;
     }
 
-    public static void openMainActivityOnNotificationClick (Context ctx) {
+    public static void openMainActivityOnNotificationClick(Context ctx) {
         Intent intentToLaunch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
 
         if (intentToLaunch != null) {
