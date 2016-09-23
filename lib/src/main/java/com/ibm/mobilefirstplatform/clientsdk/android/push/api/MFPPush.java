@@ -45,8 +45,12 @@ import org.json.JSONArray;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
+import java.util.Set;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
@@ -237,7 +241,6 @@ public class MFPPush {
                 validateAndroidContext();
             } else {
                 logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
-                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
                 throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value", INITIALISATION_ERROR);
             }
         } catch (Exception e) {
@@ -295,10 +298,11 @@ public class MFPPush {
             this.notificationListener = notificationListener;
             setAppForeground(true);
 
-            boolean gotSavedMessages = false;
+            boolean gotSavedMessages;
 
             if (pushNotificationIntent != null) {
                 gotSavedMessages = getMessagesFromSharedPreferences(pushNotificationIntent.getIntExtra("notificationId", 0));
+
             } else {
                 gotSavedMessages = getMessagesFromSharedPreferences(0);
             }
@@ -310,11 +314,11 @@ public class MFPPush {
                 cancelAllNotification();
             } else {
                 if (messageFromBar != null) {
+                    isFromNotificationBar = false;
                     notificationListener.onReceive(new MFPSimplePushNotification(messageFromBar));
                     relayNotificationSync(messageFromBar.getKey(), messageFromBar.getId());
+                    messageFromBar = null;
                 }
-                isFromNotificationBar = false;
-                messageFromBar = null;
             }
         } else {
             logger.info("MFPPush:listen() - onMessage broadcast listener has already been registered.");
@@ -1122,33 +1126,43 @@ public class MFPPush {
 
                 String key = PREFS_NOTIFICATION_MSG + index;
                 try {
-                    String msg = sharedPreferences.getString(key, null);
+                    Map<String, ?> allEntriesFromSharedPreferences = sharedPreferences.getAll();
+                    Map<String, String> notificationEntries = new HashMap<String, String>();
 
-                    if (msg != null) {
-                        gotMessages = true;
-                        logger.debug("MFPPush:getMessagesFromSharedPreferences() - Messages retrieved from shared preferences.");
-                        MFPInternalPushMessage pushMessage = new MFPInternalPushMessage(
-                                new JSONObject(msg));
-
-                        if (notificationId != 0) {
-                            if (notificationId == pushMessage.getNotificationId()) {
-                                isFromNotificationBar = true;
-                                //notificationFromBar = new MFPSimplePushNotification(pushMessage);
-                                messageFromBar = pushMessage;
-
-                                synchronized (pending) {
-                                    pending.remove(pushMessage);
-                                }
-                                MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
-                                MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, countOfStoredMessages - 1);
-                            }
-                        } else {
-                            synchronized (pending) {
-                                pending.add(pushMessage);
-                            }
-                            MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
+                    for (Map.Entry<String, ?> entry : allEntriesFromSharedPreferences.entrySet()) {
+                        String rKey = entry.getKey();
+                        if (entry.getKey().startsWith(PREFS_NOTIFICATION_MSG)) {
+                            notificationEntries.put(rKey, entry.getValue().toString());
                         }
                     }
+
+                    for (Map.Entry<String, String> entry : notificationEntries.entrySet()){
+                        String nKey = entry.getKey();
+                        String msg = sharedPreferences.getString(nKey, null);
+
+                        if (msg != null) {
+                            gotMessages = true;
+                            logger.debug("MFPPush:getMessagesFromSharedPreferences() - Messages retrieved from shared preferences.");
+                            MFPInternalPushMessage pushMessage = new MFPInternalPushMessage(
+                                    new JSONObject(msg));
+
+                            if (notificationId != 0) {
+                                if (notificationId == pushMessage.getNotificationId()) {
+                                    isFromNotificationBar = true;
+                                    messageFromBar = pushMessage;
+                                    MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, nKey);
+                                    MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, countOfStoredMessages - 1);
+                                    break;
+                                }
+                            } else {
+                                synchronized (pending) {
+                                    pending.add(pushMessage);
+                                }
+                                MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, nKey);
+                            }
+                        }
+                    }
+
                 } catch (JSONException e) {
                     MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
                 }
