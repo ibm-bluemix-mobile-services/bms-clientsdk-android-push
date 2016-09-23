@@ -148,11 +148,15 @@ public class MFPPushIntentService extends IntentService {
 
             intent = new Intent(MFPPushUtils.getIntentPrefix(context)
                     + IBM_PUSH_NOTIFICATION);
-            intent.putExtra(GCM_EXTRA_MESSAGE, message);
+
+            intent.setClass(context, MFPPushNotificationHandler.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            intent.putExtra(NOTIFICATIONID, message.getNotificationId());
 
             generateNotification(context, message.getAlert(),
-                    getNotificationTitle(context), message.getAlert(),
-                    getCustomNotificationIcon(context, "push_notification_icon"), intent, getNotificationSound(message), notificationId);
+              getNotificationTitle(context), message.getAlert(),
+              getCustomNotificationIcon(context, "push_notification_icon"), intent, getNotificationSound(message), notificationId, message);
         }
     }
 
@@ -188,12 +192,11 @@ public class MFPPushIntentService extends IntentService {
 
 
     private void generateNotification(Context context, String ticker,
-                                      String title, String msg, int icon, Intent intent, String sound, int notificationId) {
+                                      String title, String msg, int icon, Intent intent, String sound, int notificationId, MFPInternalPushMessage message) {
 
         int androidSDKVersion = Build.VERSION.SDK_INT;
         long when = System.currentTimeMillis();
         Notification notification = null;
-        MFPInternalPushMessage message = intent.getParcelableExtra(GCM_EXTRA_MESSAGE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 this);
 
@@ -229,7 +232,7 @@ public class MFPPushIntentService extends IntentService {
                             .setAutoCancel(true)
                             .setContentTitle(title)
                             .setContentIntent(PendingIntent
-                                    .getActivity(context, 0, intent,
+                                    .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
@@ -248,7 +251,7 @@ public class MFPPushIntentService extends IntentService {
                             .setAutoCancel(true)
                             .setContentTitle(title)
                             .setContentIntent(PendingIntent
-                                    .getActivity(context, 0, intent,
+                                    .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
@@ -272,7 +275,7 @@ public class MFPPushIntentService extends IntentService {
                             .setAutoCancel(true)
                             .setContentTitle(title)
                             .setContentIntent(PendingIntent
-                                    .getActivity(context, 0, intent,
+                                    .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
@@ -288,7 +291,7 @@ public class MFPPushIntentService extends IntentService {
         } else {
             if (androidSDKVersion > 10) {
                 builder.setContentIntent(PendingIntent
-                        .getActivity(context, 0, intent,
+                        .getActivity(context, notificationId, intent,
                                 PendingIntent.FLAG_UPDATE_CURRENT))
                         .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                         .setAutoCancel(true).setContentTitle(title)
@@ -317,7 +320,7 @@ public class MFPPushIntentService extends IntentService {
                     }
                     if (receivedVisibility == Notification.VISIBILITY_PRIVATE && message.getRedact() != null) {
                         builder.setContentIntent(PendingIntent
-                                .getActivity(context, 0, intent,
+                                .getActivity(context, notificationId, intent,
                                         PendingIntent.FLAG_UPDATE_CURRENT))
                                 .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                                 .setAutoCancel(true).setContentTitle(title)
@@ -332,7 +335,7 @@ public class MFPPushIntentService extends IntentService {
                     if (setPriority != null && setPriority.equalsIgnoreCase(MFPPushConstants.PRIORITY_MAX)) {
                         //heads-up notification
                         builder.setContentText(msg)
-                                .setFullScreenIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT), true);
+                                .setFullScreenIntent(PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT), true);
                         notification = builder.build();
                     }
                 }
@@ -468,7 +471,6 @@ public class MFPPushIntentService extends IntentService {
             logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
             dismissNotification(extras.getString(NID));
         } else {
-
             GoogleCloudMessaging gcm = GoogleCloudMessaging
                     .getInstance(getApplicationContext());
             String messageType = gcm.getMessageType(intent);
