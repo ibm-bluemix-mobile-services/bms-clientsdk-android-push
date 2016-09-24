@@ -23,8 +23,11 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 * Included support to retrieve individual notifications from the notification tray. If the notification is tapped on from the notification tray, the developer is provided with a handle only to the notification that is being clicked.  When the application is openend normally, then all the notifications are displayed.
 
 Include the below in your AndroidManifest.xml to use this functionality
+
+```
 <activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationOpenActivity"
           android:theme="@android:style/Theme.NoDisplay"/>
+```
 
 ####2.0.7
 * Fixed bugs.
