@@ -25,7 +25,7 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 Include the below in your AndroidManifest.xml to use this functionality
 
 ```
-<activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationOpenActivity"
+<activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationHandler"
           android:theme="@android:style/Theme.NoDisplay"/>
 ```
 
