@@ -45,8 +45,12 @@ import org.json.JSONArray;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
+import java.util.Set;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
@@ -72,15 +76,15 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 /**
  * <class>MFPPush</class> provides methods required by an android application to
  * be able to receive push notifications.
- * <p>
+ * <p/>
  * <br>
  * </br>
- * <p>
+ * <p/>
  * Follow the below steps to enable android application for push notifications:
- * <p>
+ * <p/>
  * <br>
  * </br>
- * <p>
+ * <p/>
  * <pre>
  * 1. The below permissions have to be set in the AndroidManifest.xml of the android application
  *
@@ -202,6 +206,9 @@ public class MFPPush {
     private boolean hasRegisterParametersChanged = false;
     public static boolean isRegisteredForPush = false;
     public static MFPPushNotificationOptions options = null;
+    private boolean isFromNotificationBar = false;
+    private MFPInternalPushMessage messageFromBar = null;
+    private Intent pushNotificationIntent = null;
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
@@ -219,12 +226,12 @@ public class MFPPush {
     /**
      * @deprecated As of release 2.+, replaced by {@link #initialize(Context, String, String)}
      * MFPPush Intitialization method with clientSecret and tenantId.
-     * <p>
+     * <p/>
      *
      * @param context This is the Context of the application from getApplicationContext()
      * @param appGUID The unique ID of the Push service instance that the application must connect to.
      */
-    public void initialize(Context context, String appGUID ) {
+    public void initialize(Context context, String appGUID) {
         try {
 
             if (validateString(appGUID)) {
@@ -233,10 +240,9 @@ public class MFPPush {
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
-            }else {
+            } else {
                 logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
-                System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value",INITIALISATION_ERROR);
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value", INITIALISATION_ERROR);
             }
         } catch (Exception e) {
             logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
@@ -246,26 +252,25 @@ public class MFPPush {
 
     /**
      * MFPPush Intitialization method with clientSecret and tenantId.
-     * <p>
+     * <p/>
      *
-     * @param context                 this is the Context of the application from getApplicationContext()
-     * @param appGUID   The unique ID of the Push service instance that the application must connect to.
+     * @param context          this is the Context of the application from getApplicationContext()
+     * @param appGUID          The unique ID of the Push service instance that the application must connect to.
      * @param pushClientSecret ClientSecret from the push service.
      */
     public void initialize(Context context, String appGUID, String pushClientSecret) {
         try {
-            if (validateString(pushClientSecret) && validateString(appGUID)){
+            if (validateString(pushClientSecret) && validateString(appGUID)) {
                 // Get the applicationId and backend route from core
                 clientSecret = pushClientSecret;
                 applicationId = appGUID;
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
-            }
-            else {
+            } else {
                 logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
                 System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
-                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value",INITIALISATION_ERROR);
+                throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value", INITIALISATION_ERROR);
             }
 
         } catch (Exception e) {
@@ -277,7 +282,7 @@ public class MFPPush {
     /**
      * Request MFPPush to deliver incoming push messages to listener.onReceive()
      * method.
-     * <p>
+     * <p/>
      * This method is typically called from the onResume() method of the
      * activity that is handling push notifications.
      *
@@ -285,6 +290,7 @@ public class MFPPush {
      *                             will be called upon receipt of a push message.
      */
     public void listen(MFPPushNotificationListener notificationListener) {
+
         if (!onMessageReceiverRegistered) {
             appContext.registerReceiver(onMessage, new IntentFilter(
                     getIntentPrefix(appContext) + GCM_MESSAGE));
@@ -293,11 +299,28 @@ public class MFPPush {
             this.notificationListener = notificationListener;
             setAppForeground(true);
 
-            boolean gotSavedMessages = getMessagesFromSharedPreferences();
-            if (gotSavedMessages) {
-                dispatchPending();
+            boolean gotSavedMessages;
+
+            if (pushNotificationIntent != null) {
+                gotSavedMessages = getMessagesFromSharedPreferences(pushNotificationIntent.getIntExtra("notificationId", 0));
+
+            } else {
+                gotSavedMessages = getMessagesFromSharedPreferences(0);
             }
-            cancelAllNotification();
+
+            if (!isFromNotificationBar) {
+                if (gotSavedMessages) {
+                    dispatchPending();
+                }
+                cancelAllNotification();
+            } else {
+                if (messageFromBar != null) {
+                    isFromNotificationBar = false;
+                    notificationListener.onReceive(new MFPSimplePushNotification(messageFromBar));
+                    relayNotificationSync(messageFromBar.getKey(), messageFromBar.getId());
+                    messageFromBar = null;
+                }
+            }
         } else {
             logger.info("MFPPush:listen() - onMessage broadcast listener has already been registered.");
         }
@@ -308,7 +331,7 @@ public class MFPPush {
      * notificationListener.onReceive() method. After hold(), MFPPush will store
      * the latest push message in private shared preference and deliver that
      * message during the next {@link #listen(MFPPushNotificationListener)}.
-     * <p>
+     * <p/>
      * This method is typically called from the onPause() method of the activity
      * that is handling push notifications.
      */
@@ -348,7 +371,7 @@ public class MFPPush {
      */
     public void registerDeviceWithUserId(String userId, MFPPushResponseListener<String> listener) {
 
-        if ( isInitialized ) {
+        if (isInitialized) {
             this.registerResponseListener = listener;
             if (validateString(userId)) {
 
@@ -357,9 +380,9 @@ public class MFPPush {
             } else {
                 logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
                 System.out.print("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
-                registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value",INITIALISATION_ERROR));
+                registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value", INITIALISATION_ERROR));
             }
-        }else {
+        } else {
             logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
         }
 
@@ -377,7 +400,7 @@ public class MFPPush {
      */
     public void registerDevice(MFPPushResponseListener<String> listener) {
 
-        if ( isInitialized ) {
+        if (isInitialized) {
             this.registerResponseListener = listener;
             logger.info("MFPPush:register() - Registering for MFPPush service.");
             getSenderIdFromServerAndRegisterInBackground(null);
@@ -428,7 +451,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    listener.onFailure(new MFPPushException(errorString,statusCode));
+                    listener.onFailure(new MFPPushException(errorString, statusCode));
                 }
 
             });
@@ -476,7 +499,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    listener.onFailure(new MFPPushException(errorString,statusCode));
+                    listener.onFailure(new MFPPushException(errorString, statusCode));
                 }
             });
             invoker.execute();
@@ -521,7 +544,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString, statusCode));
             }
         });
         invoker.execute();
@@ -579,7 +602,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString, statusCode));
             }
         });
         invoker.execute();
@@ -636,7 +659,7 @@ public class MFPPush {
                 } else if (errorString == null && jsonObject != null) {
                     errorString = jsonObject.toString();
                 }
-                listener.onFailure(new MFPPushException(errorString,statusCode));
+                listener.onFailure(new MFPPushException(errorString, statusCode));
             }
         });
         invoker.execute();
@@ -644,7 +667,6 @@ public class MFPPush {
 
     /**
      * Get the Push Application GUID
-     *
      */
     public String getApplicationId() {
         if (!applicationId.isEmpty()) {
@@ -659,7 +681,7 @@ public class MFPPush {
      *
      * @param options - The MFPPushNotificationOptions with the default parameters
      */
-    public void setNotificationOptions(MFPPushNotificationOptions options){
+    public void setNotificationOptions(MFPPushNotificationOptions options) {
         this.options = options;
     }
 
@@ -736,7 +758,7 @@ public class MFPPush {
                                                 DEVICE_ID, deviceId);
 
                                 hasRegisterParametersChanged = true;
-                                updateTokenCallback(deviceToken,userId);
+                                updateTokenCallback(deviceToken, userId);
                             } else {
                                 deviceId = retDeviceId;
                                 isTokenUpdatedOnServer = true;
@@ -757,7 +779,7 @@ public class MFPPush {
                     public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                         // Device is not registered.
                         isNewRegistration = true;
-                        updateTokenCallback(deviceToken,userId);
+                        updateTokenCallback(deviceToken, userId);
                     }
                 });
                 invoker.execute();
@@ -803,7 +825,7 @@ public class MFPPush {
                                             DEVICE_ID, deviceId);
 
                             hasRegisterParametersChanged = true;
-                            updateTokenCallback(deviceToken,null);
+                            updateTokenCallback(deviceToken, null);
                         } else {
                             deviceId = retDeviceId;
                             isTokenUpdatedOnServer = true;
@@ -832,7 +854,6 @@ public class MFPPush {
         } else {
             String error = "Error while registration -. Not initialized MFPPush";
             logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Error while registration -. Not initialized MFPPush");
-            System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
         }
         return true;
     }
@@ -846,7 +867,7 @@ public class MFPPush {
 
             //Add header for xtify deviceId for migration
             final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);
-            if(validateString(userId)){
+            if (validateString(userId)) {
                 invoker.setJSONRequestBody(buildDevice(userId));
                 invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
             } else {
@@ -876,7 +897,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                    registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
                 }
             });
             invoker.execute();
@@ -886,7 +907,7 @@ public class MFPPush {
             String path = builder.getDeviceIdUrl(deviceId);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT);
 
-            if(validateString(userId)){
+            if (validateString(userId)) {
                 invoker.setJSONRequestBody(buildDevice(userId));
                 invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
             } else {
@@ -916,7 +937,7 @@ public class MFPPush {
                     } else if (errorString == null && jsonObject != null) {
                         errorString = jsonObject.toString();
                     }
-                    registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                    registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
                 }
             });
             invoker.execute();
@@ -972,7 +993,7 @@ public class MFPPush {
     private JSONObject buildDevice(String userId) {
         JSONObject device = new JSONObject();
         try {
-            if(validateString(userId)){
+            if (validateString(userId)) {
                 device.put(DEVICE_ID, regId);
                 device.put(TOKEN, deviceToken);
                 device.put(PLATFORM, "G");
@@ -1043,11 +1064,11 @@ public class MFPPush {
     }
 
     private void relayNotificationSync(String key, String nid) {
-        if(key != null) {
+        if (key != null) {
             try {
                 Thread t = new Thread(new UpstreamSyncMessage(key, nid));
                 t.start();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 logger.error("MFPPush: UpstreamSyncMessage() - Error sending upstream message.");
             }
         }
@@ -1094,10 +1115,11 @@ public class MFPPush {
                         .getParcelableExtra(GCM_EXTRA_MESSAGE));
             }
 
+//            boolean isFromNotificationBar = intent.getBooleanExtra(
+//                    FROM_NOTIFICATION_BAR, false);
+
             dispatchPending();
 
-            boolean isFromNotificationBar = intent.getBooleanExtra(
-                    FROM_NOTIFICATION_BAR, false);
             if (!isFromNotificationBar) {
                 setResultCode(Activity.RESULT_OK);
             }
@@ -1109,7 +1131,7 @@ public class MFPPush {
      * the shared preferences and save it onto the list.
      * This method will ensure that the notifications are sent to the Application in the same order in which they arrived.
      */
-    private boolean getMessagesFromSharedPreferences() {
+    public boolean getMessagesFromSharedPreferences(int notificationId) {
         boolean gotMessages = false;
         SharedPreferences sharedPreferences = appContext.getSharedPreferences(
                 PREFS_NAME, Context.MODE_PRIVATE);
@@ -1117,11 +1139,22 @@ public class MFPPush {
         int countOfStoredMessages = sharedPreferences.getInt(MFPPush.PREFS_NOTIFICATION_COUNT, 0);
 
         if (countOfStoredMessages > 0) {
-            for (int index = 1; index <= countOfStoredMessages; index++) {
+            String key = null;
+            try {
+                Map<String, ?> allEntriesFromSharedPreferences = sharedPreferences.getAll();
+                Map<String, String> notificationEntries = new HashMap<String, String>();
 
-                String key = PREFS_NOTIFICATION_MSG + index;
-                try {
-                    String msg = sharedPreferences.getString(key, null);
+                for (Map.Entry<String, ?> entry : allEntriesFromSharedPreferences.entrySet()) {
+                    String rKey = entry.getKey();
+                    if (entry.getKey().startsWith(PREFS_NOTIFICATION_MSG)) {
+                        notificationEntries.put(rKey, entry.getValue().toString());
+                    }
+                }
+
+                for (Map.Entry<String, String> entry : notificationEntries.entrySet()) {
+                    String nKey = entry.getKey();
+                    key = nKey;
+                    String msg = sharedPreferences.getString(nKey, null);
 
                     if (msg != null) {
                         gotMessages = true;
@@ -1129,21 +1162,47 @@ public class MFPPush {
                         MFPInternalPushMessage pushMessage = new MFPInternalPushMessage(
                                 new JSONObject(msg));
 
-                        synchronized (pending) {
-                            pending.add(pushMessage);
+                        if (notificationId != 0) {
+                            if (notificationId == pushMessage.getNotificationId()) {
+                                isFromNotificationBar = true;
+                                messageFromBar = pushMessage;
+                                MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, nKey);
+                                MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, countOfStoredMessages - 1);
+                                break;
+                            }
+                        } else {
+                            synchronized (pending) {
+                                pending.add(pushMessage);
+                            }
+                            MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, nKey);
                         }
-
-                        MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
                     }
-                } catch (JSONException e) {
-                    MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
                 }
+
+            } catch (JSONException e) {
+                MFPPushUtils.removeContentFromSharedPreferences(sharedPreferences, key);
             }
-            MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, 0);
+            if (notificationId == 0) {
+                MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, 0);
+            }
         }
 
         return gotMessages;
     }
+
+    public void setIntent(Intent pushNotificationIntent) {
+        this.pushNotificationIntent = pushNotificationIntent;
+    }
+
+    public static void openMainActivityOnNotificationClick(Context ctx) {
+        Intent intentToLaunch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
+
+        if (intentToLaunch != null) {
+            intentToLaunch.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
+            ctx.startActivity(intentToLaunch);
+        }
+    }
+
 
     private void getSenderIdFromServerAndRegisterInBackground(final String userId) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
@@ -1191,7 +1250,7 @@ public class MFPPush {
                 } else if (errorString == null && object != null) {
                     errorString = object.toString();
                 }
-                registerResponseListener.onFailure(new MFPPushException(errorString,statusCode));
+                registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
             }
         });
 
@@ -1199,7 +1258,7 @@ public class MFPPush {
     }
 
     public Boolean validateString(String object) {
-        if (object == null || object.isEmpty()  || object == "") {
+        if (object == null || object.isEmpty() || object == "") {
             return false;
         } else {
             return true;
