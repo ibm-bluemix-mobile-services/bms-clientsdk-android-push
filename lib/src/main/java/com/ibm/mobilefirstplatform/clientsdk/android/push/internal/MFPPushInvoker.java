@@ -20,6 +20,7 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
 
@@ -43,17 +44,20 @@ public class MFPPushInvoker implements ResponseListener{
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPushInvoker.class.getSimpleName());
 
-    private MFPPushInvoker(String url, String method) {
+    private MFPPushInvoker(String url, String method, String clientSecret) {
         request = new Request(url, method);
         request.addHeader(CONTENT_TYPE, APPLICATION_JSON);
         request.addHeader(ACCEPT, APPLICATION_JSON);
-        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(BMSClient.getInstance().getBluemixAppGUID());
+        if (MFPPushUtils.validateString(clientSecret)){
+            request.addHeader(IMFPUSH_CLIENT_SECRET, clientSecret);
+        }
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(MFPPush.getInstance().getApplicationId());
         request.addHeader(X_REWRITE_DOMAIN, builder.getRewriteDomain());
     }
 
-    public static MFPPushInvoker newInstance(Context ctx, String url, String method) {
+    public static MFPPushInvoker newInstance(Context ctx, String url, String method, String clientSecret) {
         appContext = ctx;
-        return new MFPPushInvoker(url, method);
+        return new MFPPushInvoker(url, method, clientSecret);
     }
 
     public MFPPushInvoker setResponseListener(

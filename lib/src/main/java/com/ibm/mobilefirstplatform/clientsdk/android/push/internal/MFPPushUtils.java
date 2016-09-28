@@ -125,6 +125,13 @@ public class MFPPushUtils extends Activity {
 			}
 		}
 	}
+	public static Boolean validateString(String object) {
+		if (object == null || object.isEmpty() || object == "") {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 	public static final String APPLICATION_ID = "APPLICATION_ID";
 }
