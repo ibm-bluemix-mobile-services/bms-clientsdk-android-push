@@ -19,6 +19,18 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+####2.0.8
+* Included support to retrieve individual notifications from the notification tray. If the notification is tapped on from the notification tray, the developer is provided with a handle only to the notification that is being clicked.  When the application is openend normally, then all the notifications are displayed.
+
+Include the below in your AndroidManifest.xml to use this functionality
+
+```
+<activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationHandler"
+          android:theme="@android:style/Theme.NoDisplay"/>
+```
+
+####2.0.7
+* Fixed bugs.
 
 ####2.0.6
 * Updated SDK to include custom android notification options - expandable notifications, priority, visibility, sync notifications across devices, timeToLive etc
@@ -70,7 +82,7 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 
 ####1.0.0
 * Initial release
- 
+
 
 Copyright 2015 IBM Corp.
 
