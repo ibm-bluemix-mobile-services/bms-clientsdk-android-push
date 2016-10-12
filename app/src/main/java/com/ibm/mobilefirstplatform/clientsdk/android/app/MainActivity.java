@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
 
 
         push = MFPPush.getInstance();
-        push.initialize(getApplicationContext(),appGuid);
+        push.initialize(getApplicationContext(),appGuid,clientSecret);
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
