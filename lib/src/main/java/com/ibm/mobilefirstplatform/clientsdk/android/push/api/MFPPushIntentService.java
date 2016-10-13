@@ -156,7 +156,7 @@ public class MFPPushIntentService extends IntentService {
 
             generateNotification(context, message.getAlert(),
               getNotificationTitle(context), message.getAlert(),
-              getCustomNotificationIcon(context, "push_notification_icon"), intent, getNotificationSound(message), notificationId, message);
+              getCustomNotificationIcon(context, message.getIcon()), intent, getNotificationSound(message), notificationId, message);
         }
     }
 
