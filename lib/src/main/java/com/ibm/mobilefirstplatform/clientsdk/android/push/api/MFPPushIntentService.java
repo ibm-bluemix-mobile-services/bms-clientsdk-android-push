@@ -300,6 +300,7 @@ public class MFPPushIntentService extends IntentService {
                 if (androidSDKVersion > 15) {
                     int priority = getPriorityOfMessage(message);
                     builder.setPriority(priority);
+                    notification = builder.build();
                 }
 
                 if (androidSDKVersion > 19) {
