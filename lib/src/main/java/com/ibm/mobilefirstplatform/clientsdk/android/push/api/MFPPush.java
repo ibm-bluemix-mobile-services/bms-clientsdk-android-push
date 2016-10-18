@@ -1085,6 +1085,12 @@ public class MFPPush {
                         "Google Play Services is disabled on your device.");
             }
         }
+        
+        try {
+            MFPPushUtils.checkManifest (appContext);
+        } catch (Exception e) {
+            throw new RuntimeException("Your manifest is not allowed to work with push. " + e.getMessage());
+        }
     }
 
     private BroadcastReceiver onMessage = new BroadcastReceiver() {

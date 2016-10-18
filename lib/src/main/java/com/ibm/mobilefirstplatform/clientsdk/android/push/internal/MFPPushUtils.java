@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import org.json.JSONException;
@@ -132,6 +133,26 @@ public class MFPPushUtils extends Activity {
 			return true;
 		}
 	}
+    
+    public static void checkManifest(Context context)  {
+        verifyPermission(context, context.getPackageName() + ".permission.C2D_MESSAGE");
+        verifyPermission(context, "com.google.android.c2dm.permission.RECEIVE");
+    }
+    
+    
+    private static void verifyPermission(Context context, String paramString) {
+        if (!isPermitionGranted(context, paramString)) {
+            throw new IllegalStateException("Android Manifest Error: Missing permission in manifest: " + paramString);
+        }
+    }
+    
+    private static boolean isPermitionGranted(Context context, String paramString) {
+        PackageManager localPackageManager = context.getPackageManager();
+        if (localPackageManager != null) {
+            return localPackageManager.checkPermission(paramString, context.getPackageName()) == 0;
+        }
+        return false;
+    }
 
 	public static final String APPLICATION_ID = "APPLICATION_ID";
 }
