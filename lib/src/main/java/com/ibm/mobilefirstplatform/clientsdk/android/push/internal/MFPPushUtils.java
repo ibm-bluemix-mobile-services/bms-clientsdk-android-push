@@ -22,14 +22,9 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
 import java.util.Iterator;
 import java.util.Set;
-import com.ibm.mobilefirstplatform.clientsdk.android.analytics.api.*;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService;
 
 public class MFPPushUtils extends Activity {
 
@@ -141,12 +136,12 @@ public class MFPPushUtils extends Activity {
     
     
     private static void verifyPermission(Context context, String paramString) {
-        if (!isPermitionGranted(context, paramString)) {
+        if (!isPermissionGranted(context, paramString)) {
             throw new IllegalStateException("Android Manifest Error: Missing permission in manifest: " + paramString);
         }
     }
     
-    private static boolean isPermitionGranted(Context context, String paramString) {
+    private static boolean isPermissionGranted(Context context, String paramString) {
         PackageManager localPackageManager = context.getPackageManager();
         if (localPackageManager != null) {
             return localPackageManager.checkPermission(paramString, context.getPackageName()) == 0;
