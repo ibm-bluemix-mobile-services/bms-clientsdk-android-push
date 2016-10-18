@@ -43,8 +43,8 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_EXTRA_CATEGORY = "category";
 	private static final String GCM_EXTRA_KEY = "key";
 	private static final String GCM_EXTRA_NOTIFICATIONID = "notificationId";
-	private static final String GCM_EXTRA_STYLE = "gcmstyle";
-	private static final String GCM_EXTRA_ICONNAME = "iconName";
+	private static final String GCM_EXTRA_STYLE = "style";
+	private static final String GCM_EXTRA_ICONNAME = "icon";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -366,4 +366,8 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	public void setNotificationId(int notificationId) {
 		this.notificationId = notificationId;
 	}
+
+	public String getIcon() { return iconName; }
+
+	public void setIcon(String iconName) { this.iconName = iconName;}
 }

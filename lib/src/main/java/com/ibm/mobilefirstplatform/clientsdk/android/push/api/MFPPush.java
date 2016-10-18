@@ -55,7 +55,6 @@ import java.util.Set;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.IMFPUSH_CLIENT_SECRET;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
@@ -224,7 +223,8 @@ public class MFPPush {
     }
 
     /**
-     * MFPPush Intitialization method with clientSecret and tenantId.
+     * @deprecated As of release 2.+, replaced by {@link #initialize(Context, String, String)}
+     * MFPPush Intitialization method with clientSecret and Push App GUID.
      * <p/>
      *
      * @param context This is the Context of the application from getApplicationContext()
@@ -233,7 +233,7 @@ public class MFPPush {
     public void initialize(Context context, String appGUID) {
         try {
 
-            if (validateString(appGUID)) {
+            if (MFPPushUtils.validateString(appGUID)) {
                 // Get the applicationId and backend route from core
                 applicationId = appGUID;
                 appContext = context.getApplicationContext();
@@ -250,7 +250,7 @@ public class MFPPush {
     }
 
     /**
-     * MFPPush Intitialization method with clientSecret and tenantId.
+     * MFPPush Intitialization method with clientSecret and Push App GUID.
      * <p/>
      *
      * @param context          this is the Context of the application from getApplicationContext()
@@ -259,7 +259,7 @@ public class MFPPush {
      */
     public void initialize(Context context, String appGUID, String pushClientSecret) {
         try {
-            if (validateString(pushClientSecret) && validateString(appGUID)) {
+            if (MFPPushUtils.validateString(pushClientSecret) && MFPPushUtils.validateString(appGUID)) {
                 // Get the applicationId and backend route from core
                 clientSecret = pushClientSecret;
                 applicationId = appGUID;
@@ -372,7 +372,7 @@ public class MFPPush {
 
         if (isInitialized) {
             this.registerResponseListener = listener;
-            if (validateString(userId)) {
+            if (MFPPushUtils.validateString(userId)) {
 
                 logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
                 getSenderIdFromServerAndRegisterInBackground(userId);
@@ -424,7 +424,7 @@ public class MFPPush {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getSubscriptionsUrl();
             logger.debug("MFPPush:subscribe() - The tag subscription path is: " + path);
-            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
+            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST, clientSecret);
             invoker.setJSONRequestBody(buildSubscription(tagName));
             invoker.setResponseListener(new ResponseListener() {
                 @Override
@@ -471,7 +471,7 @@ public class MFPPush {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
             logger.debug("MFPPush:unsubscribe() - The tag unsubscription path is: " + path);
-            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
+            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE, clientSecret);
 
             invoker.setResponseListener(new ResponseListener() {
                 @Override
@@ -513,7 +513,7 @@ public class MFPPush {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getUnregisterUrl(deviceId);
         logger.debug("MFPPush:unregister() - The device unregister url is: " + path);
-        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE);
+        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE, clientSecret);
 
         invoker.setResponseListener(new ResponseListener() {
             @Override
@@ -554,7 +554,7 @@ public class MFPPush {
     public void getTags(final MFPPushResponseListener<List<String>> listener) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getTagsUrl();
-        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
+        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET, clientSecret);
 
         invoker.setResponseListener(new ResponseListener() {
 
@@ -612,7 +612,7 @@ public class MFPPush {
 
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getSubscriptionsUrl(deviceId, null);
-        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
+        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET, clientSecret);
 
         invoker.setResponseListener(new ResponseListener() {
             @Override
@@ -690,7 +690,7 @@ public class MFPPush {
                     gcm.close();
                     logger.info("MFPPush:registerInBackground() - Successfully registered with GCM. Returned deviceToken is: " + deviceToken);
                     computeRegId();
-                    if (validateString(userId)) {
+                    if (MFPPushUtils.validateString(userId)) {
                         registerWithUserId(userId);
                     } else {
                         register();
@@ -720,11 +720,11 @@ public class MFPPush {
     private boolean registerWithUserId(final String userId) {
 
         if (isInitialized == true) {
-            if (validateString(userId) && validateString(clientSecret)) {
+            if (MFPPushUtils.validateString(userId) && MFPPushUtils.validateString(clientSecret)) {
 
                 MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
                 String path = builder.getDeviceIdUrl(regId);
-                MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
+                MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET, clientSecret);
                 invoker.setJSONRequestBody(null);
 
                 invoker.setResponseListener(new ResponseListener() {
@@ -789,8 +789,9 @@ public class MFPPush {
         if (isInitialized) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDeviceIdUrl(regId);
-            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
+            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET, clientSecret);
             invoker.setJSONRequestBody(null);
+
             invoker.setResponseListener(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -846,13 +847,12 @@ public class MFPPush {
             logger.debug("MFPPush:updateTokenCallback() - Device is registering with push server for the first time.");
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDevicesUrl();
-            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST);
+            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST, clientSecret);
 
             //Add header for xtify deviceId for migration
             final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);
-            if (validateString(userId)) {
+            if (MFPPushUtils.validateString(userId)) {
                 invoker.setJSONRequestBody(buildDevice(userId));
-                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
             } else {
                 invoker.setJSONRequestBody(buildDevice(""));
             }
@@ -888,11 +888,10 @@ public class MFPPush {
             logger.debug("MFPPush:updateTokenCallback() - Device is already registered. Registration parameters have changed.");
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getDeviceIdUrl(deviceId);
-            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT);
+            MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT, clientSecret);
 
-            if (validateString(userId)) {
+            if (MFPPushUtils.validateString(userId)) {
                 invoker.setJSONRequestBody(buildDevice(userId));
-                invoker.addHeaders(IMFPUSH_CLIENT_SECRET, clientSecret);
             } else {
                 invoker.setJSONRequestBody(buildDevice(""));
             }
@@ -976,7 +975,7 @@ public class MFPPush {
     private JSONObject buildDevice(String userId) {
         JSONObject device = new JSONObject();
         try {
-            if (validateString(userId)) {
+            if (MFPPushUtils.validateString(userId)) {
                 device.put(DEVICE_ID, regId);
                 device.put(TOKEN, deviceToken);
                 device.put(PLATFORM, "G");
@@ -1086,6 +1085,12 @@ public class MFPPush {
                         "Google Play Services is disabled on your device.");
             }
         }
+        
+        try {
+            MFPPushUtils.checkManifest (appContext);
+        } catch (Exception e) {
+            throw new RuntimeException("Your manifest is not allowed to work with push. " + e.getMessage());
+        }
     }
 
     private BroadcastReceiver onMessage = new BroadcastReceiver() {
@@ -1190,9 +1195,10 @@ public class MFPPush {
     private void getSenderIdFromServerAndRegisterInBackground(final String userId) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getSettingsUrl();
-        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET);
+        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET, clientSecret);
         logger.debug("MFPPush: getSenderIdFromServerAndRegisterInBackground() - The url for getting gcm configuration is: " + path);
         invoker.setJSONRequestBody(null);
+
         invoker.setResponseListener(new ResponseListener() {
 
             @Override
@@ -1237,13 +1243,7 @@ public class MFPPush {
         invoker.execute();
     }
 
-    public Boolean validateString(String object) {
-        if (object == null || object.isEmpty() || object == "") {
-            return false;
-        } else {
-            return true;
-        }
-    }
+
 
     class UpstreamSyncMessage implements Runnable {
 

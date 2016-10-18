@@ -19,16 +19,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
 import java.util.Iterator;
 import java.util.Set;
-import com.ibm.mobilefirstplatform.clientsdk.android.analytics.api.*;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService;
 
 public class MFPPushUtils extends Activity {
 
@@ -125,6 +121,33 @@ public class MFPPushUtils extends Activity {
 			}
 		}
 	}
+	public static Boolean validateString(String object) {
+		if (object == null || object.isEmpty() || object == "") {
+			return false;
+		} else {
+			return true;
+		}
+	}
+    
+    public static void checkManifest(Context context)  {
+        verifyPermission(context, context.getPackageName() + ".permission.C2D_MESSAGE");
+        verifyPermission(context, "com.google.android.c2dm.permission.RECEIVE");
+    }
+    
+    
+    private static void verifyPermission(Context context, String paramString) {
+        if (!isPermissionGranted(context, paramString)) {
+            throw new IllegalStateException("Android Manifest Error: Missing permission in manifest: " + paramString);
+        }
+    }
+    
+    private static boolean isPermissionGranted(Context context, String paramString) {
+        PackageManager localPackageManager = context.getPackageManager();
+        if (localPackageManager != null) {
+            return localPackageManager.checkPermission(paramString, context.getPackageName()) == 0;
+        }
+        return false;
+    }
 
 	public static final String APPLICATION_ID = "APPLICATION_ID";
 }
