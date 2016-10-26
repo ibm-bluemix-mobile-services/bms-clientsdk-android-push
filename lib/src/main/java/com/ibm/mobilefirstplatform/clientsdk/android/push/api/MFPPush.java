@@ -21,12 +21,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
-import android.os.Bundle;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -38,6 +37,9 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
+
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,8 +93,6 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
  *      android:protectionLevel="signature" /&gt;
  *
  *  &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
- *  &lt;uses-permission android:name="&lt;android application package name&gt;.permission.C2D_MESSAGE" /&gt;
- *  &lt;uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /&gt;
  *  &lt;uses-permission android:name="android.permission.WAKE_LOCK" /&gt;
  *  &lt;uses-permission android:name="android.permission.GET_ACCOUNTS" /&gt;
  *  &lt;uses-permission android:name="android.permission.USE_CREDENTIALS" /&gt;
@@ -170,7 +170,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
  * </pre>
  */
 
-public class MFPPush {
+public class MFPPush extends FirebaseInstanceIdService {
     public static final String PREFS_NAME = "com.ibm.mobile.services.push";
     static final String PREFS_NOTIFICATION_MSG = "LatestNotificationMsg";
     static final String PREFS_NOTIFICATION_COUNT = "NotificationCount";
@@ -195,7 +195,6 @@ public class MFPPush {
     private boolean isTokenUpdatedOnServer = false;
 
     private List<MFPInternalPushMessage> pending = new ArrayList<MFPInternalPushMessage>();
-    private GoogleCloudMessaging gcm;
 
     private MFPPushNotificationListener notificationListener = null;
     private MFPPushResponseListener<String> registerResponseListener = null;
@@ -212,7 +211,7 @@ public class MFPPush {
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
 
-    private MFPPush() {
+    public MFPPush() {
     }
 
     public synchronized static MFPPush getInstance() {
@@ -220,6 +219,18 @@ public class MFPPush {
             instance = new MFPPush();
         }
         return instance;
+    }
+
+    @Override
+    public void onTokenRefresh() {
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        Log.d("TOKEN: ", "Refreshed token: " + refreshedToken);
+
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("MFPFirebaseToken", refreshedToken);
+        editor.apply();
     }
 
     /**
@@ -683,19 +694,15 @@ public class MFPPush {
             protected String doInBackground(Void... params) {
                 String msg = "";
                 try {
-                    if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(appContext);
-                    }
-                    deviceToken = gcm.register(gcmSenderId);
-                    gcm.close();
-                    logger.info("MFPPush:registerInBackground() - Successfully registered with GCM. Returned deviceToken is: " + deviceToken);
+                    deviceToken = FirebaseInstanceId.getInstance().getToken();
+                    logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
                     computeRegId();
                     if (MFPPushUtils.validateString(userId)) {
                         registerWithUserId(userId);
                     } else {
                         register();
                     }
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     msg = ex.getMessage();
                     //Failed to register at GCM Server.
                     logger.error("MFPPush:registerInBackground() - Failed to register at GCM Server. Exception is: " + ex.getMessage());
@@ -1069,23 +1076,6 @@ public class MFPPush {
             throw new RuntimeException(errorMsg);
         }
 
-        int resultCode = GooglePlayServicesUtil
-                .isGooglePlayServicesAvailable(appContext);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil
-                    .isUserRecoverableError(ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)) {
-                logger.warn("Newer version of Google play service is available.");
-            } else if (GooglePlayServicesUtil
-                    .isUserRecoverableError(ConnectionResult.SERVICE_MISSING)) {
-                throw new RuntimeException(
-                        "Google Play Services is not installed on your device.");
-            } else if (GooglePlayServicesUtil
-                    .isUserRecoverableError(ConnectionResult.SERVICE_DISABLED)) {
-                throw new RuntimeException(
-                        "Google Play Services is disabled on your device.");
-            }
-        }
-        
         try {
             MFPPushUtils.checkManifest (appContext);
         } catch (Exception e) {
@@ -1102,9 +1092,6 @@ public class MFPPush {
                 pending.add((MFPInternalPushMessage) intent
                         .getParcelableExtra(GCM_EXTRA_MESSAGE));
             }
-
-//            boolean isFromNotificationBar = intent.getBooleanExtra(
-//                    FROM_NOTIFICATION_BAR, false);
 
             dispatchPending();
 
@@ -1244,7 +1231,6 @@ public class MFPPush {
     }
 
 
-
     class UpstreamSyncMessage implements Runnable {
 
         String key;
@@ -1257,19 +1243,15 @@ public class MFPPush {
 
         @Override
         public void run() {
-            GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(appContext);
+            FirebaseMessaging fcm = FirebaseMessaging.getInstance();
             AtomicInteger msgId = new AtomicInteger();
             String id = Integer.toString(msgId.incrementAndGet());
-            Bundle data = new Bundle();
-            data.putString(ACTION, DISMISS_NOTIFICATION);
-            if (nid != null) {
-                data.putString(NID, nid);
-            }
-            try {
-                gcm.send(key, id, data);
-            } catch (IOException e) {
-                logger.error("MFPPush: UpstreamSyncMessage.run() - Failed to send upstream message.");
-            }
+
+            fcm.send(new RemoteMessage.Builder(gcmSenderId+"@gcm.googleapis.com")
+                    .setMessageId(id)
+                    .addData(ACTION, DISMISS_NOTIFICATION)
+                    .addData(NID, nid)
+                    .build());
 
         }
     }
