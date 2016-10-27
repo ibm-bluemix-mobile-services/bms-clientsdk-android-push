@@ -119,6 +119,9 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         if (action != null && action.equals(DISMISS_NOTIFICATION)) {
             logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
             dismissNotification(data.get(NID).toString());
+        } else if (isAppForeground()) {
+            MFPPushNotificationListener listener = MFPPush.getInstance().getNotificationListener();
+            listener.onReceive(new MFPSimplePushNotification(new MFPInternalPushMessage(dataPayload)));
         } else {
             onUnhandled(getApplicationContext(), dataPayload);
         }

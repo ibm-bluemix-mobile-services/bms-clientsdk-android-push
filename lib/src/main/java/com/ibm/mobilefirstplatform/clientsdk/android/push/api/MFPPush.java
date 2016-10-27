@@ -1169,6 +1169,10 @@ public class MFPPush extends FirebaseInstanceIdService {
         this.pushNotificationIntent = pushNotificationIntent;
     }
 
+    public MFPPushNotificationListener getNotificationListener() {
+        return notificationListener;
+    }
+
     public static void openMainActivityOnNotificationClick(Context ctx) {
         Intent intentToLaunch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
 
