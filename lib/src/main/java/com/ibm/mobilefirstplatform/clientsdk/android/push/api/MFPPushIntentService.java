@@ -90,7 +90,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
     public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
     public static final String GCM_EXTRA_MESSAGE = "message";
 
-    public static boolean isAppForeground = true;
+    public static boolean isAppForeground = false;
 
     private static Random randomObj = new Random();
 
