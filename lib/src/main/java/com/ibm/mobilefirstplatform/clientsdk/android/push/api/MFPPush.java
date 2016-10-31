@@ -384,7 +384,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         if (isInitialized) {
             this.registerResponseListener = listener;
             if (MFPPushUtils.validateString(userId)) {
-
+                setAppForeground(true);
                 logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
                 getSenderIdFromServerAndRegisterInBackground(userId);
             } else {
@@ -413,6 +413,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         if (isInitialized) {
             this.registerResponseListener = listener;
             logger.info("MFPPush:register() - Registering for MFPPush service.");
+            setAppForeground(true);
             getSenderIdFromServerAndRegisterInBackground(null);
         } else {
             logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
@@ -1181,7 +1182,6 @@ public class MFPPush extends FirebaseInstanceIdService {
             ctx.startActivity(intentToLaunch);
         }
     }
-
 
     private void getSenderIdFromServerAndRegisterInBackground(final String userId) {
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);

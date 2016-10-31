@@ -61,7 +61,6 @@ import java.io.InputStream;
 
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.util.Log;
 
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -119,11 +118,15 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         if (action != null && action.equals(DISMISS_NOTIFICATION)) {
             logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
             dismissNotification(data.get(NID).toString());
-        } else if (isAppForeground()) {
-            MFPPushNotificationListener listener = MFPPush.getInstance().getNotificationListener();
-            listener.onReceive(new MFPSimplePushNotification(new MFPInternalPushMessage(dataPayload)));
         } else {
+           if(isAppForeground()) {
+             Intent intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
+               + GCM_MESSAGE);
+             intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
+             getApplicationContext().sendBroadcast(intent);
+          } else {
             onUnhandled(getApplicationContext(), dataPayload);
+          }
         }
     }
 
