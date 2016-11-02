@@ -224,7 +224,7 @@ public class MFPPush extends FirebaseInstanceIdService {
     @Override
     public void onTokenRefresh() {
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-        Log.d("TOKEN: ", "Refreshed token: " + refreshedToken);
+        logger.debug("MFPPush:onTokenRefresh - Received token: "+ refreshedToken);
 
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -1095,10 +1095,6 @@ public class MFPPush extends FirebaseInstanceIdService {
             }
 
             dispatchPending();
-
-            if (!isFromNotificationBar) {
-                setResultCode(Activity.RESULT_OK);
-            }
         }
     };
 
