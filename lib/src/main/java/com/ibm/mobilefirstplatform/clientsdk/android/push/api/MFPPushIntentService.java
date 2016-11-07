@@ -93,8 +93,6 @@ public class MFPPushIntentService extends FirebaseMessagingService {
 
     private static Random randomObj = new Random();
 
-    private LinkedList<Intent> intentsQueue = new LinkedList<Intent>();
-
     private static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPushIntentService.class.getSimpleName());
 
     public static boolean isAppForeground() {
