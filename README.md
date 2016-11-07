@@ -22,6 +22,7 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 ####3.0 
 
 * Update push service to use FCM instead of GCM. All existing applications will work as-is and moving forward all new applications will use FCM.  The client application set up is different in FCM in comparison to the old GCM model. Please refer to [documentation](https://console.ng.bluemix.net/docs/services/mobilepush/c_android_enable.html) for details.
+* To compile the SDK, create a FCM project in google console -> Add firebase to android application -> Add the package names `com.ibm.mobilefirstplatform.clientsdk.android.app` and `com.ibm.mobilefirstplatform.clientsdk.android.push` -> Copy the generated google-services.json file inside the `app` directory.
 
 
 ####2.0.9
