@@ -13,12 +13,9 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
-import android.app.Activity;
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,11 +23,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
@@ -47,16 +46,14 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.BIGTEXT_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.INBOX_NOTIFICATION;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 
 
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Random;
 import java.net.URL;
 import java.net.HttpURLConnection;
@@ -86,23 +83,17 @@ import org.json.JSONException;
  * </pre>
  */
 
-public class MFPPushIntentService extends IntentService {
+public class MFPPushIntentService extends FirebaseMessagingService {
 
     public static final String IBM_PUSH_NOTIFICATION = ".IBMPushNotification";
     public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
     public static final String GCM_EXTRA_MESSAGE = "message";
 
-    public static boolean isAppForeground = true;
+    public static boolean isAppForeground = false;
 
     private static Random randomObj = new Random();
 
-    private LinkedList<Intent> intentsQueue = new LinkedList<Intent>();
-
     private static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPushIntentService.class.getSimpleName());
-
-    public MFPPushIntentService() {
-        super("MFPPushIntentService");
-    }
 
     public static boolean isAppForeground() {
         return isAppForeground;
@@ -112,16 +103,30 @@ public class MFPPushIntentService extends IntentService {
         MFPPushIntentService.isAppForeground = isAppForeground;
     }
 
-    private BroadcastReceiver resultReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (getResultCode() == Activity.RESULT_FIRST_USER
-                    || !isAppForeground()) {
-                logger.debug("MFPPushIntentService: App is not running in foreground. Create a notification.");
-                onUnhandled(context, intent);
-            }
+    @Override
+    public void onMessageReceived(RemoteMessage message) {
+        String from = message.getFrom();
+
+        Map<String, String> data = message.getData();
+        JSONObject dataPayload = new JSONObject(data);
+        logger.info("MFPPushIntentService:onMessageReceived() - New notification received. Payload is: "+ dataPayload.toString());
+
+        String action = data.get(ACTION);
+
+        if (action != null && action.equals(DISMISS_NOTIFICATION)) {
+            logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
+            dismissNotification(data.get(NID).toString());
+        } else {
+           if(isAppForeground()) {
+             Intent intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
+               + GCM_MESSAGE);
+             intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
+             getApplicationContext().sendBroadcast(intent);
+          } else {
+            onUnhandled(getApplicationContext(), dataPayload);
+          }
         }
-    };
+    }
 
     private void saveInSharedPreferences(MFPInternalPushMessage message) {
         SharedPreferences sharedPreferences = getSharedPreferences(
@@ -136,17 +141,14 @@ public class MFPPushIntentService extends IntentService {
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, count);
     }
 
-    private void onUnhandled(Context context, Intent intent) {
-        String action = intent.getAction();
-        if ((MFPPushUtils.getIntentPrefix(context) + GCM_MESSAGE).equals(action)) {
-            MFPInternalPushMessage message = intent
-                    .getParcelableExtra(GCM_EXTRA_MESSAGE);
+    private void onUnhandled(Context context, JSONObject notification) {
+            MFPInternalPushMessage message = new MFPInternalPushMessage(notification);
 
             int notificationId = randomObj.nextInt();
             message.setNotificationId(notificationId);
             saveInSharedPreferences(message);
 
-            intent = new Intent(MFPPushUtils.getIntentPrefix(context)
+            Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
                     + IBM_PUSH_NOTIFICATION);
 
             intent.setClass(context, MFPPushNotificationHandler.class);
@@ -157,7 +159,6 @@ public class MFPPushIntentService extends IntentService {
             generateNotification(context, message.getAlert(),
               getNotificationTitle(context), message.getAlert(),
               getCustomNotificationIcon(context, message.getIcon()), intent, getNotificationSound(message), notificationId, message);
-        }
     }
 
     private String getNotificationTitle(Context context) {
@@ -457,44 +458,6 @@ public class MFPPushIntentService extends IntentService {
             logger.error("MFPPushIntentService: Failed to find resource R." + resourceCategory + "." + resourceName, e);
         }
         return resourceId;
-    }
-
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        Bundle extras = intent.getExtras();
-        intent = handleMessageIntent(intent, extras);
-        MFPPushBroadcastReceiver.completeWakefulIntent(intent);
-    }
-
-    private Intent handleMessageIntent(Intent intent, Bundle extras) {
-        String action = extras.getString(ACTION);
-        if (action != null && action.equals(DISMISS_NOTIFICATION)) {
-            logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
-            dismissNotification(extras.getString(NID));
-        } else {
-            GoogleCloudMessaging gcm = GoogleCloudMessaging
-                    .getInstance(getApplicationContext());
-            String messageType = gcm.getMessageType(intent);
-
-            if (!extras.isEmpty()) {
-                if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                    logger.debug("MFPPushIntentService:handleMessageIntent() - Received a message from GCM Server." + intent.getExtras());
-                    MFPInternalPushMessage message = new MFPInternalPushMessage(intent);
-                    intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
-                            + GCM_MESSAGE);
-                    intent.putExtra(GCM_EXTRA_MESSAGE, message);
-
-                    if (!isAppForeground()) {
-                        logger.debug("MFPPushIntentService:handleMessageIntent() - App is not on foreground. Queue the intent for later re-sending when app is on foreground");
-                        intentsQueue.add(intent);
-                    }
-                    getApplicationContext().sendOrderedBroadcast(intent, null,
-                            resultReceiver, null, Activity.RESULT_FIRST_USER, null,
-                            null);
-                }
-            }
-        }
-        return intent;
     }
 
     protected void dismissNotification(String nid) {
