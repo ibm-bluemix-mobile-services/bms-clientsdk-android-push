@@ -13,7 +13,6 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
-import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -36,7 +35,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBui
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushBroadcastReceiver;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -45,18 +43,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
-import java.util.Set;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.FROM_NOTIFICATION_BAR;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
@@ -106,12 +100,11 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
  *    &lt;category android:name="android.intent.category.DEFAULT" /&gt;
  *  &lt;/intent-filter&gt;
  *
- * 3. Refer to {@link MFPPushBroadcastReceiver},  {@link MFPPushIntentService} to declare the receiver and intent service in AndroidManifest.xml
  *
- * 4. To present the notification on status bar, an icon is required. This icon - push.png should be copied into /res/drawable folder of the
+ * 3. To present the notification on status bar, an icon is required. This icon - push.png should be copied into /res/drawable folder of the
  * android application. If the icon given is an invalid resource, the notification will not be shown
  *
- * 5. Sample usage of MFPPush in the android application:
+ * 4. Sample usage of MFPPush in the android application:
  *
  *  MFPPush push = null;
  *  MFPPushNotificationListener notificationListener = null;
@@ -119,13 +112,13 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
  *  {@literal @}Override
  *  protected void onCreate(Bundle savedInstanceState) {
  *    // Initialize IBM BaaS
- *    IBMBaaS.initializeSDK(this, "applicationID@1234");
+ *    BMSClient.getInstance().initialize(getApplicationContext(), BMSClient.REGION_US_SOUTH);
  *
  *    // Obtain Push Service
- *    push = MFPPush.initializeService();
+ *    MFPPush.getInstance().initialize(getApplicationContext(),appGuid,clientSecret);
  *
  *    // Use Push Service APIs
- *    push.register(new MFPPushResponseListener&lt;String&gt;() {
+ *    push.registerDevice(new MFPPushResponseListener&lt;String&gt;() {
  *      {@literal @}Override
  *      public void onSuccess(String deviceId) {
  *        ...
