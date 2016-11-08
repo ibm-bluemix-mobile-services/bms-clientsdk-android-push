@@ -19,6 +19,27 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+####3.1
+* Bug fix: Fix support for interactive push notification.  Interactive notifications can be used by using the below code.
+
+````
+ MFPPushNotificationOptions options = new MFPPushNotificationOptions();
+        MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder("Accept Button")
+                .setIcon("check_circle")
+                .setLabel("Accept")
+                .setPerformsInForeground(true)
+                .build();
+
+        MFPPushNotificationButton secondButton = new MFPPushNotificationButton.Builder("Decline Button")
+                .setIcon("extension")
+                .setLabel("Decline")
+                .setPerformsInForeground(true)
+                .build();
+
+        options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton, secondButton);
+        MFPPush.getInstance().setNotificationOptions(options);
+ ````
+
 ####3.0 
 
 * Update push service to use FCM instead of GCM. All existing applications will work as-is and moving forward all new applications will use FCM.  The client application set up is different in FCM in comparison to the old GCM model. Please refer to [documentation](https://console.ng.bluemix.net/docs/services/mobilepush/c_android_enable.html) for details.
