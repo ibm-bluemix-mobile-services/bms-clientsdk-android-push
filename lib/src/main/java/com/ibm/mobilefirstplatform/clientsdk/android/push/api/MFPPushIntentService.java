@@ -52,7 +52,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConsta
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 
 
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 import java.net.URL;
@@ -301,6 +300,16 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 if (androidSDKVersion > 15) {
                     int priority = getPriorityOfMessage(message);
                     builder.setPriority(priority);
+
+                    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions();
+                    if (options != null && options.getButtonOne()!=null && options.getButtonTwo()!=null) {
+                        builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, options.getButtonOne().getIcon()), options.getButtonOne().getLabel(),
+                                PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+
+                        builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, options.getButtonTwo().getIcon()), options.getButtonTwo().getLabel(),
+                                PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                    }
+
                     notification = builder.build();
                 }
 
@@ -350,6 +359,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound))
                         .build();
             }
+
 
             NotificationManager notificationManager = (NotificationManager) context
                     .getSystemService(Context.NOTIFICATION_SERVICE);

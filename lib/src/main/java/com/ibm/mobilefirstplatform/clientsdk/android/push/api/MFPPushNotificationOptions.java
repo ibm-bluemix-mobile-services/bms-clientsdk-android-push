@@ -11,6 +11,9 @@ public class MFPPushNotificationOptions {
     private String sound;
     private String icon;
     private static MFPPushNotificationOptions instance = null;
+    private static MFPPushNotificationButton buttonOne;
+    private static MFPPushNotificationButton buttonTwo;
+    private static String interactiveButtonGroup;
 
     public Visibility getVisibility() {
         return visibility;
@@ -50,6 +53,18 @@ public class MFPPushNotificationOptions {
         this.icon = icon;
     }
 
+    public String getInteractiveButtonGroupName() {
+        return interactiveButtonGroup;
+    }
+
+    public MFPPushNotificationButton getButtonOne() {
+        return buttonOne;
+    }
+
+    public MFPPushNotificationButton getButtonTwo() {
+        return buttonTwo;
+    }
+
     public MFPPushNotificationOptions() {}
 
     public static enum Priority {
@@ -78,6 +93,12 @@ public class MFPPushNotificationOptions {
         public int getValue() {
             return value;
         }
+    }
+
+    public void setInteractiveNotificationButtonGroup(String groupName, MFPPushNotificationButton buttonOne, MFPPushNotificationButton buttonTwo) {
+        this.interactiveButtonGroup = groupName;
+        this.buttonOne = buttonOne;
+        this.buttonTwo = buttonTwo;
     }
 
 }
