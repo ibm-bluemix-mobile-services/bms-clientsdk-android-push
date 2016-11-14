@@ -28,6 +28,7 @@ public class MFPPushUrlBuilder {
 	private static final String SUBSCRIPTIONS = "subscriptions";
 	private static final String TAGS = "tags";
 	private static final String DEVICES = "devices";
+	private static final String MESSAGES = "messages";
 	private static final String TAGNAME = "tagName";
 	private static final String DEVICEID = "deviceId";
 	private static final String SETTINGS = "settings" + FORWARDSLASH
@@ -40,6 +41,9 @@ public class MFPPushUrlBuilder {
 
     String reWriteDomain = null;
 	private final StringBuilder pwUrl_ = new StringBuilder();
+
+	public MFPPushUrlBuilder() {
+	}
 
 	public MFPPushUrlBuilder(String applicationId) {
 		if (MFPPush.overrideServerHost != null){
@@ -92,6 +96,10 @@ public class MFPPushUrlBuilder {
 		return getCollectionUrl(SETTINGS).toString();
 	}
 
+	public String getMessagesUrl() {
+		return getCollectionUrl(MESSAGES).toString();
+	}
+
 	public String getSubscriptionsUrl(String deviceId, String tagName) {
 		StringBuilder subscriptionsOfTagUrl = new StringBuilder(
 				getSubscriptionsUrl());
@@ -134,6 +142,13 @@ public class MFPPushUrlBuilder {
 
         return reWriteDomain;
     }
+
+	public String getMessageUrl(String messagesPath, String messageId) {
+		StringBuilder messageIdUrl = new StringBuilder(messagesPath);
+		messageIdUrl.append(FORWARDSLASH).append(messageId);
+
+		return messageIdUrl.toString();
+	}
 
 
 	private StringBuilder getCollectionUrl(String collectionName) {

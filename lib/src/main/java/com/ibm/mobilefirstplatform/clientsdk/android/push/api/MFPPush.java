@@ -52,6 +52,7 @@ import java.util.Map;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEVICE_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.OPEN;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PLATFORM;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SUBSCRIPTIONS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TAG_NAME;
@@ -66,6 +67,8 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushInte
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.STATUS;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PREFS_BMS_REGION;
 
 
 /**
@@ -167,6 +170,8 @@ public class MFPPush extends FirebaseInstanceIdService {
     public static final String PREFS_NAME = "com.ibm.mobile.services.push";
     static final String PREFS_NOTIFICATION_MSG = "LatestNotificationMsg";
     static final String PREFS_NOTIFICATION_COUNT = "NotificationCount";
+    static final String PREFS_MESSAGES_URL = "MessagesURL";
+    static final String PREFS_MESSAGES_URL_CLIENT_SECRET = "MessagesURLClientSecret";
     static final int INITIALISATION_ERROR = 403;
 
 
@@ -270,6 +275,15 @@ public class MFPPush extends FirebaseInstanceIdService {
                 appContext = context.getApplicationContext();
                 isInitialized = true;
                 validateAndroidContext();
+
+                //Storing the messages url and the client secret.
+                //This is because when the app is not running and notification is dismissed/cleared,
+                //there wont be applicationId and clientSecret details available to
+                //MFPPushNotificationDismissHandler.
+                SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_URL, buildMessagesURL());
+                MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_URL_CLIENT_SECRET, clientSecret);
+                MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, PREFS_BMS_REGION, BMSClient.getInstance().getBluemixRegionSuffix());
             } else {
                 logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
                 System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
@@ -319,8 +333,7 @@ public class MFPPush extends FirebaseInstanceIdService {
             } else {
                 if (messageFromBar != null) {
                     isFromNotificationBar = false;
-                    notificationListener.onReceive(new MFPSimplePushNotification(messageFromBar));
-                    relayNotificationSync(messageFromBar.getKey(), messageFromBar.getId());
+                    sendNotificationToListener(messageFromBar);
                     messageFromBar = null;
                 }
             }
@@ -682,6 +695,45 @@ public class MFPPush extends FirebaseInstanceIdService {
         return options;
     }
 
+    public void sendMessageDeliveryStatus(Context context, String messageId, String status) {
+        if(this.appContext == null ){
+            this.appContext = context.getApplicationContext();
+        }
+
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder();
+        String path = MFPPushUtils.getContentFromSharedPreferences(appContext, PREFS_MESSAGES_URL);
+        path = builder.getMessageUrl(path, messageId);
+        logger.debug("MFPPush:sendMessageDeliveryStatus() - The message status update path is: " + path);
+        if(this.applicationId == null) {
+            this.applicationId = path.split("/")[6];
+        }
+        if(this.deviceId == null) {
+            this.deviceId = MFPPushUtils.getContentFromSharedPreferences(appContext, applicationId + DEVICE_ID);
+        }
+        if(this.clientSecret == null) {
+            this.clientSecret = MFPPushUtils.getContentFromSharedPreferences(appContext, PREFS_MESSAGES_URL_CLIENT_SECRET);
+        }
+        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT, clientSecret);
+        invoker.setJSONRequestBody(buildMessage(status));
+        invoker.setResponseListener(new ResponseListener() {
+            @Override
+            public void onSuccess(Response response) {
+                logger.info("MFPPush:sendMessageDeliveryStatus() - Successfully updated the message status.  The response is: " + response.toString());
+            }
+
+            @Override
+            public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
+                logger.info("MFPPush:sendMessageDeliveryStatus() - Failed to update the message status.  The response is: " + response.toString());
+            }
+        });
+        invoker.execute();
+    }
+
+    private String buildMessagesURL() {
+        MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
+        return builder.getMessagesUrl();
+    }
+
     private void registerInBackground(final String userId) {
         new AsyncTask<Void, Void, String>() {
             @Override
@@ -1009,6 +1061,20 @@ public class MFPPush extends FirebaseInstanceIdService {
         return subscriptionObject;
     }
 
+    private JSONObject buildMessage(String status) {
+        JSONObject messageObject = new JSONObject();
+
+        try {
+            messageObject.put(DEVICE_ID, deviceId);
+            messageObject.put(STATUS, status);
+        } catch (JSONException e) {
+            logger.error("MFPPush: buildMessage() - Error while building message JSON object.");
+            throw new RuntimeException(e);
+        }
+
+        return messageObject;
+    }
+
     private boolean isAbleToSubscribe() {
         if (!isTokenUpdatedOnServer) {
             logger.debug("MFPPush:isAbleToSubscribe() - Cannot subscribe to tag while token is not updated on the server.");
@@ -1038,12 +1104,17 @@ public class MFPPush extends FirebaseInstanceIdService {
             }
 
             if (notificationListener != null) {
-                MFPSimplePushNotification simpleNotification = new MFPSimplePushNotification(
-                        message);
-                notificationListener.onReceive(simpleNotification);
-                relayNotificationSync(message.getKey(), message.getId());
+                sendNotificationToListener(message);
             }
         }
+    }
+
+    private void sendNotificationToListener(MFPInternalPushMessage message) {
+        MFPSimplePushNotification simpleNotification = new MFPSimplePushNotification(
+                message);
+        notificationListener.onReceive(simpleNotification);
+        relayNotificationSync(message.getKey(), message.getId());
+        sendMessageDeliveryStatus(appContext, message.getId(), OPEN);
     }
 
     private void relayNotificationSync(String key, String nid) {

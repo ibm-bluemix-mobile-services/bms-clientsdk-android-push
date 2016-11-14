@@ -117,11 +117,6 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 	public MFPInternalPushMessage(JSONObject json) {
 		try {
-			id = json.getString(GCM_EXTRA_ID);
-		} catch (JSONException e) {
-			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get id.  "+ e.toString());
-		}
-		try {
 			alert = json.getString(GCM_EXTRA_ALERT);
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get alert.  "+ e.toString());
@@ -133,6 +128,8 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		}
 		try {
 			payload = json.getString(GCM_EXTRA_PAYLOAD);
+			JSONObject towers = new JSONObject(payload);
+			id = towers.getString(GCM_EXTRA_ID);
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get payload  "+ e.toString());
 		}

@@ -34,6 +34,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DRAWABLE;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LINES;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
@@ -86,6 +87,7 @@ import org.json.JSONException;
 public class MFPPushIntentService extends FirebaseMessagingService {
 
     public static final String IBM_PUSH_NOTIFICATION = ".IBMPushNotification";
+    public static final String CANCEL_IBM_PUSH_NOTIFICATION = ".Cancel_IBMPushNotification";
     public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
     public static final String GCM_EXTRA_MESSAGE = "message";
 
@@ -201,6 +203,12 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 this);
 
+        Intent deleteIntent = new Intent(MFPPushUtils.getIntentPrefix(context)
+                + CANCEL_IBM_PUSH_NOTIFICATION);
+        deleteIntent.setClass(context, MFPPushNotificationDismissHandler.class);
+        deleteIntent.putExtra(ID, message.getId());
+        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(context, notificationId, deleteIntent, 0);
+
         if (message.getGcmStyle() != null && androidSDKVersion > 21) {
             NotificationCompat.Builder mBuilder = null;
             NotificationManager notificationManager = (NotificationManager) context
@@ -235,6 +243,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                             .setContentIntent(PendingIntent
                                     .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setDeleteIntent(deletePendingIntent)
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -254,6 +263,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                             .setContentIntent(PendingIntent
                                     .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setDeleteIntent(deletePendingIntent)
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -278,6 +288,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                             .setContentIntent(PendingIntent
                                     .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setDeleteIntent(deletePendingIntent)
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -294,6 +305,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 builder.setContentIntent(PendingIntent
                         .getActivity(context, notificationId, intent,
                                 PendingIntent.FLAG_UPDATE_CURRENT))
+                        .setDeleteIntent(deletePendingIntent)
                         .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                         .setAutoCancel(true).setContentTitle(title)
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound));
@@ -355,6 +367,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
             } else {
                 notification = builder.setContentIntent(PendingIntent
                         .getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                        .setDeleteIntent(deletePendingIntent)
                         .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                         .setAutoCancel(true).setContentTitle(title)
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound))

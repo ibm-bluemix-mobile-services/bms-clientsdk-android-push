@@ -49,4 +49,8 @@ public interface MFPPushConstants {
 	public static final String ACTION = "action";
 	public static final String RAW = "raw";
 	public static final String DRAWABLE = "drawable";
+	public static final String STATUS = "status";
+	public static final String OPEN = "OPEN";
+	public static final String SEEN = "SEEN";
+	public static final String PREFS_BMS_REGION = "BMSRegion";
 }
