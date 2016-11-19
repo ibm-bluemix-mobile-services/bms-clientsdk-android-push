@@ -105,6 +105,18 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         MFPPushIntentService.isAppForeground = isAppForeground;
     }
 
+    private String getMessageId(JSONObject dataPayload) {
+        try {
+            String payload = dataPayload.getString("payload");
+            JSONObject payloadObject = new JSONObject(payload);
+            return payloadObject.getString(NID);
+        } catch (JSONException e) {
+            logger.error("MFPPushIntentService:getMessageId() - Exception while parsing JSON, get payload  "+ e.toString());
+        }
+        return null;
+    }
+
+
     @Override
     public void onMessageReceived(RemoteMessage message) {
         String from = message.getFrom();
@@ -113,6 +125,8 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         JSONObject dataPayload = new JSONObject(data);
         logger.info("MFPPushIntentService:onMessageReceived() - New notification received. Payload is: "+ dataPayload.toString());
 
+        String messageId = getMessageId(dataPayload);
+        MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.RECEIVED);
         String action = data.get(ACTION);
 
         if (action != null && action.equals(DISMISS_NOTIFICATION)) {
@@ -120,12 +134,12 @@ public class MFPPushIntentService extends FirebaseMessagingService {
             dismissNotification(data.get(NID).toString());
         } else {
            if(isAppForeground()) {
-             Intent intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
+               Intent intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
                + GCM_MESSAGE);
-             intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
-             getApplicationContext().sendBroadcast(intent);
+               intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
+               getApplicationContext().sendBroadcast(intent);
           } else {
-            onUnhandled(getApplicationContext(), dataPayload);
+               onUnhandled(getApplicationContext(), dataPayload);
           }
         }
     }
@@ -205,7 +219,6 @@ public class MFPPushIntentService extends FirebaseMessagingService {
 
         Intent deleteIntent = new Intent(MFPPushUtils.getIntentPrefix(context)
                 + CANCEL_IBM_PUSH_NOTIFICATION);
-        deleteIntent.setClass(context, MFPPushNotificationDismissHandler.class);
         deleteIntent.putExtra(ID, message.getId());
         PendingIntent deletePendingIntent = PendingIntent.getBroadcast(context, notificationId, deleteIntent, 0);
 

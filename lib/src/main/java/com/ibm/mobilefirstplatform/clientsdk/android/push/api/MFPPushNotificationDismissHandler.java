@@ -33,6 +33,8 @@ public class MFPPushNotificationDismissHandler extends BroadcastReceiver {
         Context appContext = context.getApplicationContext();
         String region = MFPPushUtils.getContentFromSharedPreferences(appContext, PREFS_BMS_REGION);
         BMSClient.getInstance().initialize(appContext, region);
-        MFPPush.getInstance().sendMessageDeliveryStatus(appContext, intent.getStringExtra(ID), SEEN);
+        String messageId = intent.getStringExtra(ID);
+        MFPPush.getInstance().sendMessageDeliveryStatus(appContext, messageId, SEEN);
+        MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.SEEN);
     }
 }

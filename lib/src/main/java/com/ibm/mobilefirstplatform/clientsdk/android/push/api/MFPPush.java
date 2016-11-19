@@ -195,6 +195,7 @@ public class MFPPush extends FirebaseInstanceIdService {
     private List<MFPInternalPushMessage> pending = new ArrayList<MFPInternalPushMessage>();
 
     private MFPPushNotificationListener notificationListener = null;
+    private MFPPushNotificationStatusListener statusListener = null;
     private MFPPushResponseListener<String> registerResponseListener = null;
 
     private boolean onMessageReceiverRegistered = false;
@@ -320,7 +321,7 @@ public class MFPPush extends FirebaseInstanceIdService {
 
             if (pushNotificationIntent != null) {
                 gotSavedMessages = getMessagesFromSharedPreferences(pushNotificationIntent.getIntExtra("notificationId", 0));
-
+                pushNotificationIntent = null;
             } else {
                 gotSavedMessages = getMessagesFromSharedPreferences(0);
             }
@@ -691,6 +692,22 @@ public class MFPPush extends FirebaseInstanceIdService {
         this.options = options;
     }
 
+    /**
+     * Set the listener class to receive the notification status changes.
+     *
+     * @param statusListener - Mandatory listener class. When the notification status changes
+     *                 {@link MFPPushNotificationStatusListener}.onStatusChange method is called
+     */
+    public void setNotificationStatusListener(MFPPushNotificationStatusListener statusListener) {
+        this.statusListener = statusListener;
+    }
+
+    public void changeStatus(String messageId, MFPPushNotificationStatus status) {
+        if(statusListener != null) {
+            statusListener.onStatusChange(messageId, status);
+        }
+    }
+
     public MFPPushNotificationOptions getNotificationOptions() {
         return options;
     }
@@ -913,11 +930,23 @@ public class MFPPush extends FirebaseInstanceIdService {
 
                 @Override
                 public void onSuccess(Response response) {
-                    isNewRegistration = false;
-                    isTokenUpdatedOnServer = true;
-                    isRegisteredForPush = true;
-                    logger.info("MFPPush:updateTokenCallback() - Successfully registered device.");
-                    registerResponseListener.onSuccess(response.toString());
+                    try {
+                        String retDeviceId = (new JSONObject(response.getResponseText())).getString(DEVICE_ID);
+                        deviceId = retDeviceId;
+                        MFPPushUtils
+                                .storeContentInSharedPreferences(
+                                        appContext, applicationId,
+                                        DEVICE_ID, deviceId);
+
+                        isNewRegistration = false;
+                        isTokenUpdatedOnServer = true;
+                        isRegisteredForPush = true;
+                        logger.info("MFPPush:updateTokenCallback() - Successfully registered device.");
+                        registerResponseListener.onSuccess(response.toString());
+                    } catch (JSONException e1) {
+                        logger.error("MFPPush:updateTokenCallback() - Exception caught while parsing JSON response.");
+                        e1.printStackTrace();
+                    }
                 }
 
                 @Override
@@ -1113,8 +1142,9 @@ public class MFPPush extends FirebaseInstanceIdService {
         MFPSimplePushNotification simpleNotification = new MFPSimplePushNotification(
                 message);
         notificationListener.onReceive(simpleNotification);
-        relayNotificationSync(message.getKey(), message.getId());
         sendMessageDeliveryStatus(appContext, message.getId(), OPEN);
+        relayNotificationSync(message.getKey(), message.getId());
+        MFPPush.getInstance().changeStatus(message.getId(), MFPPushNotificationStatus.OPENED);
     }
 
     private void relayNotificationSync(String key, String nid) {
@@ -1153,9 +1183,10 @@ public class MFPPush extends FirebaseInstanceIdService {
         @Override
         public void onReceive(Context context, Intent intent) {
             logger.debug("MFPPush:onMessage() - Successfully received message for dispatching.");
+            MFPInternalPushMessage message = (MFPInternalPushMessage) intent.getParcelableExtra(GCM_EXTRA_MESSAGE);
+            changeStatus(message.getId(), MFPPushNotificationStatus.QUEUED);
             synchronized (pending) {
-                pending.add((MFPInternalPushMessage) intent
-                        .getParcelableExtra(GCM_EXTRA_MESSAGE));
+                pending.add(message);
             }
 
             dispatchPending();
