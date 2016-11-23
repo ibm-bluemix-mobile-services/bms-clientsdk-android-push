@@ -13,28 +13,17 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
-import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.SEEN;
-import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PREFS_BMS_REGION;
 
 public class MFPPushNotificationDismissHandler extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Context appContext = context.getApplicationContext();
-        String region = MFPPushUtils.getContentFromSharedPreferences(appContext, PREFS_BMS_REGION);
-        BMSClient.getInstance().initialize(appContext, region);
         String messageId = intent.getStringExtra(ID);
-        MFPPush.getInstance().sendMessageDeliveryStatus(appContext, messageId, SEEN);
-        MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.SEEN);
+        MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.DISMISSED);
     }
 }

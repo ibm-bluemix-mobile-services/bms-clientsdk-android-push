@@ -18,5 +18,5 @@ package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
  * status of the notification in the application.
  */
 public enum MFPPushNotificationStatus {
-    RECEIVED, QUEUED, OPENED, SEEN
+    RECEIVED, QUEUED, OPENED, DISMISSED
 }

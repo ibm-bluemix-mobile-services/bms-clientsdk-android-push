@@ -38,6 +38,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LINES;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PREFS_BMS_REGION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.RAW;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TEXT;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.URL;
@@ -47,13 +48,13 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.BIGTEXT_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.INBOX_NOTIFICATION;
 
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 
 
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 import java.net.URL;
@@ -126,21 +127,28 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         logger.info("MFPPushIntentService:onMessageReceived() - New notification received. Payload is: "+ dataPayload.toString());
 
         String messageId = getMessageId(dataPayload);
-        MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.RECEIVED);
         String action = data.get(ACTION);
 
         if (action != null && action.equals(DISMISS_NOTIFICATION)) {
             logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
             dismissNotification(data.get(NID).toString());
         } else {
-           if(isAppForeground()) {
-               Intent intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
-               + GCM_MESSAGE);
-               intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
-               getApplicationContext().sendBroadcast(intent);
-          } else {
-               onUnhandled(getApplicationContext(), dataPayload);
-          }
+            Context context = getApplicationContext();
+            String regionSuffix = BMSClient.getInstance().getBluemixRegionSuffix();
+            if(regionSuffix == null) {
+                String region = MFPPushUtils.getContentFromSharedPreferences(context, PREFS_BMS_REGION);
+                BMSClient.getInstance().initialize(context, region);
+            }
+            MFPPush.getInstance().sendMessageDeliveryStatus(context, messageId, MFPPushConstants.SEEN);
+            MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.RECEIVED);
+            if(isAppForeground()) {
+                Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
+                   + GCM_MESSAGE);
+                intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
+                getApplicationContext().sendBroadcast(intent);
+            } else {
+                onUnhandled(context, dataPayload);
+            }
         }
     }
 
