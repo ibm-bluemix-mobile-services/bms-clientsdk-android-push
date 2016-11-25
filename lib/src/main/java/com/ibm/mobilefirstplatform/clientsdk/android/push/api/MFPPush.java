@@ -193,6 +193,7 @@ public class MFPPush extends FirebaseInstanceIdService {
     private boolean isTokenUpdatedOnServer = false;
 
     private List<MFPInternalPushMessage> pending = new ArrayList<MFPInternalPushMessage>();
+    private Map<String, MFPPushNotificationStatus> pendingStatus = new HashMap<String, MFPPushNotificationStatus>();
 
     private MFPPushNotificationListener notificationListener = null;
     private MFPPushNotificationStatusListener statusListener = null;
@@ -206,6 +207,8 @@ public class MFPPush extends FirebaseInstanceIdService {
     private boolean isFromNotificationBar = false;
     private MFPInternalPushMessage messageFromBar = null;
     private Intent pushNotificationIntent = null;
+    private boolean sendDeliveryStatus = true;
+    private final Object sendDeliveryStatusLock = new Object();
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
@@ -700,11 +703,23 @@ public class MFPPush extends FirebaseInstanceIdService {
      */
     public void setNotificationStatusListener(MFPPushNotificationStatusListener statusListener) {
         this.statusListener = statusListener;
+        synchronized (pendingStatus) {
+            if(!pendingStatus.isEmpty()) {
+                for(Map.Entry<String, MFPPushNotificationStatus> entry : pendingStatus.entrySet()) {
+                    changeStatus(entry.getKey(), entry.getValue());
+                }
+                pendingStatus.clear();
+            }
+        }
     }
 
     public void changeStatus(String messageId, MFPPushNotificationStatus status) {
         if(statusListener != null) {
             statusListener.onStatusChange(messageId, status);
+        } else {
+            synchronized (pendingStatus) {
+                pendingStatus.put(messageId, status);
+            }
         }
     }
 
@@ -713,37 +728,59 @@ public class MFPPush extends FirebaseInstanceIdService {
     }
 
     public void sendMessageDeliveryStatus(Context context, String messageId, String status) {
-        if(this.appContext == null ){
-            this.appContext = context.getApplicationContext();
-        }
+        while(true) {
+            synchronized (sendDeliveryStatusLock) {
+                if(!sendDeliveryStatus) {
+                    try {
+                        sendDeliveryStatusLock.wait();
+                    } catch (InterruptedException e) {
+                        logger.error("Delivery status interrupted", e);
+                    }
+                } else {
+                    sendDeliveryStatus = false;
+                    if (this.appContext == null) {
+                        this.appContext = context.getApplicationContext();
+                    }
 
-        MFPPushUrlBuilder builder = new MFPPushUrlBuilder();
-        String path = MFPPushUtils.getContentFromSharedPreferences(appContext, PREFS_MESSAGES_URL);
-        path = builder.getMessageUrl(path, messageId);
-        logger.debug("MFPPush:sendMessageDeliveryStatus() - The message status update path is: " + path);
-        if(this.applicationId == null) {
-            this.applicationId = path.split("/")[6];
-        }
-        if(this.deviceId == null) {
-            this.deviceId = MFPPushUtils.getContentFromSharedPreferences(appContext, applicationId + DEVICE_ID);
-        }
-        if(this.clientSecret == null) {
-            this.clientSecret = MFPPushUtils.getContentFromSharedPreferences(appContext, PREFS_MESSAGES_URL_CLIENT_SECRET);
-        }
-        MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT, clientSecret);
-        invoker.setJSONRequestBody(buildMessage(status));
-        invoker.setResponseListener(new ResponseListener() {
-            @Override
-            public void onSuccess(Response response) {
-                logger.info("MFPPush:sendMessageDeliveryStatus() - Successfully updated the message status.  The response is: " + response.toString());
-            }
+                    MFPPushUrlBuilder builder = new MFPPushUrlBuilder();
+                    String path = MFPPushUtils.getContentFromSharedPreferences(appContext, PREFS_MESSAGES_URL);
+                    path = builder.getMessageUrl(path, messageId);
+                    logger.debug("MFPPush:sendMessageDeliveryStatus() - The message status update path is: " + path);
+                    if (this.applicationId == null) {
+                        this.applicationId = path.split("/")[6];
+                    }
+                    if (this.deviceId == null) {
+                        this.deviceId = MFPPushUtils.getContentFromSharedPreferences(appContext, applicationId + DEVICE_ID);
+                    }
+                    if (this.clientSecret == null) {
+                        this.clientSecret = MFPPushUtils.getContentFromSharedPreferences(appContext, PREFS_MESSAGES_URL_CLIENT_SECRET);
+                    }
+                    MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.PUT, clientSecret);
+                    invoker.setJSONRequestBody(buildMessage(status));
+                    invoker.setResponseListener(new ResponseListener() {
+                        @Override
+                        public void onSuccess(Response response) {
+                            synchronized (sendDeliveryStatusLock) {
+                                sendDeliveryStatus = true;
+                                sendDeliveryStatusLock.notify();
+                            }
+                            logger.info("MFPPush:sendMessageDeliveryStatus() - Successfully updated the message status.  The response is: " + response.toString());
+                        }
 
-            @Override
-            public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-                logger.info("MFPPush:sendMessageDeliveryStatus() - Failed to update the message status.  The response is: " + response.toString());
+                        @Override
+                        public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
+                            synchronized (sendDeliveryStatusLock) {
+                                sendDeliveryStatus = true;
+                                sendDeliveryStatusLock.notify();
+                            }
+                            logger.info("MFPPush:sendMessageDeliveryStatus() - Failed to update the message status.  The response is: " + response.toString());
+                        }
+                    });
+                    invoker.execute();
+                    break;
+                }
             }
-        });
-        invoker.execute();
+        }
     }
 
     private String buildMessagesURL() {
