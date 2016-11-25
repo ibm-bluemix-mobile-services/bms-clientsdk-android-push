@@ -139,7 +139,6 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 String region = MFPPushUtils.getContentFromSharedPreferences(context, PREFS_BMS_REGION);
                 BMSClient.getInstance().initialize(context, region);
             }
-            MFPPush.getInstance().sendMessageDeliveryStatus(context, messageId, MFPPushConstants.SEEN);
             MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.RECEIVED);
             if(isAppForeground()) {
                 Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
@@ -147,6 +146,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
                 getApplicationContext().sendBroadcast(intent);
             } else {
+                MFPPush.getInstance().sendMessageDeliveryStatus(context, messageId, MFPPushConstants.SEEN);
                 onUnhandled(context, dataPayload);
             }
         }
