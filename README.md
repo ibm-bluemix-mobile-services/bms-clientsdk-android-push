@@ -24,7 +24,7 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 ````
  push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
 	@Override
-		public void onStatusChange(String messageId,
+		public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
 		// Handle status change
 		}
 	});
