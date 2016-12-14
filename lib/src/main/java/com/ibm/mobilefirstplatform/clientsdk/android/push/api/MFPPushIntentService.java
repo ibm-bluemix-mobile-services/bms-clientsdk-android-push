@@ -117,7 +117,6 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         return null;
     }
 
-
     @Override
     public void onMessageReceived(RemoteMessage message) {
         String from = message.getFrom();
@@ -149,6 +148,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 MFPPush.getInstance().sendMessageDeliveryStatus(context, messageId, MFPPushConstants.SEEN);
                 onUnhandled(context, dataPayload);
             }
+
         }
     }
 
@@ -394,6 +394,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound))
                         .build();
             }
+
 
             NotificationManager notificationManager = (NotificationManager) context
                     .getSystemService(Context.NOTIFICATION_SERVICE);
