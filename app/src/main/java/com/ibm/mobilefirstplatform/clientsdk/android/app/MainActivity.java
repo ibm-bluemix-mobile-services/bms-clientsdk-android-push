@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatus;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatusListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPSimplePushNotification;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
@@ -53,6 +55,13 @@ public class MainActivity extends Activity {
             public void onFailure(MFPPushException ex) {
                 updateTextView("Error registering with Push Service...\n" + ex.toString()
                         + "Push notifications will not be received.");
+            }
+        });
+
+        push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
+            @Override
+            public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
+                //handle status change here.
             }
         });
 

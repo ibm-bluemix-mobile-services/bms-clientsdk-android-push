@@ -50,6 +50,12 @@
             <!-- Push Settings End -->
         </activity>
 
+        <receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
+            <intent-filter>
+                <action android:name="com.ibm.mobilefirstplatform.clientsdk.android.app.Cancel_IBMPushNotification"/>
+            </intent-filter>
+        </receiver>
+
         <activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationHandler"
             android:theme="@android:style/Theme.NoDisplay"/>
 
