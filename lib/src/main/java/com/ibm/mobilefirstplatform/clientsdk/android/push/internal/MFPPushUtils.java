@@ -78,6 +78,12 @@ public class MFPPushUtils extends Activity {
 		return sharedPreferences.getString(applicationId + valueType, null);
 	}
 
+	public static String getContentFromSharedPreferences(Context appContext, String valueType) {
+		SharedPreferences sharedPreferences = appContext.getSharedPreferences(
+				MFPPush.PREFS_NAME, 0);
+		return sharedPreferences.getString(valueType, null);
+	}
+
 	public static void storeContentInSharedPreferences(Context appContext,
 			String applicationId, String valueType, String value) {
 		SharedPreferences sharedPreferences = appContext.getSharedPreferences(

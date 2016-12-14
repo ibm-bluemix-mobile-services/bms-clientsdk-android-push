@@ -34,9 +34,11 @@ import com.google.firebase.messaging.RemoteMessage;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DRAWABLE;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LINES;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PREFS_BMS_REGION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.RAW;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TEXT;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.URL;
@@ -46,6 +48,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.BIGTEXT_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.INBOX_NOTIFICATION;
 
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPInternalPushMessage;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants;
@@ -85,6 +88,7 @@ import org.json.JSONException;
 public class MFPPushIntentService extends FirebaseMessagingService {
 
     public static final String IBM_PUSH_NOTIFICATION = ".IBMPushNotification";
+    public static final String CANCEL_IBM_PUSH_NOTIFICATION = ".Cancel_IBMPushNotification";
     public static final String GCM_MESSAGE = ".C2DM_MESSAGE";
     public static final String GCM_EXTRA_MESSAGE = "message";
 
@@ -102,6 +106,17 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         MFPPushIntentService.isAppForeground = isAppForeground;
     }
 
+    private String getMessageId(JSONObject dataPayload) {
+        try {
+            String payload = dataPayload.getString("payload");
+            JSONObject payloadObject = new JSONObject(payload);
+            return payloadObject.getString(NID);
+        } catch (JSONException e) {
+            logger.error("MFPPushIntentService:getMessageId() - Exception while parsing JSON, get payload  "+ e.toString());
+        }
+        return null;
+    }
+
     @Override
     public void onMessageReceived(RemoteMessage message) {
         String from = message.getFrom();
@@ -110,20 +125,30 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         JSONObject dataPayload = new JSONObject(data);
         logger.info("MFPPushIntentService:onMessageReceived() - New notification received. Payload is: "+ dataPayload.toString());
 
+        String messageId = getMessageId(dataPayload);
         String action = data.get(ACTION);
 
         if (action != null && action.equals(DISMISS_NOTIFICATION)) {
             logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
             dismissNotification(data.get(NID).toString());
         } else {
-           if(isAppForeground()) {
-             Intent intent = new Intent(MFPPushUtils.getIntentPrefix(getApplicationContext())
-               + GCM_MESSAGE);
-             intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
-             getApplicationContext().sendBroadcast(intent);
-          } else {
-            onUnhandled(getApplicationContext(), dataPayload);
-          }
+            Context context = getApplicationContext();
+            String regionSuffix = BMSClient.getInstance().getBluemixRegionSuffix();
+            if(regionSuffix == null) {
+                String region = MFPPushUtils.getContentFromSharedPreferences(context, PREFS_BMS_REGION);
+                BMSClient.getInstance().initialize(context, region);
+            }
+            MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.RECEIVED);
+            if(isAppForeground()) {
+                Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
+                   + GCM_MESSAGE);
+                intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
+                getApplicationContext().sendBroadcast(intent);
+            } else {
+                MFPPush.getInstance().sendMessageDeliveryStatus(context, messageId, MFPPushConstants.SEEN);
+                onUnhandled(context, dataPayload);
+            }
+
         }
     }
 
@@ -200,6 +225,11 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 this);
 
+        Intent deleteIntent = new Intent(MFPPushUtils.getIntentPrefix(context)
+                + CANCEL_IBM_PUSH_NOTIFICATION);
+        deleteIntent.putExtra(ID, message.getId());
+        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(context, notificationId, deleteIntent, 0);
+
         if (message.getGcmStyle() != null && androidSDKVersion > 21) {
             NotificationCompat.Builder mBuilder = null;
             NotificationManager notificationManager = (NotificationManager) context
@@ -234,6 +264,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                             .setContentIntent(PendingIntent
                                     .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setDeleteIntent(deletePendingIntent)
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -253,6 +284,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                             .setContentIntent(PendingIntent
                                     .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setDeleteIntent(deletePendingIntent)
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -277,6 +309,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                             .setContentIntent(PendingIntent
                                     .getActivity(context, notificationId, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setDeleteIntent(deletePendingIntent)
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(msg)
                             .setStyle(notificationStyle).build();
@@ -293,6 +326,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 builder.setContentIntent(PendingIntent
                         .getActivity(context, notificationId, intent,
                                 PendingIntent.FLAG_UPDATE_CURRENT))
+                        .setDeleteIntent(deletePendingIntent)
                         .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                         .setAutoCancel(true).setContentTitle(title)
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound));
@@ -354,6 +388,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
             } else {
                 notification = builder.setContentIntent(PendingIntent
                         .getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                        .setDeleteIntent(deletePendingIntent)
                         .setSmallIcon(icon).setTicker(ticker).setWhen(when)
                         .setAutoCancel(true).setContentTitle(title)
                         .setContentText(msg).setSound(getNotificationSoundUri(context, sound))
