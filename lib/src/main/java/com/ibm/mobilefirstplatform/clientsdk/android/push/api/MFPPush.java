@@ -797,7 +797,7 @@ public class MFPPush extends FirebaseInstanceIdService {
                     deviceToken = FirebaseInstanceId.getInstance().getToken();
                     if (deviceToken == null) {
                         long t= System.currentTimeMillis();
-                        long end = t+4000;
+                        long end = t+10000;
                         while(System.currentTimeMillis() < end && deviceToken == null) {
                             Thread.sleep(500);
                         }
