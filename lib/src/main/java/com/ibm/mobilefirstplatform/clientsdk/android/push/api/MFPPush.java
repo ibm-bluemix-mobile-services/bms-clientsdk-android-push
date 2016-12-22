@@ -795,12 +795,26 @@ public class MFPPush extends FirebaseInstanceIdService {
                 String msg = "";
                 try {
                     deviceToken = FirebaseInstanceId.getInstance().getToken();
-                    logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
-                    computeRegId();
-                    if (MFPPushUtils.validateString(userId)) {
-                        registerWithUserId(userId);
+                    if (deviceToken == null) {
+                        long t= System.currentTimeMillis();
+                        long end = t+10000;
+                        while(System.currentTimeMillis() < end && deviceToken == null) {
+                            Thread.sleep(500);
+                        }
+                    }
+
+                    if (deviceToken == null) {
+                        logger.error("MFPPush:registerInBackground() - Failed to register at GCM Server. Device token returned from FCM is null");
+                        registerResponseListener
+                                .onFailure(new MFPPushException(msg));
                     } else {
-                        register();
+                        logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
+                        computeRegId();
+                        if (MFPPushUtils.validateString(userId)) {
+                            registerWithUserId(userId);
+                        } else {
+                            register();
+                        }
                     }
                 } catch (Exception ex) {
                     msg = ex.getMessage();

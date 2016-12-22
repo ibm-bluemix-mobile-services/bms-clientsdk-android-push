@@ -19,24 +19,34 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+####3.3
+
+* Bug fixes. Support expandable notifications starting Android version 4.1 instead of 5.0.
+* Fix registration happening when deviceToken returned from FCM is null.
+
+
 ####3.2
+
 * Added support to listen to the notification status by registering the MFPPushNotificationStatusListener with MFPPush as shown below
+
 ````
- push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
-	@Override
-		public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
-		// Handle status change
-		}
-	});
+push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
+    @Override
+        public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
+        // Handle status change
+        }
+    });
+    
 ````
+
 Add the below snippet in AndroidManifest.xml to capture the notification dismissal status.
 
 ````
-	<receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
-		<intent-filter>
-			<action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
-		</intent-filter>
-	</receiver>
+<receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
+        <intent-filter>
+            <action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
+        </intent-filter>
+    </receiver>
 ````
 
 ####3.1
