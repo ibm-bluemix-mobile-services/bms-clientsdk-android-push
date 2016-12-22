@@ -38,6 +38,33 @@ Add the below snippet in AndroidManifest.xml to capture the notification dismiss
 		</intent-filter>
 	</receiver>
 ````
+####3.3
+
+* Bug fix. Support expandable notifications starting Android version 4.1 instead of 5.0
+
+####3.2
+
+* Added support to listen to the notification status by registering the MFPPushNotificationStatusListener with MFPPush as shown below
+
+````
+push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
+    @Override
+        public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
+        // Handle status change
+        }
+    });
+    
+````
+
+Add the below snippet in AndroidManifest.xml to capture the notification dismissal status.
+
+````
+<receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
+        <intent-filter>
+            <action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
+        </intent-filter>
+    </receiver>
+````
 
 ####3.1
 * Bug fix: Fix support for interactive push notification.  Interactive notifications can be used by using the below code.
