@@ -40,7 +40,9 @@ Add the below snippet in AndroidManifest.xml to capture the notification dismiss
 ````
 ####3.3
 
-* Bug fix. Support expandable notifications starting Android version 4.1 instead of 5.0
+* Bug fixes. Support expandable notifications starting Android version 4.1 instead of 5.0.
+* Fix registration happening when deviceToken returned from FCM is null.
+
 
 ####3.2
 
