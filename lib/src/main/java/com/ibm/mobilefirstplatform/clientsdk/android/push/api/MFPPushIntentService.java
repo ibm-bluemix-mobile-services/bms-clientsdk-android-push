@@ -230,7 +230,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         deleteIntent.putExtra(ID, message.getId());
         PendingIntent deletePendingIntent = PendingIntent.getBroadcast(context, notificationId, deleteIntent, 0);
 
-        if (message.getGcmStyle() != null && androidSDKVersion > 16) {
+        if (message.getGcmStyle() != null && androidSDKVersion > 15) {
             NotificationCompat.Builder mBuilder = null;
             NotificationManager notificationManager = (NotificationManager) context
                     .getSystemService(Context.NOTIFICATION_SERVICE);
