@@ -19,6 +19,9 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+####3.4
+* Fixed bug that causes crash in certain apps due to unavailability of certain android manifest permissions.
+
 ####3.3
 
 * Bug fixes. Support expandable notifications starting Android version 4.1 instead of 5.0.
