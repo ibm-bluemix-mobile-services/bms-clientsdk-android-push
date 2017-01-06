@@ -46,6 +46,8 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
 
@@ -209,6 +211,9 @@ public class MFPPush extends FirebaseInstanceIdService {
     private Intent pushNotificationIntent = null;
     private boolean sendDeliveryStatus = true;
     private final Object sendDeliveryStatusLock = new Object();
+
+    private int backoff = 3000; // Minimum backoff in ms
+    private static final int MAX_BACKOFF_MS =  (int) TimeUnit.SECONDS.toMillis(3600); // 1 hour
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
