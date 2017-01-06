@@ -794,27 +794,38 @@ public class MFPPush extends FirebaseInstanceIdService {
             protected String doInBackground(Void... params) {
                 String msg = "";
                 try {
-                    deviceToken = FirebaseInstanceId.getInstance().getToken();
-                    if (deviceToken == null) {
-                        long t= System.currentTimeMillis();
-                        long end = t+10000;
-                        while(System.currentTimeMillis() < end && deviceToken == null) {
-                            Thread.sleep(500);
-                        }
-                    }
+                    while(true) {
+                        try {
+                            backoff = backoff/2 + new Random().nextInt(backoff);
+                            deviceToken = FirebaseInstanceId.getInstance().getToken();
 
-                    if (deviceToken == null) {
-                        logger.error("MFPPush:registerInBackground() - Failed to register at GCM Server. Device token returned from FCM is null");
-                        registerResponseListener
-                                .onFailure(new MFPPushException(msg));
-                    } else {
-                        logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
-                        computeRegId();
-                        if (MFPPushUtils.validateString(userId)) {
-                            registerWithUserId(userId);
-                        } else {
-                            register();
+                            if (deviceToken == null) {
+                                if(backoff < MAX_BACKOFF_MS) {
+                                    try {
+                                        logger.debug("registerInBackground() - Failed to register or refresh token. Sleeping for "+backoff + " ms before retry");
+                                        Thread.sleep(backoff);
+                                    } catch (InterruptedException e) {
+                                        logger.debug("registerInBackground() - Failed to retry as the thread was interrupted.");
+                                    }
+                                    backoff = backoff * 2;
+                                }
+                            } else {
+                                logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
+                                computeRegId();
+                                if (MFPPushUtils.validateString(userId)) {
+                                    registerWithUserId(userId);
+                                    break;
+                                } else {
+                                    register();
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            registerResponseListener
+                                    .onFailure(new MFPPushException(e));
+                            break;
                         }
+
                     }
                 } catch (Exception ex) {
                     msg = ex.getMessage();
