@@ -67,6 +67,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushInte
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder.DEVICE_ID_NULL;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.STATUS;
@@ -497,6 +498,12 @@ public class MFPPush extends FirebaseInstanceIdService {
         if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
+
+            if (path == DEVICE_ID_NULL) {
+                listener.onFailure(new MFPPushException("The device is not registered yet. Please register device before calling subscriptions API"));
+                return;
+            }
+
             logger.debug("MFPPush:unsubscribe() - The tag unsubscription path is: " + path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE, clientSecret);
 
@@ -639,6 +646,12 @@ public class MFPPush extends FirebaseInstanceIdService {
 
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getSubscriptionsUrl(deviceId, null);
+
+        if (path == DEVICE_ID_NULL) {
+            listener.onFailure(new MFPPushException("The device is not registered yet. Please register device before calling subscriptions API"));
+            return;
+        }
+
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET, clientSecret);
 
         invoker.setResponseListener(new ResponseListener() {

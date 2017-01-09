@@ -38,6 +38,7 @@ public class MFPPushUrlBuilder {
 	private static final String STAGE_TEST_URL = "stage1-test.ng.bluemix.net";
 	private static final String STAGE_DEV_URL = "stage1-dev.ng.bluemix.net";
 	private static final String STAGE_PROD_URL = ".stage1.ng.bluemix.net";
+	public static final String DEVICE_ID_NULL = "nullDeviceId";
 
     String reWriteDomain = null;
 	private final StringBuilder pwUrl_ = new StringBuilder();
@@ -109,6 +110,8 @@ public class MFPPushUrlBuilder {
 			subscriptionsOfTagUrl.append(DEVICEID).append(EQUALTO)
 					.append(deviceId);
 			isFirstParam = false;
+		} else {
+			return DEVICE_ID_NULL;
 		}
 
 		if (tagName != null) {
