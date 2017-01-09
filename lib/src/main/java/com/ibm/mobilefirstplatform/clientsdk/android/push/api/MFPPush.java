@@ -826,6 +826,10 @@ public class MFPPush extends FirebaseInstanceIdService {
                                         logger.debug("registerInBackground() - Failed to retry as the thread was interrupted.");
                                     }
                                     backoff = backoff * 2;
+                                } else {
+                                    logger.error("MFPPush.registerInBackground() - Unable to retreive deviceToken after maximum retries");
+                                    registerResponseListener.onFailure((new MFPPushException("Unable to retreive deviceToken after maximum retries")));
+                                    break;
                                 }
                             } else {
                                 logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
