@@ -35,6 +35,9 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DRAWABLE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LEDARGB;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LEDOFFMS;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LEDONMS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LINES;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
@@ -315,6 +318,50 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                             .setStyle(notificationStyle).build();
                 }
 
+                if (message.getLights() != null) {
+                    try {
+                        JSONObject lightsObject = new JSONObject(message.getLights());
+                        String ledARGB = lightsObject.getString(LEDARGB);
+                        if (ledARGB!=null && ledARGB.equalsIgnoreCase("black")) {
+                            notification.ledARGB = Color.BLACK;
+                        } else if (ledARGB.equalsIgnoreCase("dkgray")) {
+                            notification.ledARGB = Color.DKGRAY;
+                        } else if (ledARGB.equalsIgnoreCase("gray")) {
+                            notification.ledARGB = Color.GRAY;
+                        } else if (ledARGB.equalsIgnoreCase("ltgray")) {
+                            notification.ledARGB = Color.LTGRAY;
+                        } else if (ledARGB.equalsIgnoreCase("while")) {
+                            notification.ledARGB = Color.WHITE;
+                        } else if (ledARGB.equalsIgnoreCase("red")) {
+                            notification.ledARGB = Color.RED;
+                        } else if (ledARGB.equalsIgnoreCase("green")) {
+                            notification.ledARGB = Color.GREEN;
+                        } else if (ledARGB.equalsIgnoreCase("blue")) {
+                            notification.ledARGB = Color.BLUE;
+                        } else if (ledARGB.equalsIgnoreCase("yello")) {
+                            notification.ledARGB = Color.YELLOW;
+                        } else if (ledARGB.equalsIgnoreCase("cyan")) {
+                            notification.ledARGB = Color.CYAN;
+                        } else if (ledARGB.equalsIgnoreCase("magenta")) {
+                            notification.ledARGB = Color.MAGENTA;
+                        } else if (ledARGB.equalsIgnoreCase("transparent")) {
+                            notification.ledARGB = Color.TRANSPARENT;
+                        }
+                        int ledOnMS = lightsObject.getInt(LEDONMS);
+                        int ledOffMS = lightsObject.getInt(LEDOFFMS);
+
+                        if (ledOnMS != 0 && ledOffMS != 0) {
+                            notification.ledOnMS = ledOnMS;
+                            notification.ledOffMS = ledOffMS;
+                            notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+                        }
+                    } catch (Exception e) {
+                        logger.error("MFPPushIntentService:generateNotification() - Error while parsing JSON");
+                    }
+                } else {
+                    notification.defaults |= Notification.DEFAULT_LIGHTS;
+                }
+
                 notification.flags = Notification.FLAG_AUTO_CANCEL;
                 notificationManager.notify(notificationId, notification);
             } catch (JSONException e) {
@@ -395,6 +442,49 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         .build();
             }
 
+            if (message.getLights() != null) {
+                try {
+                    JSONObject lightsObject = new JSONObject(message.getLights());
+                    String ledARGB = lightsObject.getString(LEDARGB);
+                    if (ledARGB!=null && ledARGB.equalsIgnoreCase("black")) {
+                        notification.ledARGB = Color.BLACK;
+                    } else if (ledARGB.equalsIgnoreCase("dkgray")) {
+                        notification.ledARGB = Color.DKGRAY;
+                    } else if (ledARGB.equalsIgnoreCase("gray")) {
+                        notification.ledARGB = Color.GRAY;
+                    } else if (ledARGB.equalsIgnoreCase("ltgray")) {
+                        notification.ledARGB = Color.LTGRAY;
+                    } else if (ledARGB.equalsIgnoreCase("while")) {
+                        notification.ledARGB = Color.WHITE;
+                    } else if (ledARGB.equalsIgnoreCase("red")) {
+                        notification.ledARGB = Color.RED;
+                    } else if (ledARGB.equalsIgnoreCase("green")) {
+                        notification.ledARGB = Color.GREEN;
+                    } else if (ledARGB.equalsIgnoreCase("blue")) {
+                        notification.ledARGB = Color.BLUE;
+                    } else if (ledARGB.equalsIgnoreCase("yello")) {
+                        notification.ledARGB = Color.YELLOW;
+                    } else if (ledARGB.equalsIgnoreCase("cyan")) {
+                        notification.ledARGB = Color.CYAN;
+                    } else if (ledARGB.equalsIgnoreCase("magenta")) {
+                        notification.ledARGB = Color.MAGENTA;
+                    } else if (ledARGB.equalsIgnoreCase("transparent")) {
+                        notification.ledARGB = Color.TRANSPARENT;
+                    }
+                    int ledOnMS = lightsObject.getInt(LEDONMS);
+                    int ledOffMS = lightsObject.getInt(LEDOFFMS);
+
+                    if (ledOnMS != 0 && ledOffMS != 0) {
+                        notification.ledOnMS = ledOnMS;
+                        notification.ledOffMS = ledOffMS;
+                        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+                    }
+                } catch (Exception e) {
+                    logger.error("MFPPushIntentService:generateNotification() - Error while parsing JSON");
+                }
+            } else {
+                notification.defaults |= Notification.DEFAULT_LIGHTS;
+            }
 
             NotificationManager notificationManager = (NotificationManager) context
                     .getSystemService(Context.NOTIFICATION_SERVICE);

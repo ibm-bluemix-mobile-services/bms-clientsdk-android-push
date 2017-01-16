@@ -49,6 +49,7 @@ public class MFPPushUrlBuilder {
 	public MFPPushUrlBuilder(String applicationId) {
 		if (MFPPush.overrideServerHost != null){
 			pwUrl_.append(MFPPush.overrideServerHost);
+			reWriteDomain = "";
 		} else {
 			pwUrl_.append(BMSClient.getInstance().getDefaultProtocol());
 			pwUrl_.append("://");
