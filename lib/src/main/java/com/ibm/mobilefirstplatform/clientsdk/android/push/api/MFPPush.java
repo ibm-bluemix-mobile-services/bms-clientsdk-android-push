@@ -176,6 +176,7 @@ public class MFPPush extends FirebaseInstanceIdService {
     static final String PREFS_MESSAGES_URL = "MessagesURL";
     static final String PREFS_MESSAGES_URL_CLIENT_SECRET = "MessagesURLClientSecret";
     static final int INITIALISATION_ERROR = 403;
+    static final String PREFS_MESSAGES_OPTIONS = "MessageOptions";
 
 
     private static MFPPush instance;
@@ -344,6 +345,7 @@ public class MFPPush extends FirebaseInstanceIdService {
                 if (messageFromBar != null) {
                     isFromNotificationBar = false;
                     sendNotificationToListener(messageFromBar);
+                    cancelNotification(messageFromBar);
                     messageFromBar = null;
                 }
             }
@@ -710,7 +712,25 @@ public class MFPPush extends FirebaseInstanceIdService {
      * @param options - The MFPPushNotificationOptions with the default parameters
      */
     public void setNotificationOptions(MFPPushNotificationOptions options) {
-        this.options = options;
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("buttonGroupName", (options.getInteractiveButtonGroupName()!=null) ? options.getInteractiveButtonGroupName():"");
+            obj.put("buttonOneName", (options.getButtonOne().getButtonName()!=null) ? options.getButtonOne().getButtonName():"");
+            obj.put("buttonOneIcon", (options.getButtonOne().getIcon()!=null) ? options.getButtonOne().getIcon():"");
+            obj.put("buttonOneLabel", (options.getButtonOne().getLabel()!=null) ? options.getButtonOne().getLabel():"");
+            obj.put("buttonTwoName", (options.getButtonTwo().getButtonName()!=null) ? options.getButtonTwo().getButtonName():"");
+            obj.put("buttonTwoIcon", (options.getButtonTwo().getIcon()!=null) ? options.getButtonTwo().getIcon():"");
+            obj.put("buttonTwoLabel", (options.getButtonTwo().getLabel()!=null) ? options.getButtonTwo().getLabel():"");
+            obj.put("pushOptionsIcon", (options.getIcon()!=null) ? options.getIcon():"");
+            obj.put("pushOptionsPriority", (options.getPriority()!=null) ? options.getPriority():"");
+            obj.put("pushOptionsSound", (options.getSound()!=null) ? options.getSound():"");
+            obj.put("pushOptionsVisibility", (options.getVisibility()!=null) ? options.getVisibility():"");
+            obj.put("pushOptionsRedact", (options.getRedact()!=null) ? options.getRedact():"");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_OPTIONS, obj.toString());
     }
 
     /**
@@ -742,6 +762,31 @@ public class MFPPush extends FirebaseInstanceIdService {
     }
 
     public MFPPushNotificationOptions getNotificationOptions() {
+        return options;
+    }
+
+    public MFPPushNotificationOptions getNotificationOptions(Context context) {
+        MFPPushNotificationOptions options =  new MFPPushNotificationOptions();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
+        String optonsString = MFPPushUtils.getContentFromSharedPreferences(context,MFPPush.PREFS_MESSAGES_OPTIONS);
+        try {
+
+            JSONObject obj = new JSONObject(optonsString);
+            if (obj.get("buttonGroupName").equals("") != true){
+                MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder(obj.get("buttonOneName").toString())
+                        .setIcon(obj.get("buttonOneIcon").toString())
+                        .setLabel(obj.get("buttonOneLabel").toString())
+                        .build();
+                MFPPushNotificationButton secondButton = new MFPPushNotificationButton.Builder(obj.get("buttonTwoName").toString())
+                        .setIcon(obj.get("buttonTwoIcon").toString())
+                        .setLabel(obj.get("buttonTwoLabel").toString())
+                        .build();
+                options.setInteractiveNotificationButtonGroup(obj.get("buttonGroupName").toString(), firstButton, secondButton);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         return options;
     }
 
@@ -1203,6 +1248,11 @@ public class MFPPush extends FirebaseInstanceIdService {
         notificationManager.cancelAll();
     }
 
+    private void cancelNotification(MFPInternalPushMessage pushMessage) {
+        NotificationManager notificationManager = (NotificationManager) appContext
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(pushMessage.getNotificationId());
+    }
     private void dispatchPending() {
         while (true) {
             MFPInternalPushMessage message = null;

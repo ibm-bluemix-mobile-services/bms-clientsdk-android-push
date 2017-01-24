@@ -382,7 +382,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     int priority = getPriorityOfMessage(message);
                     builder.setPriority(priority);
 
-                    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions();
+                    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
                     if (options != null && options.getButtonOne()!=null && options.getButtonTwo()!=null) {
                         builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, options.getButtonOne().getIcon()), options.getButtonOne().getLabel(),
                                 PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
