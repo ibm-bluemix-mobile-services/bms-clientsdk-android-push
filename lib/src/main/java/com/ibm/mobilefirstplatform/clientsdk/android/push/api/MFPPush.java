@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -709,30 +710,21 @@ public class MFPPush extends FirebaseInstanceIdService {
     /**
      * Set the default push notification options for notifications.
      *
+     * @param context - this is the Context of the application from getApplicationContext()
      * @param options - The MFPPushNotificationOptions with the default parameters
      */
-    public void setNotificationOptions(MFPPushNotificationOptions options) {
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put("buttonGroupName", (options.getInteractiveButtonGroupName()!=null) ? options.getInteractiveButtonGroupName():"");
-            obj.put("buttonOneName", (options.getButtonOne().getButtonName()!=null) ? options.getButtonOne().getButtonName():"");
-            obj.put("buttonOneIcon", (options.getButtonOne().getIcon()!=null) ? options.getButtonOne().getIcon():"");
-            obj.put("buttonOneLabel", (options.getButtonOne().getLabel()!=null) ? options.getButtonOne().getLabel():"");
-            obj.put("buttonTwoName", (options.getButtonTwo().getButtonName()!=null) ? options.getButtonTwo().getButtonName():"");
-            obj.put("buttonTwoIcon", (options.getButtonTwo().getIcon()!=null) ? options.getButtonTwo().getIcon():"");
-            obj.put("buttonTwoLabel", (options.getButtonTwo().getLabel()!=null) ? options.getButtonTwo().getLabel():"");
-            obj.put("pushOptionsIcon", (options.getIcon()!=null) ? options.getIcon():"");
-            obj.put("pushOptionsPriority", (options.getPriority()!=null) ? options.getPriority():"");
-            obj.put("pushOptionsSound", (options.getSound()!=null) ? options.getSound():"");
-            obj.put("pushOptionsVisibility", (options.getVisibility()!=null) ? options.getVisibility():"");
-            obj.put("pushOptionsRedact", (options.getRedact()!=null) ? options.getRedact():"");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_OPTIONS, obj.toString());
-    }
+    public void setNotificationOptions(Context context,MFPPushNotificationOptions options) {
 
+        if (this.appContext == null) {
+            this.appContext = context.getApplicationContext();
+        }
+        this.options = options;
+        Gson gson = new Gson();
+        String json = gson.toJson(options);
+        JSONObject obj = new JSONObject();
+        SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_OPTIONS, json);
+    }
     /**
      * Set the listener class to receive the notification status changes.
      *
@@ -761,33 +753,16 @@ public class MFPPush extends FirebaseInstanceIdService {
         }
     }
 
-    public MFPPushNotificationOptions getNotificationOptions() {
-        return options;
-    }
-
     public MFPPushNotificationOptions getNotificationOptions(Context context) {
-        MFPPushNotificationOptions options =  new MFPPushNotificationOptions();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
-        String optonsString = MFPPushUtils.getContentFromSharedPreferences(context,MFPPush.PREFS_MESSAGES_OPTIONS);
-        try {
-
-            JSONObject obj = new JSONObject(optonsString);
-            if (obj.get("buttonGroupName").equals("") != true){
-                MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder(obj.get("buttonOneName").toString())
-                        .setIcon(obj.get("buttonOneIcon").toString())
-                        .setLabel(obj.get("buttonOneLabel").toString())
-                        .build();
-                MFPPushNotificationButton secondButton = new MFPPushNotificationButton.Builder(obj.get("buttonTwoName").toString())
-                        .setIcon(obj.get("buttonTwoIcon").toString())
-                        .setLabel(obj.get("buttonTwoLabel").toString())
-                        .build();
-                options.setInteractiveNotificationButtonGroup(obj.get("buttonGroupName").toString(), firstButton, secondButton);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (options != null && options.getButtonOne()!=null && options.getButtonTwo()!=null) {
+            return this.options;
+        }else {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
+            String optionsString = MFPPushUtils.getContentFromSharedPreferences(context,MFPPush.PREFS_MESSAGES_OPTIONS);
+            Gson gson = new Gson();
+            MFPPushNotificationOptions options = gson.fromJson(optionsString, MFPPushNotificationOptions.class);
+            return options;
         }
-
-        return options;
     }
 
     public void sendMessageDeliveryStatus(Context context, String messageId, String status) {

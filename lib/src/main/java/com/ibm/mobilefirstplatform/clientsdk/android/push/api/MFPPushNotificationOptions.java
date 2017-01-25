@@ -11,9 +11,9 @@ public class MFPPushNotificationOptions {
     private String sound;
     private String icon;
     private static MFPPushNotificationOptions instance = null;
-    private static MFPPushNotificationButton buttonOne;
-    private static MFPPushNotificationButton buttonTwo;
-    private static String interactiveButtonGroup;
+    private  MFPPushNotificationButton buttonOne;
+    private  MFPPushNotificationButton buttonTwo;
+    private  String interactiveButtonGroup;
 
     public Visibility getVisibility() {
         return visibility;
