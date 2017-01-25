@@ -721,7 +721,6 @@ public class MFPPush extends FirebaseInstanceIdService {
         this.options = options;
         Gson gson = new Gson();
         String json = gson.toJson(options);
-        JSONObject obj = new JSONObject();
         SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_OPTIONS, json);
     }
@@ -754,7 +753,7 @@ public class MFPPush extends FirebaseInstanceIdService {
     }
 
     public MFPPushNotificationOptions getNotificationOptions(Context context) {
-        if (options != null && options.getButtonOne()!=null && options.getButtonTwo()!=null) {
+        if (options != null ) {
             return this.options;
         }else {
             SharedPreferences sharedPreferences = context.getSharedPreferences(MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
