@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -176,6 +177,7 @@ public class MFPPush extends FirebaseInstanceIdService {
     static final String PREFS_MESSAGES_URL = "MessagesURL";
     static final String PREFS_MESSAGES_URL_CLIENT_SECRET = "MessagesURLClientSecret";
     static final int INITIALISATION_ERROR = 403;
+    static final String PREFS_MESSAGES_OPTIONS = "MessageOptions";
 
 
     private static MFPPush instance;
@@ -344,6 +346,7 @@ public class MFPPush extends FirebaseInstanceIdService {
                 if (messageFromBar != null) {
                     isFromNotificationBar = false;
                     sendNotificationToListener(messageFromBar);
+                    cancelNotification(messageFromBar);
                     messageFromBar = null;
                 }
             }
@@ -707,12 +710,20 @@ public class MFPPush extends FirebaseInstanceIdService {
     /**
      * Set the default push notification options for notifications.
      *
+     * @param context - this is the Context of the application from getApplicationContext()
      * @param options - The MFPPushNotificationOptions with the default parameters
      */
-    public void setNotificationOptions(MFPPushNotificationOptions options) {
-        this.options = options;
-    }
+    public void setNotificationOptions(Context context,MFPPushNotificationOptions options) {
 
+        if (this.appContext == null) {
+            this.appContext = context.getApplicationContext();
+        }
+        this.options = options;
+        Gson gson = new Gson();
+        String json = gson.toJson(options);
+        SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_OPTIONS, json);
+    }
     /**
      * Set the listener class to receive the notification status changes.
      *
@@ -741,8 +752,16 @@ public class MFPPush extends FirebaseInstanceIdService {
         }
     }
 
-    public MFPPushNotificationOptions getNotificationOptions() {
-        return options;
+    public MFPPushNotificationOptions getNotificationOptions(Context context) {
+        if (options != null ) {
+            return this.options;
+        }else {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
+            String optionsString = MFPPushUtils.getContentFromSharedPreferences(context,MFPPush.PREFS_MESSAGES_OPTIONS);
+            Gson gson = new Gson();
+            MFPPushNotificationOptions options = gson.fromJson(optionsString, MFPPushNotificationOptions.class);
+            return options;
+        }
     }
 
     public void sendMessageDeliveryStatus(Context context, String messageId, String status) {
@@ -1203,6 +1222,11 @@ public class MFPPush extends FirebaseInstanceIdService {
         notificationManager.cancelAll();
     }
 
+    private void cancelNotification(MFPInternalPushMessage pushMessage) {
+        NotificationManager notificationManager = (NotificationManager) appContext
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(pushMessage.getNotificationId());
+    }
     private void dispatchPending() {
         while (true) {
             MFPInternalPushMessage message = null;

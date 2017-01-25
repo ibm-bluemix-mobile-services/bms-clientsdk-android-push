@@ -382,7 +382,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     int priority = getPriorityOfMessage(message);
                     builder.setPriority(priority);
 
-                    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions();
+                    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
                     if (options != null && options.getButtonOne()!=null && options.getButtonTwo()!=null) {
                         builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, options.getButtonOne().getIcon()), options.getButtonOne().getLabel(),
                                 PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
@@ -495,7 +495,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
 
     private int getPriorityOfMessage (MFPInternalPushMessage message) {
         String priorityFromServer = message.getPriority();
-        MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions();
+        MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(this.getApplicationContext());
         int priorityPreSetValue = 0;
 
         if (options != null && options.getPriority()!=null) {
@@ -521,7 +521,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
     private String getNotificationSound(MFPInternalPushMessage message) {
         String soundFromServer = message.getSound();
         String soundPreSet = null;
-        MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions();
+        MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(this.getApplicationContext());
 
         if (options != null && options.getSound()!=null){
             soundPreSet = options.getSound();
