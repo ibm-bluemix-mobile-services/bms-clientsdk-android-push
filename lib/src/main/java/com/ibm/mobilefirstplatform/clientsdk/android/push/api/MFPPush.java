@@ -180,7 +180,6 @@ public class MFPPush extends FirebaseInstanceIdService {
     static final String PREFS_MESSAGES_OPTIONS = "MessageOptions";
     static  String MFPPUSH_ACTION_NAME = null;
 
-
     private static MFPPush instance;
     private static Context appContext = null;
 
