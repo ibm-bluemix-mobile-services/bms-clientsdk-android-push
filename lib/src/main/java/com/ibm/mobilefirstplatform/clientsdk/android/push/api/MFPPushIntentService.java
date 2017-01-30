@@ -384,9 +384,10 @@ public class MFPPushIntentService extends FirebaseMessagingService {
 
                     MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
                     if (options != null && options.getButtonOne()!=null && options.getButtonTwo()!=null) {
+                        intent.setAction(options.getButtonOne().getButtonName());
                         builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, options.getButtonOne().getIcon()), options.getButtonOne().getLabel(),
                                 PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-
+                        intent.setAction(options.getButtonTwo().getButtonName());
                         builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, options.getButtonTwo().getIcon()), options.getButtonTwo().getLabel(),
                                 PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
                     }

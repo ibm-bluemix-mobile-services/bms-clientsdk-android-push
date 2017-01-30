@@ -101,6 +101,16 @@ public class MainActivity extends Activity {
 
             @Override
             public void onReceive(final MFPSimplePushNotification message) {
+                
+                /*
+                 if (message.actionName.equals("Accept Button")){
+                    
+                    System.out.print("Clicked Accept Action");
+                    
+                }else if (message.actionName.equals("Decline Button")){
+                    System.out.print("Clicked Decline Action");
+                }
+                 */
                 showNotification(activity, message);
 
             }
