@@ -178,6 +178,7 @@ public class MFPPush extends FirebaseInstanceIdService {
     static final String PREFS_MESSAGES_URL_CLIENT_SECRET = "MessagesURLClientSecret";
     static final int INITIALISATION_ERROR = 403;
     static final String PREFS_MESSAGES_OPTIONS = "MessageOptions";
+    static  String MFPPUSH_ACTION_NAME = null;
 
 
     private static MFPPush instance;
@@ -1249,7 +1250,9 @@ public class MFPPush extends FirebaseInstanceIdService {
     private void sendNotificationToListener(MFPInternalPushMessage message) {
         MFPSimplePushNotification simpleNotification = new MFPSimplePushNotification(
                 message);
+        simpleNotification.actionName = MFPPUSH_ACTION_NAME;
         notificationListener.onReceive(simpleNotification);
+        MFPPUSH_ACTION_NAME = null;
         sendMessageDeliveryStatus(appContext, message.getId(), OPEN);
         relayNotificationSync(message.getKey(), message.getId());
         MFPPush.getInstance().changeStatus(message.getId(), MFPPushNotificationStatus.OPENED);
@@ -1375,6 +1378,7 @@ public class MFPPush extends FirebaseInstanceIdService {
 
     public static void openMainActivityOnNotificationClick(Context ctx) {
         Intent intentToLaunch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
+        MFPPUSH_ACTION_NAME = getInstance().pushNotificationIntent.getAction();
 
         if (intentToLaunch != null) {
             intentToLaunch.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
