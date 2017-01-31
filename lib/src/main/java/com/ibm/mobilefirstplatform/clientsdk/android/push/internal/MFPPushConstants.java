@@ -53,4 +53,7 @@ public interface MFPPushConstants {
 	public static final String OPEN = "OPEN";
 	public static final String SEEN = "SEEN";
 	public static final String PREFS_BMS_REGION = "BMSRegion";
+	public static final String LEDARGB = "ledARGB";
+	public static final String LEDONMS = "ledOnMS";
+	public static final String LEDOFFMS = "ledOffMS";
 }

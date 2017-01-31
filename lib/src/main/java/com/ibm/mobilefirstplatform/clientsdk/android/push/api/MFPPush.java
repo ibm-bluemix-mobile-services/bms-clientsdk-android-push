@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -46,6 +47,8 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
 
@@ -65,6 +68,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushInte
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MIN_SUPPORTED_ANDRIOD_VERSION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService.setAppForeground;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.USER_ID;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUrlBuilder.DEVICE_ID_NULL;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils.getIntentPrefix;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.STATUS;
@@ -173,7 +177,8 @@ public class MFPPush extends FirebaseInstanceIdService {
     static final String PREFS_MESSAGES_URL = "MessagesURL";
     static final String PREFS_MESSAGES_URL_CLIENT_SECRET = "MessagesURLClientSecret";
     static final int INITIALISATION_ERROR = 403;
-
+    static final String PREFS_MESSAGES_OPTIONS = "MessageOptions";
+    static  String mfpPushActionName = null;
 
     private static MFPPush instance;
     private static Context appContext = null;
@@ -209,6 +214,9 @@ public class MFPPush extends FirebaseInstanceIdService {
     private Intent pushNotificationIntent = null;
     private boolean sendDeliveryStatus = true;
     private final Object sendDeliveryStatusLock = new Object();
+
+    private int backoff = 3000; // Minimum backoff in ms
+    private static final int MAX_BACKOFF_MS =  (int) TimeUnit.SECONDS.toMillis(3600); // 1 hour
 
     protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
     public static String overrideServerHost = null;
@@ -338,6 +346,7 @@ public class MFPPush extends FirebaseInstanceIdService {
                 if (messageFromBar != null) {
                     isFromNotificationBar = false;
                     sendNotificationToListener(messageFromBar);
+                    cancelNotification(messageFromBar);
                     messageFromBar = null;
                 }
             }
@@ -492,6 +501,12 @@ public class MFPPush extends FirebaseInstanceIdService {
         if (isAbleToSubscribe()) {
             MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
             String path = builder.getSubscriptionsUrl(deviceId, tagName);
+
+            if (path == DEVICE_ID_NULL) {
+                listener.onFailure(new MFPPushException("The device is not registered yet. Please register device before calling subscriptions API"));
+                return;
+            }
+
             logger.debug("MFPPush:unsubscribe() - The tag unsubscription path is: " + path);
             MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE, clientSecret);
 
@@ -634,6 +649,12 @@ public class MFPPush extends FirebaseInstanceIdService {
 
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
         String path = builder.getSubscriptionsUrl(deviceId, null);
+
+        if (path == DEVICE_ID_NULL) {
+            listener.onFailure(new MFPPushException("The device is not registered yet. Please register device before calling subscriptions API"));
+            return;
+        }
+
         MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.GET, clientSecret);
 
         invoker.setResponseListener(new ResponseListener() {
@@ -689,12 +710,20 @@ public class MFPPush extends FirebaseInstanceIdService {
     /**
      * Set the default push notification options for notifications.
      *
+     * @param context - this is the Context of the application from getApplicationContext()
      * @param options - The MFPPushNotificationOptions with the default parameters
      */
-    public void setNotificationOptions(MFPPushNotificationOptions options) {
-        this.options = options;
-    }
+    public void setNotificationOptions(Context context,MFPPushNotificationOptions options) {
 
+        if (this.appContext == null) {
+            this.appContext = context.getApplicationContext();
+        }
+        this.options = options;
+        Gson gson = new Gson();
+        String json = gson.toJson(options);
+        SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_OPTIONS, json);
+    }
     /**
      * Set the listener class to receive the notification status changes.
      *
@@ -723,8 +752,16 @@ public class MFPPush extends FirebaseInstanceIdService {
         }
     }
 
-    public MFPPushNotificationOptions getNotificationOptions() {
-        return options;
+    public MFPPushNotificationOptions getNotificationOptions(Context context) {
+        if (options != null ) {
+            return this.options;
+        }else {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
+            String optionsString = MFPPushUtils.getContentFromSharedPreferences(context,MFPPush.PREFS_MESSAGES_OPTIONS);
+            Gson gson = new Gson();
+            MFPPushNotificationOptions options = gson.fromJson(optionsString, MFPPushNotificationOptions.class);
+            return options;
+        }
     }
 
     public void sendMessageDeliveryStatus(Context context, String messageId, String status) {
@@ -794,26 +831,40 @@ public class MFPPush extends FirebaseInstanceIdService {
             protected String doInBackground(Void... params) {
                 String msg = "";
                 try {
-                    deviceToken = FirebaseInstanceId.getInstance().getToken();
-                    if (deviceToken == null) {
-                        long t= System.currentTimeMillis();
-                        long end = t+10000;
-                        while(System.currentTimeMillis() < end && deviceToken == null) {
-                            Thread.sleep(500);
-                        }
-                    }
+                    while(true) {
+                        try {
+                            backoff = backoff/2 + new Random().nextInt(backoff);
+                            deviceToken = FirebaseInstanceId.getInstance().getToken();
 
-                    if (deviceToken == null) {
-                        logger.error("MFPPush:registerInBackground() - Failed to register at GCM Server. Device token returned from FCM is null");
-                        registerResponseListener
-                                .onFailure(new MFPPushException(msg));
-                    } else {
-                        logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
-                        computeRegId();
-                        if (MFPPushUtils.validateString(userId)) {
-                            registerWithUserId(userId);
-                        } else {
-                            register();
+                            if (deviceToken == null) {
+                                if(backoff < MAX_BACKOFF_MS) {
+                                    try {
+                                        logger.debug("registerInBackground() - Failed to register or refresh token. Sleeping for "+backoff + " ms before retry");
+                                        Thread.sleep(backoff);
+                                    } catch (InterruptedException e) {
+                                        logger.debug("registerInBackground() - Failed to retry as the thread was interrupted.");
+                                    }
+                                    backoff = backoff * 2;
+                                } else {
+                                    logger.error("MFPPush.registerInBackground() - Unable to retreive deviceToken after maximum retries");
+                                    registerResponseListener.onFailure((new MFPPushException("Unable to retreive deviceToken after maximum retries")));
+                                    break;
+                                }
+                            } else {
+                                logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
+                                computeRegId();
+                                if (MFPPushUtils.validateString(userId)) {
+                                    registerWithUserId(userId);
+                                    break;
+                                } else {
+                                    register();
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            registerResponseListener
+                                    .onFailure(new MFPPushException(e));
+                            break;
                         }
                     }
                 } catch (Exception ex) {
@@ -1170,6 +1221,11 @@ public class MFPPush extends FirebaseInstanceIdService {
         notificationManager.cancelAll();
     }
 
+    private void cancelNotification(MFPInternalPushMessage pushMessage) {
+        NotificationManager notificationManager = (NotificationManager) appContext
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(pushMessage.getNotificationId());
+    }
     private void dispatchPending() {
         while (true) {
             MFPInternalPushMessage message = null;
@@ -1192,7 +1248,9 @@ public class MFPPush extends FirebaseInstanceIdService {
     private void sendNotificationToListener(MFPInternalPushMessage message) {
         MFPSimplePushNotification simpleNotification = new MFPSimplePushNotification(
                 message);
+        simpleNotification.actionName = mfpPushActionName;
         notificationListener.onReceive(simpleNotification);
+        mfpPushActionName = null;
         sendMessageDeliveryStatus(appContext, message.getId(), OPEN);
         relayNotificationSync(message.getKey(), message.getId());
         MFPPush.getInstance().changeStatus(message.getId(), MFPPushNotificationStatus.OPENED);
@@ -1312,6 +1370,7 @@ public class MFPPush extends FirebaseInstanceIdService {
 
     public static void openMainActivityOnNotificationClick(Context ctx) {
         Intent intentToLaunch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
+        mfpPushActionName = getInstance().pushNotificationIntent.getAction();
 
         if (intentToLaunch != null) {
             intentToLaunch.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
