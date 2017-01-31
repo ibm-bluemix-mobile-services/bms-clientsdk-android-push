@@ -22,6 +22,7 @@ public class MFPSimplePushNotification extends MFPAbstractPushMessage implements
 		MFPPushMessage {
 	private String url;
 	private String payload;
+  public String actionName;
 
 	MFPSimplePushNotification(String alert, String id,
 							  String url, String payload) {

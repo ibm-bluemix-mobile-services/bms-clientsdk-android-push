@@ -44,6 +44,19 @@ public class MainActivity extends Activity {
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret);
+        /* MFPPushNotificationOptions options = new MFPPushNotificationOptions();
+        MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder("Accept Button")
+        .setIcon("check_circle_icon")
+        .setLabel("Accept")
+        .build();
+
+        MFPPushNotificationButton secondButton = new MFPPushNotificationButton.Builder("Decline Button")
+        .setIcon("extension_circle_icon")
+        .setLabel("Decline")
+        .build();
+
+        options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton, secondButton);
+        MFPPush.getInstance().setNotificationOptions(getApplicationContext(),options);*/
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
@@ -81,13 +94,24 @@ public class MainActivity extends Activity {
 //                        + "Push notifications will not be received.");
 //            }
 //        });
-        
+
         final Activity activity = this;
 
         notificationListener = new MFPPushNotificationListener() {
 
             @Override
             public void onReceive(final MFPSimplePushNotification message) {
+
+              /*
+                if (message.actionName.equals("Accept Button")){
+
+                   System.out.print("Clicked Accept Action");
+
+               }else if (message.actionName.equals("Decline Button")){
+                   System.out.print("Clicked Decline Action");
+               }
+                */
+                
                 showNotification(activity, message);
 
             }

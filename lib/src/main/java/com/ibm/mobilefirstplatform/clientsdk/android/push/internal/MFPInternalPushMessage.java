@@ -45,6 +45,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_EXTRA_NOTIFICATIONID = "notificationId";
 	private static final String GCM_EXTRA_STYLE = "style";
 	private static final String GCM_EXTRA_ICONNAME = "icon";
+	private static final String GCM_EXTRA_LIGHTS = "lights";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -66,6 +67,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private int notificationId;
 	private String gcmStyle = null;
 	private String iconName = null;
+	private String lights = null;
 
 	protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
 
@@ -87,6 +89,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		gcmStyle = info.getString(GCM_EXTRA_STYLE);
 		iconName = info.getString(GCM_EXTRA_ICONNAME);
 		notificationId = info.getInt(GCM_EXTRA_NOTIFICATIONID);
+		lights = info.getString(GCM_EXTRA_LIGHTS);
 
 		try {
 			JSONObject towers = new JSONObject(payload);
@@ -113,6 +116,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		gcmStyle = source.readString();
 		iconName = source.readString();
 		notificationId = source.readInt();
+		lights = source.readString();
 	}
 
 	public MFPInternalPushMessage(JSONObject json) {
@@ -188,6 +192,11 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get notificationId.  "+ e.toString());
 		}
+		try {
+			lights = json.getString(GCM_EXTRA_LIGHTS);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get lights. "+ e.toString());
+		}
 	}
 
 	public JSONObject toJson() {
@@ -207,6 +216,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			json.put(GCM_EXTRA_KEY, key);
 			json.put(GCM_EXTRA_ICONNAME, iconName);
             json.put(GCM_EXTRA_NOTIFICATIONID, notificationId);
+			json.put(GCM_EXTRA_LIGHTS, lights);
 
     } catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON.  "+ e.toString());
@@ -278,6 +288,10 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 	public String getGcmStyle () {return gcmStyle;}
 
+	public void setLights(String lights) { this.lights = lights; }
+
+	public String getLights() { return lights; }
+
 
 	@Override
 	public String toString() {
@@ -313,6 +327,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		dest.writeString(gcmStyle);
 		dest.writeString(iconName);
 		dest.writeInt(notificationId);
+		dest.writeString(lights);
 	}
 
 	public static final Creator<MFPInternalPushMessage> CREATOR = new Creator<MFPInternalPushMessage>() {

@@ -19,7 +19,12 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+####3.4.1
+
+* Fixed actionable push notification bugs.
+
 ####3.4
+
 * Fixed bug that causes crash in certain apps due to unavailability of certain android manifest permissions.
 
 ####3.3
@@ -39,7 +44,7 @@ push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
         // Handle status change
         }
     });
-    
+
 ````
 
 Add the below snippet in AndroidManifest.xml to capture the notification dismissal status.
@@ -70,10 +75,23 @@ Add the below snippet in AndroidManifest.xml to capture the notification dismiss
                 .build();
 
         options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton, secondButton);
-        MFPPush.getInstance().setNotificationOptions(options);
+        MFPPush.getInstance().setNotificationOptions(getApplicationContext(),options);
+
+       // Action Handler
+        @Override
+         public void onReceive(final MFPSimplePushNotification message) {
+
+             if (message.actionName.equals("Accept Button")){
+
+                 System.out.print("Clicked Accept Action");
+
+             }else if (message.actionName.equals("Decline Button")){
+                 System.out.print("Clicked Decline Action");
+             }
+         }
  ````
 
-####3.0 
+####3.0
 
 * Update push service to use FCM instead of GCM. All existing applications will work as-is and moving forward all new applications will use FCM.  The client application set up is different in FCM in comparison to the old GCM model. Please refer to [documentation](https://console.ng.bluemix.net/docs/services/mobilepush/c_android_enable.html) for details.
 * To compile the SDK, create a FCM project in google console -> Add firebase to android application -> Add the package names `com.ibm.mobilefirstplatform.clientsdk.android.app` , `com.ibm.mobilefirstplatform.clientsdk.android.push` and `com.ibm.mobilefirst.clientsdk.android.app` -> Copy the generated google-services.json file inside the `app` directory.
