@@ -270,7 +270,6 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .setContentText(msg)
                     .setStyle(notificationStyle);
-
                 } else if (type != null && type.equalsIgnoreCase(BIGTEXT_NOTIFICATION)) {
                     NotificationCompat.BigTextStyle notificationStyle = new NotificationCompat.BigTextStyle();
                     notificationStyle.setBigContentTitle(ticker);
@@ -289,6 +288,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .setContentText(msg)
                     .setStyle(notificationStyle);
+
                 } else if (type != null && type.equalsIgnoreCase(INBOX_NOTIFICATION)) {
                     NotificationCompat.InboxStyle notificationStyle = new NotificationCompat.InboxStyle();
                     notificationStyle.setBigContentTitle(ticker);
@@ -301,9 +301,9 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         notificationStyle.addLine(line);
                     }
 
-                    mBuilder = new NotificationCompat.Builder(
-                                                              context);
+                    mBuilder = new NotificationCompat.Builder(context);
                      mBuilder.setSmallIcon(icon)
+
                     .setAutoCancel(true)
                     .setContentTitle(title)
                     .setContentIntent(PendingIntent
@@ -355,6 +355,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     }
                 }
                 notification = mBuilder.build();
+
                 if (message.getLights() != null) {
                     try {
                         JSONObject lightsObject = new JSONObject(message.getLights());
@@ -368,6 +369,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         } else if (ledARGB.equalsIgnoreCase("lightgray")) {
                             notification.ledARGB = Color.LTGRAY;
                         } else if (ledARGB.equalsIgnoreCase("white")) {
+
                             notification.ledARGB = Color.WHITE;
                         } else if (ledARGB.equalsIgnoreCase("red")) {
                             notification.ledARGB = Color.RED;

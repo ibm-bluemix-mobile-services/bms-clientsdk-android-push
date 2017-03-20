@@ -71,6 +71,19 @@ public class MainActivity extends Activity {
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret);
+        /* MFPPushNotificationOptions options = new MFPPushNotificationOptions();
+        MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder("Accept Button")
+        .setIcon("check_circle_icon")
+        .setLabel("Accept")
+        .build();
+
+        MFPPushNotificationButton secondButton = new MFPPushNotificationButton.Builder("Decline Button")
+        .setIcon("extension_circle_icon")
+        .setLabel("Decline")
+        .build();
+
+        options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton, secondButton);
+        MFPPush.getInstance().setNotificationOptions(getApplicationContext(),options);*/
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {

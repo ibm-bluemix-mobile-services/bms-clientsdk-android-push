@@ -14,9 +14,7 @@ public class MFPPushNotificationOptions {
     private String sound;
     private String icon;
     private static MFPPushNotificationOptions instance = null;
-
     JSONObject categoryList = new JSONObject();
-
     public Visibility getVisibility() {
         return visibility;
     }
