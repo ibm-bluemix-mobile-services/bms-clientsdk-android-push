@@ -1,5 +1,8 @@
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by jialfred on 8/29/16.
  */
@@ -11,9 +14,7 @@ public class MFPPushNotificationOptions {
     private String sound;
     private String icon;
     private static MFPPushNotificationOptions instance = null;
-    private  MFPPushNotificationButton buttonOne;
-    private  MFPPushNotificationButton buttonTwo;
-    private  String interactiveButtonGroup;
+    private List<MFPPushNotificationCategory> categories = new ArrayList<MFPPushNotificationCategory>();
 
     public Visibility getVisibility() {
         return visibility;
@@ -53,18 +54,6 @@ public class MFPPushNotificationOptions {
         this.icon = icon;
     }
 
-    public String getInteractiveButtonGroupName() {
-        return interactiveButtonGroup;
-    }
-
-    public MFPPushNotificationButton getButtonOne() {
-        return buttonOne;
-    }
-
-    public MFPPushNotificationButton getButtonTwo() {
-        return buttonTwo;
-    }
-
     public MFPPushNotificationOptions() {}
 
     public static enum Priority {
@@ -94,11 +83,15 @@ public class MFPPushNotificationOptions {
             return value;
         }
     }
-
-    public void setInteractiveNotificationButtonGroup(String groupName, MFPPushNotificationButton buttonOne, MFPPushNotificationButton buttonTwo) {
-        this.interactiveButtonGroup = groupName;
-        this.buttonOne = buttonOne;
-        this.buttonTwo = buttonTwo;
+    public void  setInteractiveNotificationCategory(MFPPushNotificationCategory category) {
+        categories.add(category);
     }
 
-}
+    public void setInteractiveNotificationCategories(List<MFPPushNotificationCategory> categories) {
+        this.categories = categories;
+    }
+
+    public List<MFPPushNotificationCategory> getInteractiveNotificationCategories() {      return categories;
+    }
+
+    }
