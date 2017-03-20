@@ -4,7 +4,6 @@ public class MFPPushNotificationButton {
     private String buttonName;
     private String label;
     private String icon;
-    private boolean performsInForeground;
 
     public String getButtonName() {
         return buttonName;
@@ -18,9 +17,6 @@ public class MFPPushNotificationButton {
         return icon;
     }
 
-    public boolean getPerformsInForeground() {
-        return performsInForeground;
-    }
 
     public static class Builder {
         private String buttonName;
@@ -57,7 +53,6 @@ public class MFPPushNotificationButton {
         buttonName = builder.buttonName;
         label = builder.label;
         icon = builder.icon;
-        performsInForeground = builder.performsInForeground;
     }
 
 }

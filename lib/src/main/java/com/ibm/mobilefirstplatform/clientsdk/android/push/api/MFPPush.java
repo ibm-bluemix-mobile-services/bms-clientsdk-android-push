@@ -252,34 +252,7 @@ public class MFPPush extends FirebaseInstanceIdService {
    * @param pushClientSecret ClientSecret from the push service.
    */
   public void initialize(Context context, String appGUID, String pushClientSecret) {
-    try {
-      if (MFPPushUtils.validateString(pushClientSecret) && MFPPushUtils.validateString(appGUID)) {
-        // Get the applicationId and backend route from core
-        clientSecret = pushClientSecret;
-
-        applicationId = appGUID;
-        appContext = context.getApplicationContext();
-        isInitialized = true;
-        validateAndroidContext();
-
-        //Storing the messages url and the client secret.
-        //This is because when the app is not running and notification is dismissed/cleared,
-        //there wont be applicationId and clientSecret details available to
-        //MFPPushNotificationDismissHandler.
-        SharedPreferences sharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_URL, buildMessagesURL());
-        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_URL_CLIENT_SECRET, clientSecret);
-        MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, PREFS_BMS_REGION, BMSClient.getInstance().getBluemixRegionSuffix());
-
-      } else {
-        logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
-        System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
-        throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value", INITIALISATION_ERROR);
-      }
-    } catch (Exception e) {
-      logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
-      throw new RuntimeException(e);
-    }
+    this.initialize(context,appGUID,pushClientSecret,null);
   }
 
   /**
@@ -312,7 +285,9 @@ public class MFPPush extends FirebaseInstanceIdService {
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_URL_CLIENT_SECRET, clientSecret);
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, PREFS_BMS_REGION, BMSClient.getInstance().getBluemixRegionSuffix());
 
-        setNotificationOptions(context,options);
+        if (options != null){
+          setNotificationOptions(context,options);
+        }
       } else {
         logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
         System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");

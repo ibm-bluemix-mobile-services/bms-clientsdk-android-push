@@ -58,6 +58,7 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConsta
 import com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushUtils;
 
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.net.URL;
@@ -316,42 +317,22 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 }
 
                 MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
-                if (options != null && options.getCategoryList() != null){
-                    JSONObject CategoryList = options.getCategoryList();
-                    try{
-                        if (CategoryList.get(message.getCategory()) != null){
-                            JSONObject CategoryList1 = (JSONObject) CategoryList.get(message.getCategory());
-                            Integer hh = CategoryList1.length();
-                            if (hh == 4){
-                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
-                                intent.setAction(newButton.getButtonName());
-                                mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                                MFPPushNotificationButton newButton1 = (MFPPushNotificationButton) CategoryList1.get("buttonTwo");
-                                intent.setAction(newButton.getButtonName());
-                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton1.getIcon()), newButton1.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                                MFPPushNotificationButton newButton2 = (MFPPushNotificationButton) CategoryList1.get("buttonThree");
-                                intent.setAction(newButton.getButtonName());
-                                mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton2.getIcon()), newButton2.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                            } else if (hh == 3){
-                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
-                                intent.setAction(newButton.getButtonName());
-                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                                MFPPushNotificationButton newButton1 = (MFPPushNotificationButton) CategoryList1.get("buttonTwo");
-                                intent.setAction(newButton.getButtonName());
-                                mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton1.getIcon()), newButton1.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                            } else if (hh == 2){
-                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
+                if (options != null && options.getInteractiveNotificationCategories() != null){
+
+                    String notifCat = message.getCategory();
+
+                    List<MFPPushNotificationCategory> categorylist = options.getInteractiveNotificationCategories();
+
+                    for(MFPPushNotificationCategory category:categorylist) {
+                        if(category.getCategoryName().equals(notifCat)) {
+                            for (MFPPushNotificationButton newButton:category.getButtons()) {
                                 intent.setAction(newButton.getButtonName());
                                 mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
                                         PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
                             }
-                        } } catch (JSONException e) {
-                        e.printStackTrace();
+
+                        }
+
                     }
                 }
                 notification = mBuilder.build();
@@ -420,43 +401,24 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 if (androidSDKVersion > 15) {
                     int priority = getPriorityOfMessage(message);
                     builder.setPriority(priority);
-                    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
-                    if (options != null && options.getCategoryList() != null){
-                        JSONObject CategoryList = options.getCategoryList();
-                        try{
-                        if (CategoryList.get(message.getCategory()) != null){
-                            JSONObject CategoryList1 = (JSONObject) CategoryList.get(message.getCategory());
-                            Integer hh = CategoryList1.length();
-                            if (hh == 4){
-                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
-                                intent.setAction(newButton.getButtonName());
-                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
-                                          PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                                MFPPushNotificationButton newButton1 = (MFPPushNotificationButton) CategoryList1.get("buttonTwo");
-                                intent.setAction(newButton.getButtonName());
-                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton1.getIcon()), newButton1.getLabel(), PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
 
-                                MFPPushNotificationButton newButton2 = (MFPPushNotificationButton) CategoryList1.get("buttonThree");
-                                intent.setAction(newButton.getButtonName());
-                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton2.getIcon()), newButton2.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                            } else if (hh == 3){
-                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
-                                intent.setAction(newButton.getButtonName());
-                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                                MFPPushNotificationButton newButton1 = (MFPPushNotificationButton) CategoryList1.get("buttonTwo");
-                                intent.setAction(newButton.getButtonName());
-                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton1.getIcon()), newButton1.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                            } else if (hh == 2){
-                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
-                                intent.setAction(newButton.getButtonName());
-                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
+                    if (options != null && options.getInteractiveNotificationCategories() != null){
+
+                        String notifCat = message.getCategory();
+
+                        List<MFPPushNotificationCategory> categorylist = options.getInteractiveNotificationCategories();
+
+                        for(MFPPushNotificationCategory category:categorylist) {
+                            if(category.getCategoryName().equals(notifCat)) {
+                                for (MFPPushNotificationButton newButton:category.getButtons()) {
+                                    intent.setAction(newButton.getButtonName());
+                                    builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
+                                            PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                                }
+
                             }
-                        } } catch (JSONException e) {
-                            e.printStackTrace();
+
                         }
                     }
                     notification = builder.build();

@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationButton;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationCategory;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationOptions;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatus;
@@ -18,6 +19,7 @@ import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseLis
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPSimplePushNotification;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -43,7 +45,8 @@ public class MainActivity extends Activity {
 
         BMSClient.getInstance().initialize(getApplicationContext(), BMSClient.REGION_US_SOUTH);
 
-        /*
+
+        // Actionable Notifications
         MFPPushNotificationOptions options = new MFPPushNotificationOptions();
 
         MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder("Accept Button")
@@ -61,29 +64,35 @@ public class MainActivity extends Activity {
                 .setLabel("Decline2")
                 .build();
 
-        options.setInteractiveNotificationButtonGroup("First_Button_Group1", firstButton, secondButton, secondButton1);
-        options.setInteractiveNotificationButtonGroup("First_Button_Group2", firstButton, secondButton);
-        options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton);
+         List<MFPPushNotificationButton> getButtons =  new ArrayList<MFPPushNotificationButton>();
+        getButtons.add(firstButton);
+        getButtons.add(secondButton);
+        getButtons.add(secondButton1);
 
+        List<MFPPushNotificationButton> getButtons1 =  new ArrayList<MFPPushNotificationButton>();
+        getButtons1.add(firstButton);
+        getButtons1.add(secondButton);
+
+        List<MFPPushNotificationButton> getButtons2 =  new ArrayList<MFPPushNotificationButton>();
+        getButtons2.add(firstButton);
+
+        MFPPushNotificationCategory category = new MFPPushNotificationCategory.Builder("First_Button_Group1").setButtons(getButtons).build();
+        MFPPushNotificationCategory category1 = new MFPPushNotificationCategory.Builder("First_Button_Group2").setButtons(getButtons1).build();
+        MFPPushNotificationCategory category2 = new MFPPushNotificationCategory.Builder("First_Button_Group3").setButtons(getButtons2).build();
+
+        List<MFPPushNotificationCategory> categoryList =  new ArrayList<MFPPushNotificationCategory>();
+        categoryList.add(category);
+        categoryList.add(category1);
+        categoryList.add(category2);
+
+        options.setInteractiveNotificationCategories(categoryList);
+        //options.setInteractiveNotificationCategory(category);
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret,options);
-*/
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret);
-        /* MFPPushNotificationOptions options = new MFPPushNotificationOptions();
-        MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder("Accept Button")
-        .setIcon("check_circle_icon")
-        .setLabel("Accept")
-        .build();
 
-        MFPPushNotificationButton secondButton = new MFPPushNotificationButton.Builder("Decline Button")
-        .setIcon("extension_circle_icon")
-        .setLabel("Decline")
-        .build();
-
-        options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton, secondButton);
-        MFPPush.getInstance().setNotificationOptions(getApplicationContext(),options);*/
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
