@@ -259,8 +259,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
 
                     mBuilder = new NotificationCompat.Builder(
                                                               context);
-                    notification = mBuilder
-                    .setSmallIcon(icon)
+                    mBuilder.setSmallIcon(icon)
                     .setLargeIcon(remote_picture)
                     .setAutoCancel(true)
                     .setContentTitle(title)
@@ -270,7 +269,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     .setDeleteIntent(deletePendingIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .setContentText(msg)
-                    .setStyle(notificationStyle).build();
+                    .setStyle(notificationStyle);
 
                 } else if (type != null && type.equalsIgnoreCase(BIGTEXT_NOTIFICATION)) {
                     NotificationCompat.BigTextStyle notificationStyle = new NotificationCompat.BigTextStyle();
@@ -280,8 +279,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
 
                     mBuilder = new NotificationCompat.Builder(
                                                               context);
-                    notification = mBuilder
-                    .setSmallIcon(icon)
+                    mBuilder.setSmallIcon(icon)
                     .setAutoCancel(true)
                     .setContentTitle(title)
                     .setContentIntent(PendingIntent
@@ -290,7 +288,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     .setDeleteIntent(deletePendingIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .setContentText(msg)
-                    .setStyle(notificationStyle).build();
+                    .setStyle(notificationStyle);
                 } else if (type != null && type.equalsIgnoreCase(INBOX_NOTIFICATION)) {
                     NotificationCompat.InboxStyle notificationStyle = new NotificationCompat.InboxStyle();
                     notificationStyle.setBigContentTitle(ticker);
@@ -305,8 +303,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
 
                     mBuilder = new NotificationCompat.Builder(
                                                               context);
-                    notification = mBuilder
-                    .setSmallIcon(icon)
+                     mBuilder.setSmallIcon(icon)
                     .setAutoCancel(true)
                     .setContentTitle(title)
                     .setContentIntent(PendingIntent
@@ -315,22 +312,62 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     .setDeleteIntent(deletePendingIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .setContentText(msg)
-                    .setStyle(notificationStyle).build();
+                    .setStyle(notificationStyle);
                 }
 
+                MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
+                if (options != null && options.getCategoryList() != null){
+                    JSONObject CategoryList = options.getCategoryList();
+                    try{
+                        if (CategoryList.get(message.getCategory()) != null){
+                            JSONObject CategoryList1 = (JSONObject) CategoryList.get(message.getCategory());
+                            Integer hh = CategoryList1.length();
+                            if (hh == 4){
+                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
+                                intent.setAction(newButton.getButtonName());
+                                mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                                MFPPushNotificationButton newButton1 = (MFPPushNotificationButton) CategoryList1.get("buttonTwo");
+                                intent.setAction(newButton.getButtonName());
+                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton1.getIcon()), newButton1.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                                MFPPushNotificationButton newButton2 = (MFPPushNotificationButton) CategoryList1.get("buttonThree");
+                                intent.setAction(newButton.getButtonName());
+                                mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton2.getIcon()), newButton2.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                            } else if (hh == 3){
+                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
+                                intent.setAction(newButton.getButtonName());
+                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                                MFPPushNotificationButton newButton1 = (MFPPushNotificationButton) CategoryList1.get("buttonTwo");
+                                intent.setAction(newButton.getButtonName());
+                                mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton1.getIcon()), newButton1.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                            } else if (hh == 2){
+                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
+                                intent.setAction(newButton.getButtonName());
+                                mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                            }
+                        } } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                notification = mBuilder.build();
                 if (message.getLights() != null) {
                     try {
                         JSONObject lightsObject = new JSONObject(message.getLights());
                         String ledARGB = lightsObject.getString(LEDARGB);
                         if (ledARGB!=null && ledARGB.equalsIgnoreCase("black")) {
                             notification.ledARGB = Color.BLACK;
-                        } else if (ledARGB.equalsIgnoreCase("dkgray")) {
+                        } else if (ledARGB.equalsIgnoreCase("darkgray")) {
                             notification.ledARGB = Color.DKGRAY;
                         } else if (ledARGB.equalsIgnoreCase("gray")) {
                             notification.ledARGB = Color.GRAY;
-                        } else if (ledARGB.equalsIgnoreCase("ltgray")) {
+                        } else if (ledARGB.equalsIgnoreCase("lightgray")) {
                             notification.ledARGB = Color.LTGRAY;
-                        } else if (ledARGB.equalsIgnoreCase("while")) {
+                        } else if (ledARGB.equalsIgnoreCase("white")) {
                             notification.ledARGB = Color.WHITE;
                         } else if (ledARGB.equalsIgnoreCase("red")) {
                             notification.ledARGB = Color.RED;
@@ -338,7 +375,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                             notification.ledARGB = Color.GREEN;
                         } else if (ledARGB.equalsIgnoreCase("blue")) {
                             notification.ledARGB = Color.BLUE;
-                        } else if (ledARGB.equalsIgnoreCase("yello")) {
+                        } else if (ledARGB.equalsIgnoreCase("yellow")) {
                             notification.ledARGB = Color.YELLOW;
                         } else if (ledARGB.equalsIgnoreCase("cyan")) {
                             notification.ledARGB = Color.CYAN;
@@ -381,17 +418,45 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 if (androidSDKVersion > 15) {
                     int priority = getPriorityOfMessage(message);
                     builder.setPriority(priority);
-
                     MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
-                    if (options != null && options.getButtonOne()!=null && options.getButtonTwo()!=null) {
-                        intent.setAction(options.getButtonOne().getButtonName());
-                        builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, options.getButtonOne().getIcon()), options.getButtonOne().getLabel(),
+                    if (options != null && options.getCategoryList() != null){
+                        JSONObject CategoryList = options.getCategoryList();
+                        try{
+                        if (CategoryList.get(message.getCategory()) != null){
+                            JSONObject CategoryList1 = (JSONObject) CategoryList.get(message.getCategory());
+                            Integer hh = CategoryList1.length();
+                            if (hh == 4){
+                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
+                                intent.setAction(newButton.getButtonName());
+                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
                                           PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                        intent.setAction(options.getButtonTwo().getButtonName());
-                        builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, options.getButtonTwo().getIcon()), options.getButtonTwo().getLabel(),
-                                          PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                    }
+                                MFPPushNotificationButton newButton1 = (MFPPushNotificationButton) CategoryList1.get("buttonTwo");
+                                intent.setAction(newButton.getButtonName());
+                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton1.getIcon()), newButton1.getLabel(), PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
 
+                                MFPPushNotificationButton newButton2 = (MFPPushNotificationButton) CategoryList1.get("buttonThree");
+                                intent.setAction(newButton.getButtonName());
+                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton2.getIcon()), newButton2.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                            } else if (hh == 3){
+                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
+                                intent.setAction(newButton.getButtonName());
+                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                                MFPPushNotificationButton newButton1 = (MFPPushNotificationButton) CategoryList1.get("buttonTwo");
+                                intent.setAction(newButton.getButtonName());
+                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton1.getIcon()), newButton1.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                            } else if (hh == 2){
+                                MFPPushNotificationButton newButton = (MFPPushNotificationButton) CategoryList1.get("buttonOne");
+                                intent.setAction(newButton.getButtonName());
+                                builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
+                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                            }
+                        } } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     notification = builder.build();
                 }
 
@@ -449,13 +514,13 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     String ledARGB = lightsObject.getString(LEDARGB);
                     if (ledARGB!=null && ledARGB.equalsIgnoreCase("black")) {
                         notification.ledARGB = Color.BLACK;
-                    } else if (ledARGB.equalsIgnoreCase("dkgray")) {
+                    } else if (ledARGB.equalsIgnoreCase("darkgray")) {
                         notification.ledARGB = Color.DKGRAY;
                     } else if (ledARGB.equalsIgnoreCase("gray")) {
                         notification.ledARGB = Color.GRAY;
-                    } else if (ledARGB.equalsIgnoreCase("ltgray")) {
+                    } else if (ledARGB.equalsIgnoreCase("lightgray")) {
                         notification.ledARGB = Color.LTGRAY;
-                    } else if (ledARGB.equalsIgnoreCase("while")) {
+                    } else if (ledARGB.equalsIgnoreCase("white")) {
                         notification.ledARGB = Color.WHITE;
                     } else if (ledARGB.equalsIgnoreCase("red")) {
                         notification.ledARGB = Color.RED;
@@ -463,7 +528,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         notification.ledARGB = Color.GREEN;
                     } else if (ledARGB.equalsIgnoreCase("blue")) {
                         notification.ledARGB = Color.BLUE;
-                    } else if (ledARGB.equalsIgnoreCase("yello")) {
+                    } else if (ledARGB.equalsIgnoreCase("yellow")) {
                         notification.ledARGB = Color.YELLOW;
                     } else if (ledARGB.equalsIgnoreCase("cyan")) {
                         notification.ledARGB = Color.CYAN;

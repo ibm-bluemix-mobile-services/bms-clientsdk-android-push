@@ -1,5 +1,8 @@
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by jialfred on 8/29/16.
  */
@@ -11,9 +14,8 @@ public class MFPPushNotificationOptions {
     private String sound;
     private String icon;
     private static MFPPushNotificationOptions instance = null;
-    private  MFPPushNotificationButton buttonOne;
-    private  MFPPushNotificationButton buttonTwo;
-    private  String interactiveButtonGroup;
+
+    JSONObject categoryList = new JSONObject();
 
     public Visibility getVisibility() {
         return visibility;
@@ -52,18 +54,10 @@ public class MFPPushNotificationOptions {
     public void setIcon(String icon) {
         this.icon = icon;
     }
-
-    public String getInteractiveButtonGroupName() {
-        return interactiveButtonGroup;
+    public JSONObject getCategoryList() {
+        return categoryList;
     }
 
-    public MFPPushNotificationButton getButtonOne() {
-        return buttonOne;
-    }
-
-    public MFPPushNotificationButton getButtonTwo() {
-        return buttonTwo;
-    }
 
     public MFPPushNotificationOptions() {}
 
@@ -96,9 +90,38 @@ public class MFPPushNotificationOptions {
     }
 
     public void setInteractiveNotificationButtonGroup(String groupName, MFPPushNotificationButton buttonOne, MFPPushNotificationButton buttonTwo) {
-        this.interactiveButtonGroup = groupName;
-        this.buttonOne = buttonOne;
-        this.buttonTwo = buttonTwo;
+        JSONObject obj =new JSONObject();
+        try {
+            obj.put("categoryName", groupName);
+            obj.put("buttonOne", buttonOne);
+            obj.put("buttonTwo",buttonTwo);
+            this.categoryList.put(groupName,obj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+    public void setInteractiveNotificationButtonGroup(String groupName, MFPPushNotificationButton buttonOne, MFPPushNotificationButton buttonTwo, MFPPushNotificationButton buttonThree) {
+        JSONObject obj =new JSONObject();
+        try {
+            obj.put("categoryName", groupName);
+            obj.put("buttonOne", buttonOne);
+            obj.put("buttonTwo",buttonTwo);
+            obj.put("buttonThree",buttonThree);
+            this.categoryList.put(groupName,obj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    public void setInteractiveNotificationButtonGroup(String groupName, MFPPushNotificationButton buttonOne){
+        JSONObject obj =new JSONObject();
+        try {
+            obj.put("categoryName", groupName);
+            obj.put("buttonOne", buttonOne);
+            this.categoryList.put(groupName,obj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-}
+    }
