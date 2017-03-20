@@ -9,7 +9,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationButton;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationOptions;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatus;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatusListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
@@ -41,10 +43,9 @@ public class MainActivity extends Activity {
 
         BMSClient.getInstance().initialize(getApplicationContext(), BMSClient.REGION_US_SOUTH);
 
+        /*
+        MFPPushNotificationOptions options = new MFPPushNotificationOptions();
 
-        push = MFPPush.getInstance();
-        push.initialize(getApplicationContext(),appGuid,clientSecret);
-        /* MFPPushNotificationOptions options = new MFPPushNotificationOptions();
         MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder("Accept Button")
         .setIcon("check_circle_icon")
         .setLabel("Accept")
@@ -55,8 +56,21 @@ public class MainActivity extends Activity {
         .setLabel("Decline")
         .build();
 
-        options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton, secondButton);
-        MFPPush.getInstance().setNotificationOptions(getApplicationContext(),options);*/
+        MFPPushNotificationButton secondButton1 = new MFPPushNotificationButton.Builder("Decline Button2")
+                .setIcon("extension_circle_icon")
+                .setLabel("Decline2")
+                .build();
+
+        options.setInteractiveNotificationButtonGroup("First_Button_Group1", firstButton, secondButton, secondButton1);
+        options.setInteractiveNotificationButtonGroup("First_Button_Group2", firstButton, secondButton);
+        options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton);
+
+        push = MFPPush.getInstance();
+        push.initialize(getApplicationContext(),appGuid,clientSecret,options);
+*/
+
+        push = MFPPush.getInstance();
+        push.initialize(getApplicationContext(),appGuid,clientSecret);
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
