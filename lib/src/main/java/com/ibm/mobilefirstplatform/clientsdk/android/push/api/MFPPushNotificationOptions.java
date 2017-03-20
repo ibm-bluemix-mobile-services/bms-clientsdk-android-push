@@ -14,7 +14,7 @@ public class MFPPushNotificationOptions {
     private String sound;
     private String icon;
     private static MFPPushNotificationOptions instance = null;
-    List<MFPPushNotificationCategory> categories = new ArrayList<MFPPushNotificationCategory>();
+    private List<MFPPushNotificationCategory> categories = new ArrayList<MFPPushNotificationCategory>();
 
     public Visibility getVisibility() {
         return visibility;
