@@ -316,7 +316,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     .setStyle(notificationStyle);
                 }
 
-              this.setNotificationActions(context,intent,notificationId,message,mBuilder);
+              this.setNotificationActions(context,intent,notificationId,message.getCategory(),mBuilder);
                 notification = mBuilder.build();
 
                 if (message.getLights() != null) {
@@ -384,7 +384,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     int priority = getPriorityOfMessage(message);
                     builder.setPriority(priority);
 
-                    this.setNotificationActions(context,intent,notificationId,message,builder);
+                    this.setNotificationActions(context,intent,notificationId,message.getCategory(),builder);
                     notification = builder.build();
                 }
 
@@ -487,16 +487,14 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         }
     }
 
-    private void setNotificationActions(Context context, Intent intent, int notificationId, MFPInternalPushMessage message, NotificationCompat.Builder mBuilder ){
+    private void setNotificationActions(Context context, Intent intent, int notificationId, String messageCategory, NotificationCompat.Builder mBuilder ){
         MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
         if (options != null && options.getInteractiveNotificationCategories() != null){
-
-            String notifCat = message.getCategory();
 
             List<MFPPushNotificationCategory> categorylist = options.getInteractiveNotificationCategories();
 
             for(MFPPushNotificationCategory category:categorylist) {
-                if(category.getCategoryName().equals(notifCat)) {
+                if(category.getCategoryName().equals( messageCategory)) {
                     for (MFPPushNotificationButton newButton:category.getButtons()) {
                         intent.setAction(newButton.getButtonName());
                         mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
