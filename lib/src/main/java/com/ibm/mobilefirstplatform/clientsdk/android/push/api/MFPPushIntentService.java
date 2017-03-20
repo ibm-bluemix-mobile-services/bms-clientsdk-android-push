@@ -316,25 +316,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     .setStyle(notificationStyle);
                 }
 
-                MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
-                if (options != null && options.getInteractiveNotificationCategories() != null){
-
-                    String notifCat = message.getCategory();
-
-                    List<MFPPushNotificationCategory> categorylist = options.getInteractiveNotificationCategories();
-
-                    for(MFPPushNotificationCategory category:categorylist) {
-                        if(category.getCategoryName().equals(notifCat)) {
-                            for (MFPPushNotificationButton newButton:category.getButtons()) {
-                                intent.setAction(newButton.getButtonName());
-                                mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
-                                        PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                            }
-
-                        }
-
-                    }
-                }
+              this.setNotificationActions(context,intent,notificationId,message,mBuilder);
                 notification = mBuilder.build();
 
                 if (message.getLights() != null) {
@@ -402,25 +384,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     int priority = getPriorityOfMessage(message);
                     builder.setPriority(priority);
 
-                    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
-                    if (options != null && options.getInteractiveNotificationCategories() != null){
-
-                        String notifCat = message.getCategory();
-
-                        List<MFPPushNotificationCategory> categorylist = options.getInteractiveNotificationCategories();
-
-                        for(MFPPushNotificationCategory category:categorylist) {
-                            if(category.getCategoryName().equals(notifCat)) {
-                                for (MFPPushNotificationButton newButton:category.getButtons()) {
-                                    intent.setAction(newButton.getButtonName());
-                                    builder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
-                                            PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                                }
-
-                            }
-
-                        }
-                    }
+                    this.setNotificationActions(context,intent,notificationId,message,builder);
                     notification = builder.build();
                 }
 
@@ -520,6 +484,28 @@ public class MFPPushIntentService extends FirebaseMessagingService {
             .getSystemService(Context.NOTIFICATION_SERVICE);
 
             notificationManager.notify(notificationId, notification);
+        }
+    }
+
+    private void setNotificationActions(Context context, Intent intent, int notificationId, MFPInternalPushMessage message, NotificationCompat.Builder mBuilder ){
+        MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(context);
+        if (options != null && options.getInteractiveNotificationCategories() != null){
+
+            String notifCat = message.getCategory();
+
+            List<MFPPushNotificationCategory> categorylist = options.getInteractiveNotificationCategories();
+
+            for(MFPPushNotificationCategory category:categorylist) {
+                if(category.getCategoryName().equals(notifCat)) {
+                    for (MFPPushNotificationButton newButton:category.getButtons()) {
+                        intent.setAction(newButton.getButtonName());
+                        mBuilder.addAction(getResourceIdForCustomIcon(context, DRAWABLE, newButton.getIcon()), newButton.getLabel(),
+                                PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                    }
+
+                }
+
+            }
         }
     }
 
