@@ -9,13 +9,17 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushException;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationButton;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationCategory;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationOptions;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatus;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatusListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPSimplePushNotification;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -42,9 +46,9 @@ public class MainActivity extends Activity {
         BMSClient.getInstance().initialize(getApplicationContext(), BMSClient.REGION_US_SOUTH);
 
 
-        push = MFPPush.getInstance();
-        push.initialize(getApplicationContext(),appGuid,clientSecret);
-        /* MFPPushNotificationOptions options = new MFPPushNotificationOptions();
+        // Actionable Notifications
+        MFPPushNotificationOptions options = new MFPPushNotificationOptions();
+
         MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder("Accept Button")
         .setIcon("check_circle_icon")
         .setLabel("Accept")
@@ -55,8 +59,38 @@ public class MainActivity extends Activity {
         .setLabel("Decline")
         .build();
 
-        options.setInteractiveNotificationButtonGroup("First_Button_Group", firstButton, secondButton);
-        MFPPush.getInstance().setNotificationOptions(getApplicationContext(),options);*/
+        MFPPushNotificationButton secondButton1 = new MFPPushNotificationButton.Builder("Decline Button2")
+                .setIcon("extension_circle_icon")
+                .setLabel("Decline2")
+                .build();
+
+         List<MFPPushNotificationButton> getButtons =  new ArrayList<MFPPushNotificationButton>();
+        getButtons.add(firstButton);
+        getButtons.add(secondButton);
+        getButtons.add(secondButton1);
+
+        List<MFPPushNotificationButton> getButtons1 =  new ArrayList<MFPPushNotificationButton>();
+        getButtons1.add(firstButton);
+        getButtons1.add(secondButton);
+
+        List<MFPPushNotificationButton> getButtons2 =  new ArrayList<MFPPushNotificationButton>();
+        getButtons2.add(firstButton);
+
+        MFPPushNotificationCategory category = new MFPPushNotificationCategory.Builder("First_Button_Group1").setButtons(getButtons).build();
+        MFPPushNotificationCategory category1 = new MFPPushNotificationCategory.Builder("First_Button_Group2").setButtons(getButtons1).build();
+        MFPPushNotificationCategory category2 = new MFPPushNotificationCategory.Builder("First_Button_Group3").setButtons(getButtons2).build();
+
+        List<MFPPushNotificationCategory> categoryList =  new ArrayList<MFPPushNotificationCategory>();
+        categoryList.add(category);
+        categoryList.add(category1);
+        categoryList.add(category2);
+
+        options.setInteractiveNotificationCategories(categoryList);
+        push = MFPPush.getInstance();
+        push.initialize(getApplicationContext(),appGuid,clientSecret,options);
+
+        //Uncomment this code to use Push notification without userId support.
+        
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
@@ -79,21 +113,20 @@ public class MainActivity extends Activity {
         });
 
         //Uncomment this code to use Push notification with userId support.
-//       push.initialize(getApplicationContext(),appGuid,clientSecret);
-//
-//        push.registerDeviceWithUserId("", new MFPPushResponseListener<String>() {
-//            @Override
-//            public void onSuccess(String deviceId) {
-//                updateTextView("Device is registered with Push Service.");
-//                displayTags();
-//            }
-//
-//            @Override
-//            public void onFailure(MFPPushException ex) {
-//                updateTextView("Error registering with Push Service...\n"
-//                        + "Push notifications will not be received.");
-//            }
-//        });
+
+      /*  push.registerDeviceWithUserId("", new MFPPushResponseListener<String>() {
+            @Override
+            public void onSuccess(String deviceId) {
+                updateTextView("Device is registered with Push Service.");
+                displayTags();
+            }
+
+            @Override
+            public void onFailure(MFPPushException ex) {
+                updateTextView("Error registering with Push Service...\n"
+                        + "Push notifications will not be received.");
+            }
+        });*/
 
         final Activity activity = this;
 

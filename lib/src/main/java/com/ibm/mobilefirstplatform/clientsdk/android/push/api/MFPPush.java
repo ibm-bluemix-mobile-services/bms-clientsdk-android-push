@@ -244,41 +244,29 @@ public class MFPPush extends FirebaseInstanceIdService {
   }
 
   /**
-  * @deprecated As of release 2.+, replaced by {@link #initialize(Context, String, String)}
-  * MFPPush Intitialization method with clientSecret and Push App GUID.
-  * <p/>
-  *
-  * @param context This is the Context of the application from getApplicationContext()
-  * @param appGUID The unique ID of the Push service instance that the application must connect to.
-  */
-  public void initialize(Context context, String appGUID) {
-    try {
-
-      if (MFPPushUtils.validateString(appGUID)) {
-        // Get the applicationId and backend route from core
-        applicationId = appGUID;
-        appContext = context.getApplicationContext();
-        isInitialized = true;
-        validateAndroidContext();
-      } else {
-        logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value");
-        throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid push service instance ID Value", INITIALISATION_ERROR);
-      }
-    } catch (Exception e) {
-      logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service.");
-      throw new RuntimeException(e);
-    }
+   * MFPPush Intitialization method with clientSecret and Push App GUID.
+   * <p/>
+   *
+   * @param context          this is the Context of the application from getApplicationContext()
+   * @param appGUID          The unique ID of the Push service instance that the application must connect to.
+   * @param pushClientSecret ClientSecret from the push service.
+   */
+  public void initialize(Context context, String appGUID, String pushClientSecret) {
+    this.initialize(context,appGUID,pushClientSecret,null);
   }
 
   /**
-  * MFPPush Intitialization method with clientSecret and Push App GUID.
-  * <p/>
-  *
-  * @param context          this is the Context of the application from getApplicationContext()
-  * @param appGUID          The unique ID of the Push service instance that the application must connect to.
-  * @param pushClientSecret ClientSecret from the push service.
-  */
-  public void initialize(Context context, String appGUID, String pushClientSecret) {
+   * MFPPush Intitialization method with clientSecret and Push App GUID.
+   * <p/>
+   *
+   * @param context          this is the Context of the application from getApplicationContext()
+   * @param appGUID          The unique ID of the Push service instance that the application must connect to.
+   * @param pushClientSecret ClientSecret from the push service.
+   * @param options - The MFPPushNotificationOptions with the default parameters
+   *
+   */
+  public void initialize(Context context, String appGUID, String pushClientSecret,MFPPushNotificationOptions options) {
+
     try {
       if (MFPPushUtils.validateString(pushClientSecret) && MFPPushUtils.validateString(appGUID)) {
         // Get the applicationId and backend route from core
@@ -296,6 +284,10 @@ public class MFPPush extends FirebaseInstanceIdService {
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_URL, buildMessagesURL());
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_MESSAGES_URL_CLIENT_SECRET, clientSecret);
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, PREFS_BMS_REGION, BMSClient.getInstance().getBluemixRegionSuffix());
+
+        if (options != null){
+          setNotificationOptions(context,options);
+        }
       } else {
         logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
         System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
@@ -713,7 +705,7 @@ public class MFPPush extends FirebaseInstanceIdService {
   * @param context - this is the Context of the application from getApplicationContext()
   * @param options - The MFPPushNotificationOptions with the default parameters
   */
-  public void setNotificationOptions(Context context,MFPPushNotificationOptions options) {
+  private void setNotificationOptions(Context context,MFPPushNotificationOptions options) {
 
     if (this.appContext == null) {
       this.appContext = context.getApplicationContext();
