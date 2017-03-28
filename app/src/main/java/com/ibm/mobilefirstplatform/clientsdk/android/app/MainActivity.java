@@ -86,13 +86,11 @@ public class MainActivity extends Activity {
         categoryList.add(category2);
 
         options.setInteractiveNotificationCategories(categoryList);
-        //options.setInteractiveNotificationCategory(category);
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret,options);
 
-        push = MFPPush.getInstance();
-        push.initialize(getApplicationContext(),appGuid,clientSecret);
-
+        //Uncomment this code to use Push notification without userId support.
+        
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
@@ -115,21 +113,20 @@ public class MainActivity extends Activity {
         });
 
         //Uncomment this code to use Push notification with userId support.
-//       push.initialize(getApplicationContext(),appGuid,clientSecret);
-//
-//        push.registerDeviceWithUserId("", new MFPPushResponseListener<String>() {
-//            @Override
-//            public void onSuccess(String deviceId) {
-//                updateTextView("Device is registered with Push Service.");
-//                displayTags();
-//            }
-//
-//            @Override
-//            public void onFailure(MFPPushException ex) {
-//                updateTextView("Error registering with Push Service...\n"
-//                        + "Push notifications will not be received.");
-//            }
-//        });
+
+      /*  push.registerDeviceWithUserId("", new MFPPushResponseListener<String>() {
+            @Override
+            public void onSuccess(String deviceId) {
+                updateTextView("Device is registered with Push Service.");
+                displayTags();
+            }
+
+            @Override
+            public void onFailure(MFPPushException ex) {
+                updateTextView("Error registering with Push Service...\n"
+                        + "Push notifications will not be received.");
+            }
+        });*/
 
         final Activity activity = this;
 
