@@ -29,6 +29,7 @@ options.setInteractiveNotificationCategories(categoryList,"your_device_id");
 ```
 
 >**Note**: Remember to keep custom DeviceId <strong>unique</strong> for each device.
+
 #### 3.5
 
 * Added Multiple category in actionable push notification.
