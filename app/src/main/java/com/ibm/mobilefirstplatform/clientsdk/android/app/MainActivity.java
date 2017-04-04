@@ -86,6 +86,7 @@ public class MainActivity extends Activity {
         categoryList.add(category2);
 
         options.setInteractiveNotificationCategories(categoryList,"your_device_id");
+
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret,options);
 

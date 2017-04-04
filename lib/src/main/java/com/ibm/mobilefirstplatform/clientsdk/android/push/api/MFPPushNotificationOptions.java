@@ -103,6 +103,7 @@ public class MFPPushNotificationOptions {
 
     public String getapplicationsDeviceId() {
         return deviceId;
+
     }
 
     }
