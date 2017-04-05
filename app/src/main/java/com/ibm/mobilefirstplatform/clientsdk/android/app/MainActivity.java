@@ -85,13 +85,13 @@ public class MainActivity extends Activity {
         categoryList.add(category1);
         categoryList.add(category2);
 
-        options.setInteractiveNotificationCategories(categoryList,"your_device_id");
+        options.setNotificationOptions(categoryList,"your_device_id");
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret,options);
 
         //Uncomment this code to use Push notification without userId support.
-        
+
         push.registerDevice(new MFPPushResponseListener<String>() {
             @Override
             public void onSuccess(String deviceId) {
@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
                    System.out.print("Clicked Decline Action");
                }
                 */
-                
+
                 showNotification(activity, message);
 
             }
