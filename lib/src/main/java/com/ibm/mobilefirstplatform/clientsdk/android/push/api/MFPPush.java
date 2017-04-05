@@ -287,7 +287,7 @@ public class MFPPush extends FirebaseInstanceIdService {
 
         if (options != null){
           setNotificationOptions(context,options);
-          this.regId = options.getapplicationsDeviceId();
+          this.regId = options.getDeviceid();
         }
       } else {
         logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");

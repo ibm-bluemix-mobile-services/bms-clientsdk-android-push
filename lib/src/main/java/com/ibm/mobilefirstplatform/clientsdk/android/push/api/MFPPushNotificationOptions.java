@@ -89,11 +89,10 @@ public class MFPPushNotificationOptions {
     }
 
     public void setInteractiveNotificationCategories(List<MFPPushNotificationCategory> categories) {
-        this.setNotificationOptions(categories,"");
+        this.categories = categories;
     }
 
-    public void setNotificationOptions(List<MFPPushNotificationCategory> categories, String withDeviceId) {
-        this.categories = categories;
+    public void setDeviceid(String withDeviceId) {
         this.deviceId = withDeviceId;
     }
 
@@ -101,9 +100,8 @@ public class MFPPushNotificationOptions {
         return categories;
     }
 
-    public String getapplicationsDeviceId() {
+    public String getDeviceid() {
         return deviceId;
-
     }
 
     }

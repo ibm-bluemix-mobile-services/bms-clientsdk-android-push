@@ -25,7 +25,8 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
  * Added custom DeviceId for registration To send `DeviceId` please use `BMSPushClientOptions` class method,
 
 ```
-options.setNotificationOptions(categoryList,"your_device_id");
+MFPPushNotificationOptions options = new MFPPushNotificationOptions();
+options.setDeviceid("your_device_id");
 ```
 
 >**Note**: Remember to keep custom DeviceId <strong>unique</strong> for each device.
