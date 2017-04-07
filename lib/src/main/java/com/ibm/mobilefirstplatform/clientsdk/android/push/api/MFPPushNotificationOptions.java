@@ -15,6 +15,7 @@ public class MFPPushNotificationOptions {
     private String icon;
     private static MFPPushNotificationOptions instance = null;
     private List<MFPPushNotificationCategory> categories = new ArrayList<MFPPushNotificationCategory>();
+    private String deviceId;
 
     public Visibility getVisibility() {
         return visibility;
@@ -91,7 +92,16 @@ public class MFPPushNotificationOptions {
         this.categories = categories;
     }
 
-    public List<MFPPushNotificationCategory> getInteractiveNotificationCategories() {      return categories;
+    public void setDeviceid(String withDeviceId) {
+        this.deviceId = withDeviceId;
+    }
+
+    public List<MFPPushNotificationCategory> getInteractiveNotificationCategories() {
+        return categories;
+    }
+
+    public String getDeviceid() {
+        return deviceId;
     }
 
     }

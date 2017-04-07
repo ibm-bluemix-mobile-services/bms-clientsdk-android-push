@@ -20,6 +20,17 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+#### 3.6
+
+ * Added custom DeviceId for registration To send `DeviceId` please use `BMSPushClientOptions` class method,
+
+```
+MFPPushNotificationOptions options = new MFPPushNotificationOptions();
+options.setDeviceid("your_device_id");
+```
+
+>**Note**: Remember to keep custom DeviceId <strong>unique</strong> for each device.
+
 #### 3.5
 
 * Added Multiple category in actionable push notification.
@@ -215,6 +226,28 @@ Include the below in your AndroidManifest.xml to use this functionality
 * Initial release
 
 
+### Samples & videos
+
+* Please visit for samples - [Github Sample](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush)
+
+* Video Tutorials Available here - [Bluemix Push Notifications](https://www.youtube.com/channel/UCRr2Wou-z91fD6QOYtZiHGA)
+
+### Learning More
+
+* Visit the **[Bluemix Developers Community](https://developer.ibm.com/bluemix/)**.
+
+* [Getting started with IBM MobileFirst Platform for iOS](https://www.ng.bluemix.net/docs/mobile/index.html)
+
+### Connect with Bluemix
+
+[Twitter](https://twitter.com/ibmbluemix) |
+[YouTube](https://www.youtube.com/playlist?list=PLzpeuWUENMK2d3L5qCITo2GQEt-7r0oqm) |
+[Blog](https://developer.ibm.com/bluemix/blog/) |
+[Facebook](https://www.facebook.com/ibmbluemix) |
+[Meetup](http://www.meetup.com/bluemix/)
+
+
+=======================
 Copyright 2015 IBM Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License");
