@@ -639,7 +639,6 @@ Specifies the custom payload values for your notifications.
 [Facebook](https://www.facebook.com/ibmbluemix) |
 [Meetup](http://www.meetup.com/bluemix/)
 
-
 =======================
 Copyright 2015 IBM Corp.
 
