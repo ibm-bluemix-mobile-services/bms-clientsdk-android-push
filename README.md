@@ -77,22 +77,22 @@ This section describes how to install and use the client Push SDK to further dev
 
 #### Configure Gradle
 
- Configure the <strong>Module level build.gradle</strong> and <strong>Project level build.gradle</strong> files.
+ Configure the `Module level build.gradle` and `Project level build.gradle` files.
 
-1. Add dependencies to your <strong>Module level build.gradle</strong> file.
+1. Add dependencies to your `Module level build.gradle` file.
 
 ```
 com.ibm.mobilefirstplatform.clientsdk.android:push:3.+
 
 ```
 
-2. Add the following dependency to your <strong>Module level build.gradle</strong> file at the end after the <strong>dependencies{.....}</strong>,
+2. Add the following dependency to your `Module level build.gradle` file at the end after the `dependencies{.....}`,
 
 ```
 apply plugin: 'com.google.gms.google-services'
 
 ```
-3. Add the following dependencies to your <strong>Project level build.gradle</strong> file.
+3. Add the following dependencies to your `Project level build.gradle` file.
 
 ```
 dependencies {
@@ -103,7 +103,7 @@ dependencies {
 
 #### Configure AndroidManifest
 
- Next step is to configure the <strong>AndroidManifest.xml</strong> file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml). Please add the following code inside app <strong>AndroidManifest.xml</strong> file.
+ Next step is to configure the `AndroidManifest.xml` file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml). Please add the following code inside app `AndroidManifest.xml` file.
 
 1. Add the following permissions ,
 
@@ -125,10 +125,10 @@ dependencies {
  </intent-filter>
 
 ```
->**Note**: Replace <strong>Your_Android_Package_Name</strong> in the previous action with the application package name used in your application.
+>**Note**: Replace `Your_Android_Package_Name` in the previous action with the application package name used in your application.
 
 
-3. Add the <strong>Firebase Cloud Messaging (FCM)</strong> or <strong>Google Cloud Messaging (GCM)</strong> intent service and intent filters for the <strong>RECEIVE</strong> and </strong>REGISTRATION</strong> event notifications
+3. Add the `Firebase Cloud Messaging (FCM)` or `Google Cloud Messaging (GCM)` intent service and intent filters for the `RECEIVE` and `REGISTRATION` event notifications
 
 ```
 <service android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService"
@@ -147,7 +147,7 @@ dependencies {
 
 ```
 
-4. Push Notifications service supports retrieval of individual notifications from the notification tray. For notifications accessed from the notification tray, you are provided with a handle only to the notification that is being clicked. All notifications are displayed when the application is opened normally. Update your <strong>AndroidManifest.xml</strong> file with the following snippet to use this functionality,
+4. Push Notifications service supports retrieval of individual notifications from the notification tray. For notifications accessed from the notification tray, you are provided with a handle only to the notification that is being clicked. All notifications are displayed when the application is opened normally. Update your `AndroidManifest.xml` file with the following snippet to use this functionality,
 
 ```
 <activity android:name="
@@ -156,7 +156,7 @@ dependencies {
 
 ```
 
-5. Add the <strong>google-services.json</strong> in Android application module root directory.
+5. Add the `google-services.json` in Android application module root directory.
 
 
 
@@ -178,9 +178,9 @@ Initialize the `BMSCore` SDK following way,
 
 Specifies the location where the app is hosted. You can use one of the three values:
 
-- <strong>BMSClient.REGION_US_SOUTH</strong>
-- <strong>BMSClient.REGION_UK</strong>
-- <strong>BMSClient.REGION_SYDNEY</strong>
+- `BMSClient.REGION_US_SOUTH`
+- `BMSClient.REGION_UK`
+- `BMSClient.REGION_SYDNEY`
 
 
 #### Initializing the Push SDK
@@ -483,7 +483,7 @@ MFPPushNotificationOptions options = new MFPPushNotificationOptions();
 options.setDeviceid("YOUR_DEVICE_ID");
 
 ```
->**Note**: Remember to keep custom DeviceId <strong>unique</strong> for each device.
+>**Note**: Remember to keep custom DeviceId `unique` for each device.
 
 
 
@@ -511,19 +511,19 @@ protected void onPause() {
 
 ### Setup Monitoring
 
-To monitor the current status of the notification within the application, you can implement the <strong>com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatusListener</strong> interface and define the method `onStatusChange(String messageId, MFPPushNotificationStatus status)`.
+To monitor the current status of the notification within the application, you can implement the `com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatusListener` interface and define the method `onStatusChange(String messageId, MFPPushNotificationStatus status)`.
 
-The <strong>messageId</strong> is the identifier of the message sent from the server. <strong>MFPPushNotificationStatus</strong> defines the status of the notifications as values,
+The `messageId` is the identifier of the message sent from the server. `MFPPushNotificationStatus` defines the status of the notifications as values,
 
-* <strong>RECEIVED</strong> - App has received the notification.
+* `RECEIVED` - App has received the notification.
 
-* <strong>QUEUED</strong> - App queues the notification for invoking the notification listener.
+* `QUEUED` - App queues the notification for invoking the notification listener.
 
-* <strong>OPENED</strong> - User opens the notification by clicking the notification in the tray or by launching it from app icon or when the app is in foreground.
+* `OPENED` - User opens the notification by clicking the notification in the tray or by launching it from app icon or when the app is in foreground.
 
-* <strong>DISMISSED</strong> - User clears/dismisses the notification in the tray.
+* `DISMISSED` - User clears/dismisses the notification in the tray.
 
-You need to register the <strong>com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatusListener</strong> class with </strong>MFPPush</strong>.
+You need to register the `com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatusListener` class with `MFPPush`.
 
 ```
 push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
@@ -539,9 +539,9 @@ push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
 
 You can choose to listen to the DISMISSED status on either of the following conditions,
 
-* When the app is <strong>active (running in foreground or background)</strong>
+* When the app is `active (running in foreground or background)`
 
-   Add the snippet to your <strong>AndroidManifest.xml</strong> file,
+   Add the snippet to your `AndroidManifest.xml` file,
 
     ```
     <receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
@@ -550,7 +550,7 @@ You can choose to listen to the DISMISSED status on either of the following cond
         </intent-filter>
         </receiver>
     ```
-* When the app is both <strong>active (running in foreground or background)</strong> and <strong>not running (closed)</strong>. Extend the <strong>com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler</strong> broadcast receiver and override the method <strong>onReceive()</strong>, where the </strong>MFPPushNotificationStatusListener</strong> should be registered before calling method </strong>onReceive()</strong> of the base class,
+* When the app is both `active (running in foreground or background)` and `not running (closed)`. Extend the `com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler` broadcast receiver and override the method `onReceive()`, where the `MFPPushNotificationStatusListener` should be registered before calling method `onReceive()` of the base class,
 
 ```
 public class MyDismissHandler extends MFPPushNotificationDismissHandler {
@@ -567,7 +567,7 @@ public class MyDismissHandler extends MFPPushNotificationDismissHandler {
  }
 ```
 
-Add the following snippet to you </strong>AndroidManifest.xml</strong> file,
+Add the following snippet to you `AndroidManifest.xml` file,
 
 ```
 <receiver android:name="Your_Android_Package_Name.Your_Handler">
@@ -592,15 +592,15 @@ Indicates a sound clip to be played on the receipt of a notification. Supports d
 
 ### Icon
 
-Specify the name of the icon to display for the notification. Ensure that you have packaged the icon in the <strong>res/drawable</strong> folder, with the client application.
+Specify the name of the icon to display for the notification. Ensure that you have packaged the icon in the `res/drawable` folder, with the client application.
 
 ### Priority
 
-Specifies the options for assigning delivery priority to messages. A priority of <strong>high</strong> or <strong>max</strong> will result in <strong>heads-up notification</strong>, while <strong>low</strong> or <strong>default</strong> priority messages would not open network connections on a sleeping device. For messages with the option set to <strong>min</strong>, it will be a silent notification.
+Specifies the options for assigning delivery priority to messages. A priority of `high` or `max` will result in `heads-up notification`, while `low` or `default` priority messages would not open network connections on a sleeping device. For messages with the option set to `min`, it will be a silent notification.
 
 ### Visibility
 
-You can choose to set the notification visibility option to either <strong>public</strong> or <strong>private</strong>. The <strong>private</strong> option restricts public viewing and you can choose to enable it if your device is secure with a pin or pattern, and the notification setting is set to <strong>Hide sensitive notification content</strong>. When the visibility is set as <strong>private</strong>, a <strong>redact</strong> field must be mentioned. Only the content specified in the <strong>redact</strong> field will show up on a secure locked screen on the device. Choosing <strong>public</strong> would render the notifications to be freely read.
+You can choose to set the notification visibility option to either `public` or `private`. The `private` option restricts public viewing and you can choose to enable it if your device is secure with a pin or pattern, and the notification setting is set to `Hide sensitive notification content`. When the visibility is set as `private`, a `redact` field must be mentioned. Only the content specified in the `redact` field will show up on a secure locked screen on the device. Choosing `public` would render the notifications to be freely read.
 
 ### Time to live
 
@@ -608,11 +608,11 @@ This value is set in seconds. If this parameter is not specified, the FCM/GCM se
 
 ### Delay when idle
 
-Setting this value to <strong>true</strong> instructs the FCM/GCM server not to deliver the notification if the device is idle. Set this value to <strong>false</strong>, to ensure delivery of notification even if the device is idle
+Setting this value to `true` instructs the FCM/GCM server not to deliver the notification if the device is idle. Set this value to `false`, to ensure delivery of notification even if the device is idle
 
 ### Sync
 
-By setting this option to <strong>true</strong>, notifications across all your registered devices are in sync. If the user with a username has multiple devices with the same application installed, reading the notification on one device ensures deletion of notifications in the other devices. You need to ensure that you are registered with Push Notifications service with userId for this option to work.
+By setting this option to `true`, notifications across all your registered devices are in sync. If the user with a username has multiple devices with the same application installed, reading the notification on one device ensures deletion of notifications in the other devices. You need to ensure that you are registered with Push Notifications service with userId for this option to work.
 
 ### Additional payload
 
