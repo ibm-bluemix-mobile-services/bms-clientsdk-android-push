@@ -15,39 +15,26 @@ The [Bluemix Push Notifications service](https://console.ng.bluemix.net/catalog/
   - [Include the client Push SDK with Gradle](#installing-the-client-push-sdk-with-gradle)
     - [Configure Gradle](#configure-gradle)
     - [Configure AndroidManifest](#configure-androidmanifest)
-  - [Initialize](#initialize)
-    - [Initializing the Core SDK](#initializing-the-core-sdk)
-    - [Initializing the Push SDK](#initializing-the-push-sdk)
-  - [Register to Push Service](#register-to-push-ervice)
-    - [Register Without UserId](#register-without-userid)
-    - [Register With UserId](#register-with-userid)
-    - [Receiving push notifications on Android devices](#receiving-push-notifications-on-android-devices)
-    - [Unregistering the Device from Push Notification](#unregistering-the-device-from-push-notification)
-    - [Unregistering the Device from UserId](#unregistering-the-device-from-userid)
-  - [Bluemix tags](#bluemix-tags)
-    - [Retrieve Available tags](#retrieve-available-tags)
-    - [Subscribe to Available tags](#subscribe-to-available-tags)
-    - [Retrieve Subscribed tags](#retrieve-subscribed-tags)
-    - [Unsubscribing from tags](#unsubscribing-from-tags)
-  - [Notification Options](#notification-options)
-   - [Enable Interactive push notifications](#enable-interactive-push-notifications)
-   - [Handling Interactive push notifications](#handling-interactive-push-notifications)
-   - [Adding custom DeviceId for registration](#ddding-custom-deviceid-for-registration)
-- [Android Custom Notification Sound](#android-custom-notification-sound)
+  - [Initializing the Core SDK and the Push SDK](#initializing-the-core-sdk-and-the-push-sdk)
+- [Register to Push Notifications Service](#register-to-push-notifications-ervice)
+  - [Register Without UserId](#register-without-userid)
+  - [Register With UserId](#register-with-userid)
+  - [Receiving push notifications on Android devices](#receiving-push-notifications-on-android-devices)
+  - [Unregistering the Device from Push Notification](#unregistering-the-device-from-push-notification)
+- [Push Notification service tags](#push-notification-service-tags)
+  - [Retrieve tags](#retrieve-tags)
+  - [Subscribe to tags](#subscribe-to-tags)
+  - [Retrieve Subscribed tags](#retrieve-subscribed-tags)
+  - [Unsubscribing from tags](#unsubscribing-from-tags)
+- [Notification Options](#notification-options)
+ - [Enable Interactive push notifications](#enable-interactive-push-notifications)
+ - [Handling Interactive push notifications](#handling-interactive-push-notifications)
+ - [Adding custom DeviceId for registration](#ddding-custom-deviceid-for-registration)
+- [Advanced options](#advanced-options)
 - [Hold Android notifications](#hold-android-notifications)
 - [Enable Monitoring](#enable-monitoring)
   - [Setup Monitoring](#setup-monitoring)
   - [Listening to the DISMISSED status](#listening-to-the-dismissed-status)
-- [Android Notification custom Options](#android-notification-custom-options)
-  - [Collapse Key](#collapse-key)
-  - [Sound](#sound)
-  - [Icon](#icon)
-  - [Priority](#priority)
-  - [Visibility](#visibility)
-  - [Time to live](#time-to-live)
-  - [Delay when idle](#delay-when-idle)
-  - [Sync](#sync)
-  - [Additional payload](#additional-payload)
 - [Samples and videos](#samples-and-videos)
 
 
@@ -55,15 +42,15 @@ The [Bluemix Push Notifications service](https://console.ng.bluemix.net/catalog/
 
 The package is supported on Android API level 14 and up (Android 4.0 and up).
 
- * Android Studio
-
+ * [Android Studio](https://developer.android.com/studio/index.html)
+ * [Gradle](https://gradle.org/install)
 
 ## Installation
 
-There multiple way to integrate android Bluemix push notifications package,
+There multiple ways to integrate android Bluemix push notifications package,
 
 - Download and import this package to your Android Studio project
-- Get it via Gradle.
+- Get it via Gradle
 
 ## Setup Client Application
 
@@ -73,39 +60,48 @@ Follow the steps to enable Android applications to receive push notifications
 
 Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/t__main_push_config_provider.html) to setup the FCM project and obtain your credentials.
 
-This section describes how to install and use the client Push SDK to further develop your Android applications.After creating and opening your mobile application, complete the following steps using Android Studio,
+This section describes how to install and use the Bluemix Push Notifications Android SDK to further develop your Android applications.After creating and opening your mobile application, complete the following steps using Android Studio,
 
 #### Configure Gradle
 
  Configure the `Module level build.gradle` and `Project level build.gradle` files.
 
-1. Add dependencies to your `Module level build.gradle` file.
+1. Add Bluemix Push Notifications Android SDK dependency to your `Project level build.gradle` file.
 
-```
-com.ibm.mobilefirstplatform.clientsdk.android:push:3.+
+  ```
+  dependencies {
 
-```
+    ........
 
-2. Add the following dependency to your `Module level build.gradle` file at the end after the `dependencies{.....}`,
+    compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
+            name: 'push',
+            version: '3.+',
+            ext: 'aar',
+            transitive: true
+    .......
+  }
+  ```
+
+2. Add the following dependencies to your `Module level build.gradle` file.
+
+  ```
+  dependencies {
+   classpath 'com.android.tools.build:gradle:2.2.3'
+   classpath 'com.google.gms:google-services:3.0.0'
+  }
+  ```
+3. Add the `Google Play services` dependency to your `Module level build.gradle` file at the end after the `dependencies{.....}`,
 
 ```
 apply plugin: 'com.google.gms.google-services'
 
 ```
-3. Add the following dependencies to your `Project level build.gradle` file.
-
-```
-dependencies {
- classpath 'com.android.tools.build:gradle:2.2.3'
- classpath 'com.google.gms:google-services:3.0.0'
-}
-```
 
 #### Configure AndroidManifest
 
- Next step is to configure the `AndroidManifest.xml` file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml). Please add the following code inside app `AndroidManifest.xml` file.
+Configure the `AndroidManifest.xml` file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml). Please add the following code inside application's `AndroidManifest.xml` file.
 
-1. Add the following permissions ,
+1. The permissions ,
 
  ```
  <uses-permission android:name="android.permission.INTERNET"/>
@@ -116,7 +112,7 @@ dependencies {
 
  ```
 
-2. Add the notification intent settings for the activity. This setting starts the application when the user clicks the received notification from the notification area.
+2. The Notification intent settings for the activity. This setting starts the application when the user clicks the received notification from the notification area.
 
 ```
 <intent-filter>
@@ -128,7 +124,7 @@ dependencies {
 >**Note**: Replace `Your_Android_Package_Name` in the previous action with the application package name used in your application.
 
 
-3. Add the `Firebase Cloud Messaging (FCM)` or `Google Cloud Messaging (GCM)` intent service and intent filters for the `RECEIVE` and `REGISTRATION` event notifications
+3. The `Firebase Cloud Messaging (FCM)` or `Google Cloud Messaging (GCM)` intent service and intent filters for the `RECEIVE` and `REGISTRATION` event notifications
 
 ```
 <service android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService"
@@ -138,11 +134,11 @@ dependencies {
  </intent-filter>
  </service>
  <service
- android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush"
- android:exported="true" >
- <intent-filter>
-     <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
- </intent-filter>
+   android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush"
+   android:exported="true" >
+   <intent-filter>
+       <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+   </intent-filter>
  </service>
 
 ```
@@ -156,21 +152,20 @@ dependencies {
 
 ```
 
-5. Add the `google-services.json` in Android application module root directory.
+5. Add the `google-services.json` in Android application module root directory. TODO
 
 
+### Initializing the Core SDK and the Push SDK
 
-### Initialize
-
-A common place to put the initialization code is in the onCreate method of the main activity in your Android application.
-
-#### Initializing the Core SDK
-
-Initialize the `BMSCore` SDK following way,
+A common place to put the initialization code is the `onCreate()` method of the `main activity` in your Android application. and
 
 ```
-// Initialize the SDK for Android
-    BMSClient.getInstance().initialize(this, "bluemixRegionSuffix");
+  // Initialize the SDK
+  BMSClient.getInstance().initialize(this, "bluemixRegionSuffix");
+
+  //Initialize client Push SDK
+  MFPPush push = MFPPush.getInstance();
+  push.initialize(getApplicationContext(), "appGUID", "clientSecret");
 
 ```
 
@@ -182,17 +177,6 @@ Specifies the location where the app is hosted. You can use one of the three val
 - `BMSClient.REGION_UK`
 - `BMSClient.REGION_SYDNEY`
 
-
-#### Initializing the Push SDK
-
-Initialize the `BMSPushClient`  following way,
-
-```
-//Initialize client Push SDK for Java
-MFPPush push = MFPPush.getInstance();
-push.initialize(getApplicationContext(), "appGUID", "clientSecret");
-
-```
 ##### appGUID
 
 - The Push app GUID value.
@@ -202,11 +186,11 @@ push.initialize(getApplicationContext(), "appGUID", "clientSecret");
 - The Push client secret value.
 
 
-### Register to Push Service
+## Register to Push Notifications Service
 
 Use the `MFPPush.register()` API to register the device with Push Notifications service.
 
-#### Register Without UserId
+### Register Without UserId
 
 To register without userId use the following pattern,
 
@@ -216,16 +200,16 @@ To register without userId use the following pattern,
 push.registerDevice(new MFPPushResponseListener<String>() {
     @Override
     public void onSuccess(String response) {
-        //handle success here
+        //handle successful device registration here
     }
     @Override
     public void onFailure(MFPPushException ex) {
-        //handle failure here
+        //handle failure in device registration here
     }
   });
 ```
 
-#### Register Without UserId
+### Register With UserId
 
 For `userId` based notification, the register method will accept one more parameter - `userId`
 
@@ -235,11 +219,11 @@ For `userId` based notification, the register method will accept one more parame
 push.registerDeviceWithUserId("userId",new MFPPushResponseListener<String>() {
   @Override
   public void onSuccess(String response) {
-    Log.d("Device is registered with Push Service.");
+    //handle successful device registration here
   }
   @Override
   public void onFailure(MFPPushException ex) {
-    Log.d("Error registering with Push Service...\n" + "Push notifications will not be received.");
+    //handle failure in device registration here
   }
 });
 
@@ -251,7 +235,7 @@ push.registerDeviceWithUserId("userId",new MFPPushResponseListener<String>() {
 >**Note**: If userId is provided the client secret value must be provided.
 
 
-#### Receiving push notifications on Android devices
+### Receiving push notifications on Android devices
 
 To register the notificationListener object with Push Notifications service, use the `MFPPush.listen()` method. This method is typically called from the `onResume()` and `onPause()` methods of the activity that is handling push notifications.
 
@@ -262,7 +246,7 @@ MFPPushNotificationListener notificationListener = new MFPPushNotificationListen
   @Override
   public void onReceive (final MFPSimplePushNotification message){
       // Handle Push Notification
-          }
+    }
 };
 
 
@@ -284,7 +268,7 @@ MFPPushNotificationListener notificationListener = new MFPPushNotificationListen
  }
 ```
 
-#### Unregistering the Device from Push Notification
+### Unregistering the Device from Push Notification
 
 Use the following code snippets to Unregister the device from Bluemix Push Notification
 
@@ -302,15 +286,12 @@ push.unregister(new MFPPushResponseListener<String>() {
     }
 });
 ```
-
-#### Unregistering the Device from UserId
-
-To unregister from the `UserId` based registration you have to call the registration method [without userId](#register-without-userid).
+>**Note**: To unregister from the `UserId` based registration you have to call the registration method [without userId](#register-without-userid).
 
 
-### Bluemix tags
+## Push Notification service tags
 
-#### Retrieve Available tags
+### Retrieve tags
 
 The `getTags` API returns the list of available tags to which the device can subscribe. After the device is subscribed to a particular tag, the device can receive any push notifications that are sent for that tag.Call the push service to get subscriptions for a tag.
 
@@ -332,7 +313,7 @@ push.getTags(new MFPPushResponseListener<List<String>>(){
 })
 ```
 
-#### Subscribe to Available tags
+### Subscribe to tags
 
 The `subscribe` API will subscribe the iOS device for the list of given tags. After the device is subscribed to a particular tag, the device can receive any push notifications
 that are sent for that tag.
@@ -354,7 +335,7 @@ push.subscribe(allTags.get(0), new MFPPushResponseListener<String>() {
 });
 ```
 
-#### Retrieve Subscribed tags
+### Retrieve Subscribed tags
 
 The `getSubscriptions` API will return the list of tags to which the device is subscribed.
 
@@ -375,7 +356,7 @@ push.getSubscriptions(new MFPPushResponseListener<List<String>>() {
 })
 ```
 
-#### Unsubscribing from tags
+### Unsubscribing from tags
 
 The `unsubscribeFromTags` API will remove the device subscription from the list tags.
 
@@ -396,44 +377,44 @@ push.unsubscribe(tag, new MFPPushResponseListener<String>() {
  });
 ```
 
-### Notification Options
+## Notification Options
 
-#### Enable Interactive push notifications
+### Enable Interactive push notifications
 
 To enable interactive push notifications, the notification action parameters must be passed in as part of the notification object.  The following is a sample code to enable interactive notifications.
 
 ```
 MFPPushNotificationOptions options = new MFPPushNotificationOptions();
-MFPPushNotificationButton firstButton = new MFPPushNotificationButton.Builder("Accept Button")
+MFPPushNotificationButton acceptButton = new MFPPushNotificationButton.Builder("Accept Button")
       .setIcon("check_circle_icon")
       .setLabel("Accept")
       .build();
 
-MFPPushNotificationButton secondButton = new MFPPushNotificationButton.Builder("Decline Button")
+MFPPushNotificationButton declineButton = new MFPPushNotificationButton.Builder("Decline Button")
       .setIcon("extension_circle_icon")
       .setLabel("Decline")
       .build();
 
-MFPPushNotificationButton thirdButton = new MFPPushNotificationButton.Builder("View Button")
+MFPPushNotificationButton viewButton = new MFPPushNotificationButton.Builder("View Button")
               .setIcon("extension_circle_icon")
               .setLabel("view")
               .build();
 
-List<MFPPushNotificationButton> getButtons =  new ArrayList<MFPPushNotificationButton>();
-getButtons.add(firstButton);
-getButtons.add(secondButton);
-getButtons.add(thirdButton);
+List<MFPPushNotificationButton> buttonGroup_1 =  new ArrayList<MFPPushNotificationButton>();
+getButtons.add(acceptButton);
+getButtons.add(declineButton);
+getButtons.add(viewButton);
 
-List<MFPPushNotificationButton> getButtons1 =  new ArrayList<MFPPushNotificationButton>();
-getButtons1.add(firstButton);
-getButtons1.add(secondButton);
+List<MFPPushNotificationButton> buttonGroup_2 =  new ArrayList<MFPPushNotificationButton>();
+getButtons1.add(acceptButton);
+getButtons1.add(declineButton);
 
-List<MFPPushNotificationButton> getButtons2 =  new ArrayList<MFPPushNotificationButton>();
-getButtons2.add(firstButton);
+List<MFPPushNotificationButton> buttonGroup_3 =  new ArrayList<MFPPushNotificationButton>();
+getButtons2.add(acceptButton);
 
-MFPPushNotificationCategory category = new MFPPushNotificationCategory.Builder("First_Button_Group1").setButtons(getButtons).build();
-MFPPushNotificationCategory category1 = new MFPPushNotificationCategory.Builder("First_Button_Group2").setButtons(getButtons1).build();
-MFPPushNotificationCategory category2 = new MFPPushNotificationCategory.Builder("First_Button_Group3").setButtons(getButtons2).build();
+MFPPushNotificationCategory category = new MFPPushNotificationCategory.Builder("First_Button_Group1").setButtons(buttonGroup_1).build();
+MFPPushNotificationCategory category1 = new MFPPushNotificationCategory.Builder("First_Button_Group2").setButtons(buttonGroup_2).build();
+MFPPushNotificationCategory category2 = new MFPPushNotificationCategory.Builder("First_Button_Group3").setButtons(buttonGroup_3).build();
 
 List<MFPPushNotificationCategory> categoryList =  new ArrayList<MFPPushNotificationCategory>();
 categoryList.add(category);
@@ -441,12 +422,12 @@ categoryList.add(category1);
 categoryList.add(category2);
 options.setInteractiveNotificationCategories(categoryList);
 push = MFPPush.getInstance();
-push.initialize(getApplicationContext(),appGuid,clientSecret,options);
+push.initialize(getApplicationContext(),"appGUID", "clientSecret",options);
 ```
 
 #### Handling Interactive push notifications
 
-To identify the action clicked follow the below method,
+To identify which action is clicked follow the below method,
 
 ```
 notificationListener = new MFPPushNotificationListener() {
@@ -472,9 +453,9 @@ notificationListener = new MFPPushNotificationListener() {
 };
 
 ```
-This new callback method is invoked when user clicks the action button.
+This callback method is invoked when user clicks the action button.
 
-#### Adding custom DeviceId for registration
+### Adding custom DeviceId for registration
 
 To send `DeviceId` use the `setDeviceId` method of `MFPPushNotificationOptions` class.
 
@@ -487,7 +468,7 @@ options.setDeviceid("YOUR_DEVICE_ID");
 
 
 
-## Android Custom Notification Sound
+## Advanced options
 
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
@@ -495,7 +476,7 @@ options.setDeviceid("YOUR_DEVICE_ID");
 
 ## Hold Android notifications
 
-When your application goes into background, you might want Push Notifications to hold back notifications sent to your application. To hold notifications, call the hold() method in the onPause() method of the activity that is handling Push Notifications.
+When your application goes into background, you might want Push Notifications to hold back notifications sent to your application. To hold notifications, call the `hold()` method in the `onPause()` method of the activity that is handling Push Notifications.
 
 ```
 @Override
@@ -545,10 +526,10 @@ You can choose to listen to the DISMISSED status on either of the following cond
 
     ```
     <receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
-        <intent-filter>
+      <intent-filter>
         <action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
-        </intent-filter>
-        </receiver>
+      </intent-filter>
+    </receiver>
     ```
 * When the app is both `active (running in foreground or background)` and `not running (closed)`. Extend the `com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler` broadcast receiver and override the method `onReceive()`, where the `MFPPushNotificationStatusListener` should be registered before calling method `onReceive()` of the base class,
 
@@ -571,53 +552,12 @@ Add the following snippet to you `AndroidManifest.xml` file,
 
 ```
 <receiver android:name="Your_Android_Package_Name.Your_Handler">
-<intent-filter>
-<action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
-</intent-filter>
+  <intent-filter>
+    <action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
+  </intent-filter>
 </receiver>
 
 ```
-
-## Android Notification custom Options
-
- You can further customize the Push Notifications settings for sending notifications to Android devices.
-
-### Collapse Key
-
-Collapse keys are attached to notifications. If multiple notifications arrive sequentially with the same collapse key when the device is offline, they are collapsed. When a device comes online, it receives notifications from the FCM/GCM server, and displays only the latest notification bearing the same collapse key. If the collapse key is not set, both the new and old messages are stored for the future delivery.
-
-### Sound
-
-Indicates a sound clip to be played on the receipt of a notification. Supports default or the name of a sound resource that is bundled in the app.
-
-### Icon
-
-Specify the name of the icon to display for the notification. Ensure that you have packaged the icon in the `res/drawable` folder, with the client application.
-
-### Priority
-
-Specifies the options for assigning delivery priority to messages. A priority of `high` or `max` will result in `heads-up notification`, while `low` or `default` priority messages would not open network connections on a sleeping device. For messages with the option set to `min`, it will be a silent notification.
-
-### Visibility
-
-You can choose to set the notification visibility option to either `public` or `private`. The `private` option restricts public viewing and you can choose to enable it if your device is secure with a pin or pattern, and the notification setting is set to `Hide sensitive notification content`. When the visibility is set as `private`, a `redact` field must be mentioned. Only the content specified in the `redact` field will show up on a secure locked screen on the device. Choosing `public` would render the notifications to be freely read.
-
-### Time to live
-
-This value is set in seconds. If this parameter is not specified, the FCM/GCM server stores the message for four weeks and will try to deliver. The validity expires after four weeks. The possible value range is from 0 to 2,419,200 seconds.
-
-### Delay when idle
-
-Setting this value to `true` instructs the FCM/GCM server not to deliver the notification if the device is idle. Set this value to `false`, to ensure delivery of notification even if the device is idle
-
-### Sync
-
-By setting this option to `true`, notifications across all your registered devices are in sync. If the user with a username has multiple devices with the same application installed, reading the notification on one device ensures deletion of notifications in the other devices. You need to ensure that you are registered with Push Notifications service with userId for this option to work.
-
-### Additional payload
-
-Specifies the custom payload values for your notifications.
-
 
 ## Samples and videos
 
