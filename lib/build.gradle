@@ -137,5 +137,5 @@ dependencies {
     compile 'com.firebase:firebase-client-android:2.5.0'
     compile 'com.google.code.gson:gson:2.8.0'
 
-    compile 'com.ibm.mobilefirstplatform.clientsdk.android:core:[2.0.0,3.0.0)'
+    compile 'com.ibm.mobilefirstplatform.clientsdk.android:core:2.2.7'
 }
