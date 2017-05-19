@@ -20,6 +20,14 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
+### Bluemix Region - Core SDK
+ Bluemix Region specifies the location where the app hosted. You can either use one of following values or specify the region manually. 
+   - `BMSClient.Region.usSouth`
+   - `BMSClient.Region.unitedKingdom`
+   - `BMSClient.Region.sydney` 
+   
+>**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (bluemix region) value.
+
 #### 3.6
 
  * Added custom DeviceId for registration To send `DeviceId` please use `BMSPushClientOptions` class method,
