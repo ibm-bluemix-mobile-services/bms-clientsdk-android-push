@@ -21,9 +21,12 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
 
 ### Bluemix Region - Core SDK
- Bluemix Region Specifies the location where the app hosted. You can either use one of three values - `BMSClient.Region.usSouth`, `BMSClient.Region.unitedKingdom` and `BMSClient.Region.sydney` OR specify the region manually .
-
->**Note**:  If you are using dedicated service please use `overrideServerHost` and add `bluemixRegion` any value.
+ Bluemix Region specifies the location where the app hosted. You can either use one of following values or specify the region manually. 
+   - `BMSClient.Region.usSouth`
+   - `BMSClient.Region.unitedKingdom`
+   - `BMSClient.Region.sydney` 
+   
+>**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (bluemix region) value.
 
 #### 3.6
 
