@@ -188,7 +188,6 @@ public class MFPPush extends FirebaseInstanceIdService {
   private String deviceToken = null;
   private String regId = null;
   private String applicationId = null;
-  private String errorString = null;
   private int statusCode = 0;
 
 
@@ -229,18 +228,6 @@ public class MFPPush extends FirebaseInstanceIdService {
     }
     return instance;
   }
-
-//  @Override
-//  public void onTokenRefresh() {
-//    String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-//    logger.debug("MFPPush:onTokenRefresh - Received token: "+ refreshedToken);
-//
-//    SharedPreferences sharedPreferences = PreferenceManager
-//    .getDefaultSharedPreferences(this);
-//    SharedPreferences.Editor editor = sharedPreferences.edit();
-//    editor.putString("MFPFirebaseToken", refreshedToken);
-//    editor.apply();
-//  }
 
   /**
    * MFPPush Intitialization method with clientSecret and Push App GUID.
@@ -414,12 +401,7 @@ public class MFPPush extends FirebaseInstanceIdService {
   */
   public void registerDevice(MFPPushResponseListener<String> listener) {
 
-    if (isInitialized) {
-      logger.info("MFPPush:register() - Registering for MFPPush service.");
-      this.registerDeviceWithUserId(null,listener);
-    } else {
-      logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
-    }
+    this.registerDeviceWithUserId(null,listener);
   }
 
   /**
@@ -452,7 +434,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
           //Error while subscribing to tags.
           logger.error("MFPPush: Error while subscribing to tags");
-          listener.onFailure(callFailureListener(response,throwable,jsonObject));
+          listener.onFailure(getException(response,throwable,jsonObject));
         }
 
       });
@@ -495,7 +477,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
           //Error while Unsubscribing to tags.
           logger.error("MFPPush: Error while Unsubscribing to tags");
-          listener.onFailure(callFailureListener(response,throwable,jsonObject));
+          listener.onFailure(getException(response,throwable,jsonObject));
         }
       });
       invoker.execute();
@@ -529,7 +511,7 @@ public class MFPPush extends FirebaseInstanceIdService {
       public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
 
         logger.error("MFPPush: Error while unregistered device");
-        listener.onFailure(callFailureListener(response,throwable,jsonObject));
+        listener.onFailure(getException(response,throwable,jsonObject));
 
       }
     });
@@ -577,7 +559,7 @@ public class MFPPush extends FirebaseInstanceIdService {
       public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
         //Error while getting tags.
         logger.error("MFPPush: Error while getting tags");
-        listener.onFailure(callFailureListener(response,throwable,jsonObject));
+        listener.onFailure(getException(response,throwable,jsonObject));
       }
     });
     invoker.execute();
@@ -629,7 +611,7 @@ public class MFPPush extends FirebaseInstanceIdService {
       public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
         //Error while getSubscriptions.
         logger.error("MFPPush: Error while getSubscriptions");
-        listener.onFailure(callFailureListener(response,throwable,jsonObject));
+        listener.onFailure(getException(response,throwable,jsonObject));
       }
     });
     invoker.execute();
@@ -639,7 +621,7 @@ public class MFPPush extends FirebaseInstanceIdService {
   * Get the Push Application GUID
   */
   public String getApplicationId() {
-    if (!applicationId.isEmpty() && applicationId != null) {
+    if ( applicationId != null && !applicationId.isEmpty() ) {
       return applicationId;
     } else {
       return null;
@@ -988,7 +970,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         @Override
         public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
           logger.error("MFPPush:updateTokenCallback() - Failure during device registration.");
-          registerResponseListener.onFailure(callFailureListener(response,throwable,jsonObject));
+          registerResponseListener.onFailure(getException(response,throwable,jsonObject));
         }
       });
       invoker.execute();
@@ -1016,7 +998,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         @Override
         public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
           logger.debug("MFPPush:updateTokenCallback() - Failure while updating device registration details.");
-          registerResponseListener.onFailure(callFailureListener(response,throwable,jsonObject));
+          registerResponseListener.onFailure(getException(response,throwable,jsonObject));
         }
       });
       invoker.execute();
@@ -1319,7 +1301,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         }
 
         if (senderId == null) {
-          errorString = "MFPPush: getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
+          String errorString = "MFPPush: getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
           registerResponseListener.onFailure(new MFPPushException(errorString));
         } else {
           gcmSenderId = senderId;
@@ -1331,16 +1313,16 @@ public class MFPPush extends FirebaseInstanceIdService {
       @Override
       public void onFailure(Response response, Throwable throwable, JSONObject object) {
         logger.error("MFPPush: getSenderIdFromServerAndRegisterInBackground() - Error while getting senderId from push server.");
-        registerResponseListener.onFailure(callFailureListener(response,throwable,object));
+        registerResponseListener.onFailure(getException(response,throwable,object));
       }
     });
 
     invoker.execute();
   }
 
-  private MFPPushException callFailureListener(Response response, Throwable throwable, JSONObject object) {
+  private MFPPushException getException(Response response, Throwable throwable, JSONObject object) {
 
-    errorString = null;
+    String errorString = null;
     statusCode = 0;
     if (response != null) {
       errorString = response.getResponseText();
