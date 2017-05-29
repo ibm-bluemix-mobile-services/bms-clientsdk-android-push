@@ -248,7 +248,8 @@ Use the following code snippets to un-register from Push Notifications.
 The `getTags` API returns the list of available tags to which the device can subscribe. After subscribing to a particular tag, the device can receive notifications that are sent for that tag. Call the push service to get subscriptions for a tag.
 
 Add the following code snippet to your mobile application to get a list of available tags to which the device can subscribe.
-	```
+
+```
 	// Get a list of available tags to which the device can subscribe
 	push.getTags(new MFPPushResponseListener<List<String>>(){  
 	@Override
@@ -260,14 +261,15 @@ Add the following code snippet to your mobile application to get a list of avail
     System.out.println("Error getting available tags.. " + ex.getMessage());
 	}
 	})
-	```
+```
 
 ### Subscribe to tags
 
 The `subscribe` API will subscribe the device for the list of given tags. After the device is subscribed to a particular tag, the device can receive notifications that are sent for that tag. 
 
 Add the following code snippet to your Swift mobile application to subscribe to a list of tags.
-	```
+
+```
 	// Subscribe to the given tag
 	push.subscribe(allTags.get(0), new MFPPushResponseListener<String>() {
 	@Override
@@ -279,12 +281,13 @@ Add the following code snippet to your Swift mobile application to subscribe to 
       System.out.println("Error subscribing to Tag1.." + ex.getMessage());
 	}
 	});
-	```
+```
 
 ### Retrieve subscribed tags
 
 The `getSubscriptions` API will return the list of tags to which the device is subscribed. Use the following code snippets in the mobile application to get the  subscription list.
-	```
+
+```
 	// Get a list of tags that to which the device is subscribed.
 	push.getSubscriptions(new MFPPushResponseListener<List<String>>() {
 	@Override
@@ -296,12 +299,13 @@ The `getSubscriptions` API will return the list of tags to which the device is s
        System.out.println("Error getting subscriptions.. " + ex.getMessage());
 	}
 	})
-	```
+```
 
 ### Unsubscribing from tags
 
 The `unsubscribeFromTags` API will remove the device subscription from the list tags. Use the following code snippets to allow your devices to get unsubscribe from a tag.
-	```
+
+```
 	// unsubscibe from the given tag ,that to which the device is subscribed.
 	push.unsubscribe(tag, new MFPPushResponseListener<String>() {
 	@Override
@@ -313,17 +317,18 @@ The `unsubscribeFromTags` API will remove the device subscription from the list 
       System.out.println("Error while unsubscribing from tags. "+ e.getMessage());
 	}	
 	});
-	```
+```
 
 ## Notification options
 
-The following notification options are supported:
+The following notification options are supported.
 
 
 ### Interactive push notifications
 
 1. To enable interactive push notifications, the notification action parameters must be passed in as part of the notification object.  The following is a sample code to enable interactive notifications:
-	```
+
+```
 	MFPPushNotificationOptions options = new MFPPushNotificationOptions();
 	MFPPushNotificationButton acceptButton = new MFPPushNotificationButton.Builder("Accept Button")
       .setIcon("check_circle_icon")
@@ -356,10 +361,11 @@ The following notification options are supported:
 	options.setInteractiveNotificationCategories(categoryList);
 	push = MFPPush.getInstance();
 	push.initialize(getApplicationContext(),"appGUID", "clientSecret",options);
-	```
+```
 
 2. To handle the interactive notifications by identifying which action is clicked, follow the method:
-	```
+
+```
 	notificationListener = new MFPPushNotificationListener() {
     @Override
     public void onReceive(final MFPSimplePushNotification message) {
@@ -372,17 +378,18 @@ The following notification options are supported:
 	       }
 	    }
 		};
-	```
+```
 	
-	This callback method is invoked when user clicks the action button.
+This callback method is invoked when user clicks the action button.
 
 ### Adding custom DeviceId for registration
 
 To send `DeviceId` use the `setDeviceId` method of `MFPPushNotificationOptions` class.
-	```
+
+```
 	MFPPushNotificationOptions options = new MFPPushNotificationOptions();
 	options.setDeviceid("YOUR_DEVICE_ID");
-	```
+```
 
 >**Note**: Remember to keep custom DeviceId `unique` for each device.
 
@@ -398,7 +405,8 @@ You can choose to specify a ring-tone for your notifications. To specify a ring-
 ### Holding notifications
 
 When your application goes into background, you might want Push Notifications to hold back notifications sent to your application. To hold notifications, call the `hold()` method in the `onPause()` method of the activity that is handling Push Notifications.
-	```
+
+```
 	@Override
 	protected void onPause() {
     	super.onPause();
@@ -406,7 +414,7 @@ When your application goes into background, you might want Push Notifications to
     	    push.hold();
     	}
 	}
-	```
+```
 
 ## Monitoring
 
@@ -423,29 +431,32 @@ The `messageId` is the identifier of the message sent from the server. `MFPPushN
 * `DISMISSED` - User clears/dismisses the notification in the tray.
 
 You need to register the `com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationStatusListener` class with `MFPPush`.
-	```
+
+```
 	push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
 	@Override
 	   public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
        // Handle status change
 	}
 	});
-	```
+```
 
 ### Listening to the DISMISSED status
 
 You can choose to listen to the DISMISSED status on either of the following conditions:
 
 * When the app is `active (running in foreground or background)`. Add the snippet to your `AndroidManifest.xml` file:
-	   ```
+
+```
 		<receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
     	  <intent-filter>
         <action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
     	  </intent-filter>
-    	</receiver>
-    	```
+   	</receiver>
+```
 * When the app is both `active (running in foreground or background)` and `not running (closed)`. Extend the `com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler` broadcast receiver and override the method `onReceive()`, where the `MFPPushNotificationStatusListener` should be registered before calling method `onReceive()` of the base class:
-		```
+
+```
 		public class MyDismissHandler extends MFPPushNotificationDismissHandler {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -458,16 +469,17 @@ You can choose to listen to the DISMISSED status on either of the following cond
      	super.onReceive(context, intent);
 		}
 			}
-		```
+```
 
 Add the following snippet to you `AndroidManifest.xml` file:
-	```
+
+```
 	<receiver android:name="Your_Android_Package_Name.Your_Handler">
 	<intent-filter>
 	    <action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
 	</intent-filter>
 	</receiver>
-	```
+```
 
 ## Samples and videos
 
