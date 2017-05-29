@@ -13,9 +13,9 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Initialize SDK](#initialize-sdk)
-	- [Include client Push SDK with Gradle](#initialize-sdk-with-gradle)
-	- [Initialize the Core SDK and Push SDK](#initialize-sdk-with-push)
+- [Initialize SDK](#initialize)
+	- [Include client Push SDK with Gradle](#include-client-push)
+	- [Initialize the Core SDK and Push SDK](#initialize-SD-with-push)
 - [Register for notifications](#register-for-notifications-service)
 	- [Receiving push notifications](#receiving-push-notifications-on-android-devices)
 	- [Un-registering from notifications](#unregistered-the-device-from-push-notification)
