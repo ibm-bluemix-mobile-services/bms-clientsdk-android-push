@@ -61,7 +61,8 @@ Ensure that you have gone through [Configuring credentials for a notification pr
 Configure the `Module level build.gradle` and `Project level build.gradle` files.
 
 1. Add Bluemix Push Notifications Android SDK dependency to your `Project level build.gradle` file.
-  ```
+	
+	```
 	dependencies {
     ........
 	compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
@@ -71,10 +72,11 @@ Configure the `Module level build.gradle` and `Project level build.gradle` files
          transitive: true
 	.......
 		  }
-	 ```
+	```
 
 2. Add the following dependencies to your `Module level build.gradle` file.
-		  ```
+		
+	 ```
 	  dependencies {
 	   classpath 'com.android.tools.build:gradle:2.2.3'
 	   classpath 'com.google.gms:google-services:3.0.0'
@@ -96,6 +98,7 @@ Configure the `Module level build.gradle` and `Project level build.gradle` files
 	 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	 ```
 5. Add the notification intent settings for the activity. This setting starts the application when the user clicks the received notification from the notification area.
+
 	```
 	 <intent-filter>
      <action android:name="Your_Android_Package_Name.IBMPushNotification"/>
@@ -105,6 +108,7 @@ Configure the `Module level build.gradle` and `Project level build.gradle` files
 	>**Note**: Replace `Your_Android_Package_Name` in the previous action with the application package name used in your application.
 
 6. Update the `Firebase Cloud Messaging (FCM)` or `Google Cloud Messaging (GCM)` intent service and intent filters for the `RECEIVE` and `REGISTRATION` event notifications:
+
 	```
 	<service android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushIntentService"
      android:exported="true" >
@@ -121,6 +125,7 @@ Configure the `Module level build.gradle` and `Project level build.gradle` files
 	```
 
 7. Push Notifications service supports retrieval of individual notifications from the notification tray. For notifications accessed from the notification tray, you are provided with a handle only to the notification that is being clicked. All notifications are displayed when the application is opened normally. Update your `AndroidManifest.xml` file with the following snippet to use this functionality:
+	
 	```
 	<activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationHandler"
 	   android:theme="@android:style/Theme.NoDisplay"/>
@@ -131,13 +136,14 @@ Configure the `Module level build.gradle` and `Project level build.gradle` files
 ### Initialize the Core SDK and Push SDK
 
 A common place to put the initialization code is the `onCreate()` method of the `main activity` in your Android application: 
-	```
-	// Initialize the SDK
-	BMSClient.getInstance().initialize(this, "bluemixRegionSuffix");
-	//Initialize client Push SDK
-	MFPPush push = MFPPush.getInstance();
-	push.initialize(getApplicationContext(), "appGUID", "clientSecret");
-	```
+
+```
+// Initialize the SDK
+BMSClient.getInstance().initialize(this, "bluemixRegionSuffix");
+//Initialize client Push SDK
+MFPPush push = MFPPush.getInstance();
+push.initialize(getApplicationContext(), "appGUID", "clientSecret");
+```
 
 Where `bluemixRegionSuffix` specifies the location where the app is hosted. You can use any of the following values:
 
@@ -191,10 +197,11 @@ The userId is used to pass the unique userId value for registering for Push Noti
 
 ### Receiving push notifications
 
-To register the notificationListener`` object with Push Notifications service, use the `MFPPush.listen()` method. This method is typically called from the `onResume()` and `onPause()` methods of the activity that is handling push notifications.
-		```
-	//Handles the notification when it arrives
-	MFPPushNotificationListener notificationListener = new MFPPushNotificationListener() {
+To register the `notificationListener` object with Push Notifications service, use the `MFPPush.listen()` method. This method is typically called from the `onResume()` and `onPause()` methods of the activity that is handling push notifications.
+
+```
+//Handles the notification when it arrives
+MFPPushNotificationListener notificationListener = new MFPPushNotificationListener() {
 	@Override
 	public void onReceive (final MFPSimplePushNotification message){
       // Handle Push Notification
@@ -206,20 +213,20 @@ To register the notificationListener`` object with Push Notifications service, u
     if(push != null) {
       push.listen(notificationListener);
     }
-	}
+}
 	 @Override
 	protected void onPause() {
 	super.onPause();
 	if (push != null) {
        push.hold();
     }
-	}
-	```
+}
+```
 
 ### Un-registering from notifications 
 
 Use the following code snippets to un-register from Push Notifications.
-	```
+```
 	push.unregister(new MFPPushResponseListener<String>() {
 	@Override
 	public void onSuccess(String s) {
@@ -230,7 +237,7 @@ Use the following code snippets to un-register from Push Notifications.
         // Handle Failure
     }
 	});
-	```
+```
 >**Note**: To unregister from the `UserId` based registration, you have to call the registration method [Register for notifications without userId](#register-without-userid).
 
 
