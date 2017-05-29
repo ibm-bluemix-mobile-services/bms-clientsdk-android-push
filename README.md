@@ -13,10 +13,10 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Initialize SDK](#setup-client-application)
-	- [Include client Push SDK with Gradle](#setup-client-application-child)
-	- [Initialize the Core SDK and Push SDK](#setup-client-application-2-child)
-- [Register for notifications](#register-to-push-notifications-service)
+- [Initialize SDK](#initialize-sdk)
+	- [Include client Push SDK with Gradle](#initialize-sdk-with-gradle)
+	- [Initialize the Core SDK and Push SDK](#initialize-sdk-with-push)
+- [Register for notifications](#register-for-notifications-service)
 	- [Receiving push notifications](#receiving-push-notifications-on-android-devices)
 	- [Un-registering from notifications](#unregistered-the-device-from-push-notification)
 - [Push Notification service tags](#push-notification-service-tags)
@@ -58,9 +58,9 @@ Ensure that you have gone through [Configuring credentials for a notification pr
 
 ### Include client Push SDK with Gradle
 
-Configure the `Module level build.gradle` and `Project level build.gradle` files.
+Configure the Module level `build.gradle` and Project level `build.gradle` files.
 
-1. Add Bluemix Push Notifications Android SDK dependency to your `Project level build.gradle` file.
+1. Add Bluemix Push Notifications Android SDK dependency to your Project level `build.gradle` file.
 	
 	```
 	dependencies {
@@ -74,7 +74,7 @@ Configure the `Module level build.gradle` and `Project level build.gradle` files
 		  }
 	```
 
-2. Add the following dependencies to your `Module level build.gradle` file.
+2. Add the following dependencies to your Module level `build.gradle` file.
 		
 	 ```
 	  dependencies {
@@ -83,7 +83,7 @@ Configure the `Module level build.gradle` and `Project level build.gradle` files
 	  }
 		  ```
 
-3. Add the `Google Play services` dependency to your `Module level build.gradle` file at the end, after the `dependencies{.....}`:
+3. Add the `Google Play services` dependency to your Module level `build.gradle` file at the end, after the `dependencies{.....}`:
 
 	```
 	apply plugin: 'com.google.gms.google-services'
