@@ -11,14 +11,14 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 
 ## Contents
 
-- [Prerequisites](#requirements)
+- [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Initialize SDK](#setup-client-application)
-	- [Include client Push SDK with Gradle](#installing-the-client-push-sdk-with-gradle)
-	- [Initialize the Core SDK and Push SDK](#initializing-the-core-sdk-and-the-push-sdk)
-- [Register for notifications](#register-to-push-notifications-ervice)
+	- [Include client Push SDK with Gradle](#setup-client-application-child)
+	- [Initialize the Core SDK and Push SDK](#setup-client-application-2-child)
+- [Register for notifications](#register-to-push-notifications-service)
 	- [Receiving push notifications](#receiving-push-notifications-on-android-devices)
-	- [Un-registering from notifications](#unregistering-the-device-from-push-notification)
+	- [Un-registering from notifications](#unregistered-the-device-from-push-notification)
 - [Push Notification service tags](#push-notification-service-tags)
 	- [Retrieve tags](#retrieve-tags)
 	- [Subscribe to tags](#subscribe-to-tags)
@@ -26,7 +26,7 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 	- [Unsubscribe from tags](#unsubscribing-from-tags)
 - [Notification options](#notification-options)
 	- [Interactive push notifications](#enable-interactive-push-notifications)
-	- [Adding custom DeviceId for registration](#ddding-custom-deviceid-for-registration)
+	- [Adding custom DeviceId for registration](#adding-custom-device-id-for-registration)
 	- [Advanced options](#advanced-options)
 	- [Holding notifications](#hold-android-notifications)
 - [Monitoring](#enable-monitoring)
@@ -133,7 +133,7 @@ Configure the `Module level build.gradle` and `Project level build.gradle` files
 8. Add the `google-services.json` in Android application module root directory.  For more information on how to add this file, see [Setup the Push client SDK on FCM](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_3.html#push_step_3_Android).
 
 
-### Initialize the Core SDK and Push SDK
+### Initialize core SDK and Push SDK
 
 A common place to put the initialization code is the `onCreate()` method of the `main activity` in your Android application: 
 
