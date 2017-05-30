@@ -45,13 +45,11 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 
 Choose to integrate the Push Notifications Android Client SDK package using either of the following options:
 
-- Download and import the [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22) to your Android Studio project
-- Get [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22) through Gradle
+- Download and import the package to your Android Studio project
+- Get the package through Gradle
 
 ## Initialize SDK
 
-
-Complete the following steps to enable Android applications to receive push notifications.
 
 Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) to setup the FCM project and obtain your credentials.
 
@@ -238,7 +236,7 @@ Use the following code snippets to un-register from Push Notifications.
     }
 	});
 ```
->**Note**: To unregister from the `UserId` based registration, you have to call the registration method [Register for notifications without userId](#register-without-userid).
+>**Note**: To unregister from the `UserId` based registration, you have to call the registration method. See the `Register without userId option` in [Register for notifications](#register-for-notifications).
 
 
 ## Push Notifications service tags
@@ -502,7 +500,7 @@ Add the following snippet to you `AndroidManifest.xml` file:
 [Meetup](http://www.meetup.com/bluemix/)
 
 =======================
-Copyright 2017 IBM Corp.
+Copyright 2016-17 IBM Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
