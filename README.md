@@ -14,18 +14,18 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Initialize SDK](#initialize-sdk)
-	- [Include client Push SDK with Gradle](#include-with-push)
-	- [Initialize the Core SDK and Push SDK](#initialize-with-push)
+	- [Include client Push SDK with Gradle](include-push-with-grade)
+	- [Include core SDK and Push SDK](include-with-core)	
 - [Register for notifications](#register-for-notifications)
-	- [Receiving push notifications](receive-notification-android)
-	- [Un-registering from notifications](#unregistered-from-notifications)
-- [Push Notification service tags](#push-notification-service-tags)
+	- [Receiving notifications](receive-notification-android)
+	- [Unregistering from notifications](#unregistered-from-notifications)
+- [Push Notifications service tags](#push-notification-service-tags)
 	- [Retrieve tags](#retrieve-tags)
 	- [Subscribe to tags](#subscribe-to-tags)
 	- [Retrieve subscribed tags](#retrieve-subscribed-tags)
 	- [Unsubscribe from tags](#unsubscribing-from-tags)
 - [Notification options](#notification-options)
-	- [Interactive push notifications](#enable-interactive-notifications)
+	- [Interactive notifications](#enable-interactive-notifications)
 	- [Adding custom DeviceId for registration](#adding-custom-device-id)
 	- [Advanced options](#advanced-options)
 	- [Holding notifications](#hold-android-notifications)
@@ -79,7 +79,7 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 	   classpath 'com.android.tools.build:gradle:2.2.3'
 	   classpath 'com.google.gms:google-services:3.0.0'
 	  }
-		  ```
+  	```
 
 3. Add the `Google Play services` dependency to your Module level `build.gradle` file at the end, after the `dependencies{.....}`:
 
@@ -193,7 +193,7 @@ The following options are supported:
 The userId is used to pass the unique userId value for registering for Push Notifications. If the userId is provided, ensure that the the client secret value is also provided.
 
 
-### Receiving push notifications
+### Receiving notifications
 
 To register the `notificationListener` object with Push Notifications service, use the `MFPPush.listen()` method. This method is typically called from the `onResume()` and `onPause()` methods of the activity that is handling push notifications.
 
@@ -221,7 +221,7 @@ MFPPushNotificationListener notificationListener = new MFPPushNotificationListen
 }
 ```
 
-### Un-registering from notifications 
+### Unregistering from notifications
 
 Use the following code snippets to un-register from Push Notifications.
 ```
@@ -322,7 +322,7 @@ The `unsubscribeFromTags` API will remove the device subscription from the list 
 The following notification options are supported.
 
 
-### Interactive push notifications
+### Interactive notifications
 
 1. To enable interactive push notifications, the notification action parameters must be passed in as part of the notification object.  The following is a sample code to enable interactive notifications:
 
