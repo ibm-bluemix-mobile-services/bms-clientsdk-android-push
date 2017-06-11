@@ -1,4 +1,4 @@
-Bluemix Push Notifications Android SDK
+IBM Bluemix Push Notifications Android SDK
 ====================================
 
 [![Build Status](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push.svg?branch=master)](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push)
@@ -37,9 +37,15 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 ## Prerequisites
 
 
- * [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22) (Supported on Android API level 14 or later/Android 4.0 or later).
+ * [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22) 
+ * Android API level 14 or later
+ * Android 4.0 or later
  * [Android Studio](https://developer.android.com/studio/index.html)
  * [Gradle](https://gradle.org/install)
+ * [Android helloPush sample app](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush){: new_window}
+ * [BMSCore](https://github.com/ibm-bluemix-mobile-services/bms-clientsdk-android-core){: new_window}
+ * [BMSPush](https://github.com/ibm-bluemix-mobile-services/bms-clientsdk-android-push){: new_window} SDKs installed by using 
+  either Android Studio or Gradle
 
 ## Installation
 
