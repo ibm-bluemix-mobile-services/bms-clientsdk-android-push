@@ -14,12 +14,12 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Initialize SDK](#initialize-sdk)
-	- [Include client Push SDK with Gradle](#include-client-push-sdk-with-grade)
+	- [Include client Push SDK with Gradle](#include-client-push-sdk-with-gradle)
 	- [Include core SDK and Push SDK](#include-core-sdk-and-push-sdk)	
 - [Register for notifications](#register-for-notifications)
-	- [Receiving notifications](#receiving-notification)
+	- [Receiving notifications](#receiving-notifications)
 	- [Unregistering from notifications](#unregistering-from-notifications)
-- [Push Notifications service tags](#push-notification-service-tags)
+- [Push Notifications service tags](#push-notifications-service-tags)
 	- [Retrieve tags](#retrieve-tags)
 	- [Subscribe to tags](#subscribe-to-tags)
 	- [Retrieve subscribed tags](#retrieve-subscribed-tags)
@@ -137,7 +137,7 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 8. Add the `google-services.json` in Android application module root directory.  For more information on how to add this file, see [Setup the Push client SDK on FCM](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_3.html#push_step_3_Android).
 
 
-### Initialize core SDK and Push SDK
+### Include core SDK and Push SDK
 
 A common place to put the initialization code is the `onCreate()` method of the `main activity` in your Android application: 
 
@@ -305,7 +305,7 @@ The `getSubscriptions` API will return the list of tags to which the device is s
 	})
 ```
 
-### Unsubscribing from tags
+### Unsubscribe from tags
 
 The `unsubscribeFromTags` API will remove the device subscription from the list tags. Use the following code snippets to allow your devices to get unsubscribe from a tag.
 
