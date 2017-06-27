@@ -37,11 +37,11 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 ## Prerequisites
 
 
- * [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22) 
+ * [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22){: new_window} 
  * Android API level 14 or later
  * Android 4.0 or later
- * [Android Studio](https://developer.android.com/studio/index.html)
- * [Gradle](https://gradle.org/install)
+ * [Android Studio](https://developer.android.com/studio/index.html){: new_window}
+ * [Gradle](https://gradle.org/install){: new_window}
  * [Android helloPush sample app](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush){: new_window}
  * [BMSCore](https://github.com/ibm-bluemix-mobile-services/bms-clientsdk-android-core){: new_window}
  * [BMSPush](https://github.com/ibm-bluemix-mobile-services/bms-clientsdk-android-push){: new_window} SDKs installed by using 
@@ -57,7 +57,7 @@ Choose to integrate the Push Notifications Android Client SDK package using eith
 ## Initialize SDK
 
 
-Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) to setup the FCM project and obtain your credentials.
+Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) {: new_window}to setup the FCM project and obtain your credentials.
 
 
 ### Include client Push SDK with Gradle
@@ -92,7 +92,7 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 	```
 	apply plugin: 'com.google.gms.google-services'
 	```
-4. Configure the `AndroidManifest.xml` file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml). Add the following permissions inside application's `AndroidManifest.xml` file. 
+4. Configure the `AndroidManifest.xml` file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml){: new_window}. Add the following permissions inside application's `AndroidManifest.xml` file. 
 
 	 ```
 	 <uses-permission android:name="android.permission.INTERNET"/>
@@ -134,7 +134,7 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 	<activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationHandler"
 	   android:theme="@android:style/Theme.NoDisplay"/>
 	```
-8. Add the `google-services.json` in Android application module root directory.  For more information on how to add this file, see [Setup the Push client SDK on FCM](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_3.html#push_step_3_Android).
+8. Add the `google-services.json` in Android application module root directory.  For more information on how to add this file, see [Setup the Push client SDK on FCM](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_3.html#push_step_3_Android){: new_window}.
 
 
 ### Include core SDK and Push SDK
@@ -171,11 +171,11 @@ The following options are supported:
 	push.registerDevice(new MFPPushResponseListener<String>() {
     @Override
     public void onSuccess(String response) {
-        //handle successful device registration here
+    //handle successful device registration here
     }
     @Override
     public void onFailure(MFPPushException ex) {
-        //handle failure in device registration here
+    //handle failure in device registration here
     }
 	  		});
 	```
@@ -231,10 +231,10 @@ MFPPushNotificationListener notificationListener = new MFPPushNotificationListen
 
 Use the following code snippets to un-register from Push Notifications.
 ```
-	push.unregister(new MFPPushResponseListener<String>() {
-	@Override
-	public void onSuccess(String s) {
-        // Handle success
+push.unregister(new MFPPushResponseListener<String>() {
+@Override
+public void onSuccess(String s) {
+ // Handle success
     }
     @Override
     public void onFailure(MFPPushException e) {
@@ -254,17 +254,17 @@ The `getTags` API returns the list of available tags to which the device can sub
 Add the following code snippet to your mobile application to get a list of available tags to which the device can subscribe.
 
 ```
-	// Get a list of available tags to which the device can subscribe
-	push.getTags(new MFPPushResponseListener<List<String>>(){  
-	@Override
-	public void onSuccess(List<String> tags){
-      System.out.println("Available tags are: "+tags);
-	}    
-	@Override    
-	public void onFailure(MFPPushException ex){
-    System.out.println("Error getting available tags.. " + ex.getMessage());
-	}
-	})
+// Get a list of available tags to which the device can subscribe
+push.getTags(new MFPPushResponseListener<List<String>>(){  
+@Override
+public void onSuccess(List<String> tags){
+     System.out.println("Available tags are: "+tags);
+}    
+@Override    
+public void onFailure(MFPPushException ex){
+   System.out.println("Error getting available tags.. " + ex.getMessage());
+}
+})
 ```
 
 ### Subscribe to tags
@@ -274,17 +274,17 @@ The `subscribe` API will subscribe the device for the list of given tags. After 
 Add the following code snippet to your Swift mobile application to subscribe to a list of tags.
 
 ```
-	// Subscribe to the given tag
-	push.subscribe(allTags.get(0), new MFPPushResponseListener<String>() {
-	@Override
-	public void onSuccess(String arg) {
-      System.out.println("Succesfully Subscribed to: "+ arg);
-	}
-	@Override
-	public void onFailure(MFPPushException ex) {
-      System.out.println("Error subscribing to Tag1.." + ex.getMessage());
-	}
-	});
+// Subscribe to the given tag
+push.subscribe(allTags.get(0), new MFPPushResponseListener<String>() {
+@Override
+public void onSuccess(String arg) {
+     System.out.println("Succesfully Subscribed to: "+ arg);
+}
+@Override
+public void onFailure(MFPPushException ex) {
+     System.out.println("Error subscribing to Tag1.." + ex.getMessage());
+}
+});
 ```
 
 ### Retrieve subscribed tags
@@ -292,17 +292,17 @@ Add the following code snippet to your Swift mobile application to subscribe to 
 The `getSubscriptions` API will return the list of tags to which the device is subscribed. Use the following code snippets in the mobile application to get the  subscription list.
 
 ```
-	// Get a list of tags that to which the device is subscribed.
-	push.getSubscriptions(new MFPPushResponseListener<List<String>>() {
-	@Override
-	public void onSuccess(List<String> tags) {
-      System.out.println("Subscribed tags are: "+tags);
-	}
-	@Override
-	public void onFailure(MFPPushException ex) {
-       System.out.println("Error getting subscriptions.. " + ex.getMessage());
-	}
-	})
+// Get a list of tags that to which the device is subscribed.
+push.getSubscriptions(new MFPPushResponseListener<List<String>>() {
+@Override
+public void onSuccess(List<String> tags) {
+     System.out.println("Subscribed tags are: "+tags);
+}
+@Override
+public void onFailure(MFPPushException ex) {
+      System.out.println("Error getting subscriptions.. " + ex.getMessage());
+}
+})
 ```
 
 ### Unsubscribe from tags
@@ -310,17 +310,17 @@ The `getSubscriptions` API will return the list of tags to which the device is s
 The `unsubscribeFromTags` API will remove the device subscription from the list tags. Use the following code snippets to allow your devices to get unsubscribe from a tag.
 
 ```
-	// unsubscibe from the given tag ,that to which the device is subscribed.
-	push.unsubscribe(tag, new MFPPushResponseListener<String>() {
-	@Override
-	public void onSuccess(String s) {
-      System.out.println("Successfully unsubscribed from tag . "+ tag);
-    }
-	@Override
-	public void onFailure(MFPPushException e) {
-      System.out.println("Error while unsubscribing from tags. "+ e.getMessage());
-	}	
-	});
+// unsubscibe from the given tag ,that to which the device is subscribed.
+push.unsubscribe(tag, new MFPPushResponseListener<String>() {
+@Override
+public void onSuccess(String s) {
+     System.out.println("Successfully unsubscribed from tag . "+ tag);
+   }
+@Override
+public void onFailure(MFPPushException e) {
+     System.out.println("Error while unsubscribing from tags. "+ e.getMessage());
+}	
+});
 ```
 
 ## Notification options
@@ -487,23 +487,23 @@ Add the following snippet to you `AndroidManifest.xml` file:
 
 ## Samples and videos
 
-* For samples, visit - [Github Sample](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush)
+* For samples, visit - [Github Sample](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush){: new_window}
 
-* For video tutorials, visit - [Bluemix Push Notifications](https://www.youtube.com/channel/UCRr2Wou-z91fD6QOYtZiHGA)
+* For video tutorials, visit - [Bluemix Push Notifications](https://www.youtube.com/channel/UCRr2Wou-z91fD6QOYtZiHGA){: new_window}
 
 ### Learning More
 
 * Visit the **[Bluemix Developers Community](https://developer.ibm.com/bluemix/)**.
 
-* [Getting started with IBM MobileFirst Platform for iOS](https://www.ng.bluemix.net/docs/mobile/index.html)
+* [Getting started with IBM MobileFirst Platform for iOS](https://www.ng.bluemix.net/docs/mobile/index.html){: new_window}
 
 ### Connect with Bluemix
 
-[Twitter](https://twitter.com/ibmbluemix) |
-[YouTube](https://www.youtube.com/playlist?list=PLzpeuWUENMK2d3L5qCITo2GQEt-7r0oqm) |
-[Blog](https://developer.ibm.com/bluemix/blog/) |
-[Facebook](https://www.facebook.com/ibmbluemix) |
-[Meetup](http://www.meetup.com/bluemix/)
+[Twitter](https://twitter.com/ibmbluemix){: new_window} |
+[YouTube](https://www.youtube.com/watch?v=dQ1WcY_Ill4){: new_window}|
+[Blog](https://developer.ibm.com/bluemix/blog/){: new_window} |
+[Facebook](https://www.facebook.com/ibmbluemix){: new_window} |
+[Meetup](http://www.meetup.com/bluemix/){: new_window}
 
 =======================
 Copyright 2016-17 IBM Corp.
