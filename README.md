@@ -37,14 +37,14 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 ## Prerequisites
 
 
- * [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22){: new_window} 
+ * [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22)
  * Android API level 14 or later
  * Android 4.0 or later
- * [Android Studio](https://developer.android.com/studio/index.html){: new_window}
- * [Gradle](https://gradle.org/install){: new_window}
- * [Android helloPush sample app](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush){: new_window}
- * [BMSCore](https://github.com/ibm-bluemix-mobile-services/bms-clientsdk-android-core){: new_window}
- * [BMSPush](https://github.com/ibm-bluemix-mobile-services/bms-clientsdk-android-push){: new_window} SDKs installed by using 
+ * [Android Studio](https://developer.android.com/studio/index.html)
+ * [Gradle](https://gradle.org/install)
+ * [Android helloPush sample app](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush)
+ * [BMSCore](https://github.com/ibm-bluemix-mobile-services/bms-clientsdk-android-core)
+ * [BMSPush](https://github.com/ibm-bluemix-mobile-services/bms-clientsdk-android-push) SDKs installed by using 
   either Android Studio or Gradle
 
 ## Installation
@@ -57,7 +57,7 @@ Choose to integrate the Push Notifications Android Client SDK package using eith
 ## Initialize SDK
 
 
-Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) {: new_window}to setup the FCM project and obtain your credentials.
+Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) to setup the FCM project and obtain your credentials.
 
 
 ### Include client Push SDK with Gradle
@@ -92,7 +92,7 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 	```
 	apply plugin: 'com.google.gms.google-services'
 	```
-4. Configure the `AndroidManifest.xml` file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml){: new_window}. Add the following permissions inside application's `AndroidManifest.xml` file. 
+4. Configure the `AndroidManifest.xml` file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml). Add the following permissions inside application's `AndroidManifest.xml` file. 
 
 	 ```
 	 <uses-permission android:name="android.permission.INTERNET"/>
@@ -134,7 +134,7 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 	<activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationHandler"
 	   android:theme="@android:style/Theme.NoDisplay"/>
 	```
-8. Add the `google-services.json` in Android application module root directory.  For more information on how to add this file, see [Setup the Push client SDK on FCM](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_3.html#push_step_3_Android){: new_window}.
+8. Add the `google-services.json` in Android application module root directory.  For more information on how to add this file, see [Setup the Push client SDK on FCM](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_3.html#push_step_3_Android).
 
 
 ### Include core SDK and Push SDK
