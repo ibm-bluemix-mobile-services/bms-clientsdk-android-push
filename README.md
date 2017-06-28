@@ -57,7 +57,7 @@ Choose to integrate the Push Notifications Android Client SDK package using eith
 ## Initialize SDK
 
 
-Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) to setup the FCM project and obtain your credentials.
+Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1){:new_window: target="_blank"} to setup the FCM project and obtain your credentials.
 
 
 ### Include client Push SDK with Gradle
