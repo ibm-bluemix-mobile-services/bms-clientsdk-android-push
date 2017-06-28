@@ -1,5 +1,5 @@
 IBM Bluemix Push Notifications Android SDK
-====================================
+==========================================
 
 [![Build Status](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push.svg?branch=master)](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push)
 [![Build Status](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push.svg?branch=development)](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push)
@@ -57,7 +57,7 @@ Choose to integrate the Push Notifications Android Client SDK package using eith
 ## Initialize SDK
 
 
-Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1){:new_window: target="_blank"} to setup the FCM project and obtain your credentials.
+Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) to setup the FCM project and obtain your credentials.
 
 
 ### Include client Push SDK with Gradle
@@ -68,23 +68,23 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 	
 	```
 	dependencies {
-    ........
-	compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
-         name: 'push',
-         version: '3.+',
-         ext: 'aar',
-         transitive: true
-	.......
-		  }
+    	........
+		compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
+         	name: 'push',
+        	 version: '3.+',
+        	 ext: 'aar',
+         	transitive: true
+		.......
+	}
 	```
 
 2. Add the following dependencies to your Module level `build.gradle` file.
 		
 	 ```
 	  dependencies {
-	   classpath 'com.android.tools.build:gradle:2.2.3'
-	   classpath 'com.google.gms:google-services:3.0.0'
-	  }
+	  	 classpath 'com.android.tools.build:gradle:2.2.3'
+	   	classpath 'com.google.gms:google-services:3.0.0'
+	 }
   	```
 
 3. Add the `Google Play services` dependency to your Module level `build.gradle` file at the end, after the `dependencies{.....}`:
