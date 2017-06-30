@@ -487,23 +487,23 @@ Add the following snippet to you `AndroidManifest.xml` file:
 
 ## Samples and videos
 
-* For samples, visit - [Github Sample](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush){: new_window}
+* For samples, visit - [Github Sample](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush)
 
-* For video tutorials, visit - [Bluemix Push Notifications](https://www.youtube.com/channel/UCRr2Wou-z91fD6QOYtZiHGA){: new_window}
+* For video tutorials, visit - [Bluemix Push Notifications](https://www.youtube.com/channel/UCRr2Wou-z91fD6QOYtZiHGA)
 
 ### Learning More
 
 * Visit the **[Bluemix Developers Community](https://developer.ibm.com/bluemix/)**.
 
-* [Getting started with IBM MobileFirst Platform for iOS](https://www.ng.bluemix.net/docs/mobile/index.html){: new_window}
+* [Getting started with IBM MobileFirst Platform for iOS](https://www.ng.bluemix.net/docs/mobile/index.html)
 
 ### Connect with Bluemix
 
-[Twitter](https://twitter.com/ibmbluemix){: new_window} |
-[YouTube](https://www.youtube.com/watch?v=dQ1WcY_Ill4){: new_window}|
-[Blog](https://developer.ibm.com/bluemix/blog/){: new_window} |
-[Facebook](https://www.facebook.com/ibmbluemix){: new_window} |
-[Meetup](http://www.meetup.com/bluemix/){: new_window}
+[Twitter](https://twitter.com/ibmbluemix)|
+[YouTube](https://www.youtube.com/watch?v=dQ1WcY_Ill4) |
+[Blog](https://developer.ibm.com/bluemix/blog/) |
+[Facebook](https://www.facebook.com/ibmbluemix) |
+[Meetup](http://www.meetup.com/bluemix/)
 
 =======================
 Copyright 2016-17 IBM Corp.
