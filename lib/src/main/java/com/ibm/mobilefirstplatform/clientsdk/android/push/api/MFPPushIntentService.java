@@ -576,6 +576,9 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         int resourceId = -1;
 
         try {
+            if (resourceName == null){
+                resourceName = "push_notification_icon";
+            }
             resourceId = getResourceIdForCustomIcon(context, DRAWABLE, resourceName);
         } catch (Exception e) {
             logger.error("MFPPushIntentService: getCustomNotification() - Exception while parsing icon file.");
