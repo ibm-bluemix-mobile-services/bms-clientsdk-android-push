@@ -495,6 +495,9 @@ public class MFPPush extends FirebaseInstanceIdService {
   */
   public void unregister(final MFPPushResponseListener<String> listener) {
     MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
+    if (this.deviceId == null) {
+      this.deviceId = MFPPushUtils.getContentFromSharedPreferences(appContext, applicationId + DEVICE_ID);
+    }
     String path = builder.getUnregisterUrl(deviceId);
     logger.debug("MFPPush:unregister() - The device unregister url is: " + path);
     MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE, clientSecret);
