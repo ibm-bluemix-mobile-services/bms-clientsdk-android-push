@@ -188,7 +188,6 @@ public class MFPPush extends FirebaseInstanceIdService {
   private String deviceToken = null;
   private String regId = null;
   private String applicationId = null;
-  private String errorString = null;
   private int statusCode = 0;
 
 
@@ -207,7 +206,6 @@ public class MFPPush extends FirebaseInstanceIdService {
   private boolean onMessageReceiverRegistered = false;
   private boolean isNewRegistration = false;
   private boolean hasRegisterParametersChanged = false;
-  public static boolean isRegisteredForPush = false;
   public static MFPPushNotificationOptions options = null;
   private boolean isFromNotificationBar = false;
   private MFPInternalPushMessage messageFromBar = null;
@@ -229,18 +227,6 @@ public class MFPPush extends FirebaseInstanceIdService {
       instance = new MFPPush();
     }
     return instance;
-  }
-
-  @Override
-  public void onTokenRefresh() {
-    String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-    logger.debug("MFPPush:onTokenRefresh - Received token: "+ refreshedToken);
-
-    SharedPreferences sharedPreferences = PreferenceManager
-    .getDefaultSharedPreferences(this);
-    SharedPreferences.Editor editor = sharedPreferences.edit();
-    editor.putString("MFPFirebaseToken", refreshedToken);
-    editor.apply();
   }
 
   /**
@@ -291,7 +277,6 @@ public class MFPPush extends FirebaseInstanceIdService {
         }
       } else {
         logger.error("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
-        System.out.print("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value");
         throw new MFPPushException("MFPPush:initialize() - An error occured while initializing MFPPush service. Add a valid ClientSecret and push service instance ID Value", INITIALISATION_ERROR);
       }
 
@@ -395,15 +380,9 @@ public class MFPPush extends FirebaseInstanceIdService {
 
     if (isInitialized) {
       this.registerResponseListener = listener;
-      if (MFPPushUtils.validateString(userId)) {
         setAppForeground(true);
         logger.info("MFPPush:register() - Retrieving senderId from MFPPush server.");
         getSenderIdFromServerAndRegisterInBackground(userId);
-      } else {
-        logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
-        System.out.print("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value");
-        registerResponseListener.onFailure(new MFPPushException("MFPPush:register() - An error occured while registering for MFPPush service. Add a valid userId Value", INITIALISATION_ERROR));
-      }
     } else {
       logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
     }
@@ -422,14 +401,7 @@ public class MFPPush extends FirebaseInstanceIdService {
   */
   public void registerDevice(MFPPushResponseListener<String> listener) {
 
-    if (isInitialized) {
-      this.registerResponseListener = listener;
-      logger.info("MFPPush:register() - Registering for MFPPush service.");
-      setAppForeground(true);
-      getSenderIdFromServerAndRegisterInBackground(null);
-    } else {
-      logger.error("MFPPush:register() - An error occured while registering for MFPPush service. Push not initialized with call to initialize()");
-    }
+    this.registerDeviceWithUserId(null,listener);
   }
 
   /**
@@ -461,17 +433,8 @@ public class MFPPush extends FirebaseInstanceIdService {
         @Override
         public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
           //Error while subscribing to tags.
-          errorString = null;
-          statusCode = 0;
-          if (response != null) {
-            errorString = response.getResponseText();
-            statusCode = response.getStatus();
-          } else if (errorString == null && throwable != null) {
-            errorString = throwable.toString();
-          } else if (errorString == null && jsonObject != null) {
-            errorString = jsonObject.toString();
-          }
-          listener.onFailure(new MFPPushException(errorString, statusCode));
+          logger.error("MFPPush: Error while subscribing to tags");
+          listener.onFailure(getException(response,throwable,jsonObject));
         }
 
       });
@@ -512,18 +475,9 @@ public class MFPPush extends FirebaseInstanceIdService {
 
         @Override
         public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-          //Error while subscribing to tags.
-          errorString = null;
-          statusCode = 0;
-          if (response != null) {
-            errorString = response.getResponseText();
-            statusCode = response.getStatus();
-          } else if (errorString == null && throwable != null) {
-            errorString = throwable.toString();
-          } else if (errorString == null && jsonObject != null) {
-            errorString = jsonObject.toString();
-          }
-          listener.onFailure(new MFPPushException(errorString, statusCode));
+          //Error while Unsubscribing to tags.
+          logger.error("MFPPush: Error while Unsubscribing to tags");
+          listener.onFailure(getException(response,throwable,jsonObject));
         }
       });
       invoker.execute();
@@ -541,6 +495,9 @@ public class MFPPush extends FirebaseInstanceIdService {
   */
   public void unregister(final MFPPushResponseListener<String> listener) {
     MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
+    if (this.deviceId == null) {
+      this.deviceId = MFPPushUtils.getContentFromSharedPreferences(appContext, applicationId + DEVICE_ID);
+    }
     String path = builder.getUnregisterUrl(deviceId);
     logger.debug("MFPPush:unregister() - The device unregister url is: " + path);
     MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.DELETE, clientSecret);
@@ -550,23 +507,15 @@ public class MFPPush extends FirebaseInstanceIdService {
       public void onSuccess(Response response) {
         logger.info("MFPPush:unregister() - Successfully unregistered device. Response is: " + response.toString());
         isTokenUpdatedOnServer = false;
-        isRegisteredForPush = false;
         listener.onSuccess("Device Successfully unregistered from receiving push notifications.");
       }
 
       @Override
       public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-        errorString = null;
-        statusCode = 0;
-        if (response != null) {
-          errorString = response.getResponseText();
-          statusCode = response.getStatus();
-        } else if (errorString == null && throwable != null) {
-          errorString = throwable.toString();
-        } else if (errorString == null && jsonObject != null) {
-          errorString = jsonObject.toString();
-        }
-        listener.onFailure(new MFPPushException(errorString, statusCode));
+
+        logger.error("MFPPush: Error while unregistered device");
+        listener.onFailure(getException(response,throwable,jsonObject));
+
       }
     });
     invoker.execute();
@@ -611,18 +560,9 @@ public class MFPPush extends FirebaseInstanceIdService {
 
       @Override
       public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-        //Error while subscribing to tags.
-        errorString = null;
-        statusCode = 0;
-        if (response != null) {
-          errorString = response.getResponseText();
-          statusCode = response.getStatus();
-        } else if (errorString == null && throwable != null) {
-          errorString = throwable.toString();
-        } else if (errorString == null && jsonObject != null) {
-          errorString = jsonObject.toString();
-        }
-        listener.onFailure(new MFPPushException(errorString, statusCode));
+        //Error while getting tags.
+        logger.error("MFPPush: Error while getting tags");
+        listener.onFailure(getException(response,throwable,jsonObject));
       }
     });
     invoker.execute();
@@ -672,18 +612,9 @@ public class MFPPush extends FirebaseInstanceIdService {
 
       @Override
       public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
-        //Error while subscribing to tags.
-        errorString = null;
-        statusCode = 0;
-        if (response != null) {
-          errorString = response.getResponseText();
-          statusCode = response.getStatus();
-        } else if (errorString == null && throwable != null) {
-          errorString = throwable.toString();
-        } else if (errorString == null && jsonObject != null) {
-          errorString = jsonObject.toString();
-        }
-        listener.onFailure(new MFPPushException(errorString, statusCode));
+        //Error while getSubscriptions.
+        logger.error("MFPPush: Error while getSubscriptions");
+        listener.onFailure(getException(response,throwable,jsonObject));
       }
     });
     invoker.execute();
@@ -693,7 +624,7 @@ public class MFPPush extends FirebaseInstanceIdService {
   * Get the Push Application GUID
   */
   public String getApplicationId() {
-    if (!applicationId.isEmpty()) {
+    if ( applicationId != null && !applicationId.isEmpty() ) {
       return applicationId;
     } else {
       return null;
@@ -848,11 +779,10 @@ public class MFPPush extends FirebaseInstanceIdService {
                 computeRegId();
                 if (MFPPushUtils.validateString(userId)) {
                   registerWithUserId(userId);
-                  break;
                 } else {
                   register();
-                  break;
                 }
+                break;
               }
             } catch (Exception e) {
               registerResponseListener
@@ -939,12 +869,10 @@ public class MFPPush extends FirebaseInstanceIdService {
 
         String error = "Error while registration - Please verify your UserId and ClientSecret value";
         logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Please verify your UserId and ClientSecret value");
-        System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
       }
     } else {
       String error = "Error while registration -. Not initialized MFPPush";
       logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Error while registration -. Not initialized MFPPush");
-      System.out.print("MFPPush:verifyDeviceRegistrationWithUserId() - " + error);
     }
 
     return true;
@@ -1015,8 +943,6 @@ public class MFPPush extends FirebaseInstanceIdService {
       String path = builder.getDevicesUrl();
       MFPPushInvoker invoker = MFPPushInvoker.newInstance(appContext, path, Request.POST, clientSecret);
 
-      //Add header for xtify deviceId for migration
-      final SharedPreferences sharedPreferences = appContext.getSharedPreferences("com.ibm.mobile.services.push", 0);
       if (MFPPushUtils.validateString(userId)) {
         invoker.setJSONRequestBody(buildDevice(userId));
       } else {
@@ -1036,7 +962,6 @@ public class MFPPush extends FirebaseInstanceIdService {
 
             isNewRegistration = false;
             isTokenUpdatedOnServer = true;
-            isRegisteredForPush = true;
             logger.info("MFPPush:updateTokenCallback() - Successfully registered device.");
             registerResponseListener.onSuccess(response.toString());
           } catch (JSONException e1) {
@@ -1048,17 +973,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         @Override
         public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
           logger.error("MFPPush:updateTokenCallback() - Failure during device registration.");
-          errorString = null;
-          statusCode = 0;
-          if (response != null) {
-            errorString = response.getResponseText();
-            statusCode = response.getStatus();
-          } else if (errorString == null && throwable != null) {
-            errorString = throwable.toString();
-          } else if (errorString == null && jsonObject != null) {
-            errorString = jsonObject.toString();
-          }
-          registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
+          registerResponseListener.onFailure(getException(response,throwable,jsonObject));
         }
       });
       invoker.execute();
@@ -1080,24 +995,13 @@ public class MFPPush extends FirebaseInstanceIdService {
           logger.debug("MFPPush:updateTokenCallback() - Device registration successfully updated.");
           isTokenUpdatedOnServer = true;
           isNewRegistration = false;
-          isRegisteredForPush = true;
           registerResponseListener.onSuccess(response.toString());
         }
 
         @Override
         public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
           logger.debug("MFPPush:updateTokenCallback() - Failure while updating device registration details.");
-          errorString = null;
-          statusCode = 0;
-          if (response != null) {
-            errorString = response.getResponseText();
-            statusCode = response.getStatus();
-          } else if (errorString == null && throwable != null) {
-            errorString = throwable.toString();
-          } else if (errorString == null && jsonObject != null) {
-            errorString = jsonObject.toString();
-          }
-          registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
+          registerResponseListener.onFailure(getException(response,throwable,jsonObject));
         }
       });
       invoker.execute();
@@ -1400,7 +1304,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         }
 
         if (senderId == null) {
-          errorString = "MFPPush: getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
+          String errorString = "MFPPush: getSenderIdFromServerAndRegisterInBackgound() - SenderId is not configured in the backend application.";
           registerResponseListener.onFailure(new MFPPushException(errorString));
         } else {
           gcmSenderId = senderId;
@@ -1412,23 +1316,27 @@ public class MFPPush extends FirebaseInstanceIdService {
       @Override
       public void onFailure(Response response, Throwable throwable, JSONObject object) {
         logger.error("MFPPush: getSenderIdFromServerAndRegisterInBackground() - Error while getting senderId from push server.");
-        errorString = null;
-        statusCode = 0;
-        if (response != null) {
-          errorString = response.getResponseText();
-          statusCode = response.getStatus();
-        } else if (errorString == null && throwable != null) {
-          errorString = throwable.toString();
-        } else if (errorString == null && object != null) {
-          errorString = object.toString();
-        }
-        registerResponseListener.onFailure(new MFPPushException(errorString, statusCode));
+        registerResponseListener.onFailure(getException(response,throwable,object));
       }
     });
 
     invoker.execute();
   }
 
+  private MFPPushException getException(Response response, Throwable throwable, JSONObject object) {
+
+    String errorString = null;
+    statusCode = 0;
+    if (response != null) {
+      errorString = response.getResponseText();
+      statusCode = response.getStatus();
+    } else if (errorString == null && throwable != null) {
+      errorString = throwable.toString();
+    } else if (errorString == null && object != null) {
+      errorString = object.toString();
+    }
+    return new MFPPushException(errorString, statusCode);
+  }
 
   class UpstreamSyncMessage implements Runnable {
 
