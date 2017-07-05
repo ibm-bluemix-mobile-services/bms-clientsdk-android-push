@@ -40,6 +40,7 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 * Updated the Core dependency to the working version
 * Updated the doc with Bluemix region specification
 
+
 #### 3.6
 
  * Added custom DeviceId for registration To send `DeviceId` please use `BMSPushClientOptions` class method,
