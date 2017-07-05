@@ -28,6 +28,12 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (bluemix region) value.
 
+#### 3.6.1
+
+* New way to set message icon. 
+  - Add an image named `push_notification_icon.png` in the app @drawable
+* Fixed Device Unregistration issue.
+
 #### 3.6
 
  * Added custom DeviceId for registration To send `DeviceId` please use `BMSPushClientOptions` class method,
