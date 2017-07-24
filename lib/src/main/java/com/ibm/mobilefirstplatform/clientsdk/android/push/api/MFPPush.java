@@ -1188,12 +1188,6 @@ public class MFPPush extends FirebaseInstanceIdService {
       + " not allowed to work with push.";
       throw new RuntimeException(errorMsg);
     }
-
-    try {
-      MFPPushUtils.checkManifest (appContext);
-    } catch (Exception e) {
-      throw new RuntimeException("Your manifest is not allowed to work with push. " + e.getMessage());
-    }
   }
 
   private BroadcastReceiver onMessage = new BroadcastReceiver() {

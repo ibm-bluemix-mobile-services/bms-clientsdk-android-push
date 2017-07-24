@@ -135,11 +135,6 @@ public class MFPPushUtils extends Activity {
 		}
 	}
     
-    public static void checkManifest(Context context)  {
-        verifyPermission(context, context.getPackageName() + ".permission.C2D_MESSAGE");
-        verifyPermission(context, "com.google.android.c2dm.permission.RECEIVE");
-    }
-    
     
     private static void verifyPermission(Context context, String paramString) {
         if (!isPermissionGranted(context, paramString)) {
