@@ -725,7 +725,12 @@ public class MFPPush extends FirebaseInstanceIdService {
                 sendDeliveryStatus = true;
                 sendDeliveryStatusLock.notify();
               }
-              logger.info("MFPPush:sendMessageDeliveryStatus() - Successfully updated the message status.  The response is: " + response.toString());
+              if(response != null){
+                logger.info("MFPPush:sendMessageDeliveryStatus() - Successfully updated the message status.  The response is: " + response.toString());
+              }else {
+                logger.info("MFPPush:sendMessageDeliveryStatus() - Successfully updated the message status.  The response is: " + response);
+              }
+
             }
 
             @Override
@@ -734,7 +739,13 @@ public class MFPPush extends FirebaseInstanceIdService {
                 sendDeliveryStatus = true;
                 sendDeliveryStatusLock.notify();
               }
-              logger.info("MFPPush:sendMessageDeliveryStatus() - Failed to update the message status.  The response is: " + response.toString());
+              if(response != null){
+                logger.info("MFPPush:sendMessageDeliveryStatus() - Failed to update the message status.  The response is: " + response.toString());
+
+              }else {
+                logger.info("MFPPush:sendMessageDeliveryStatus() - Failed to update the message status.  The response is: " + response);
+              }
+
             }
           });
           invoker.execute();
@@ -1176,12 +1187,6 @@ public class MFPPush extends FirebaseInstanceIdService {
       + android.os.Build.VERSION.RELEASE
       + " not allowed to work with push.";
       throw new RuntimeException(errorMsg);
-    }
-
-    try {
-      MFPPushUtils.checkManifest (appContext);
-    } catch (Exception e) {
-      throw new RuntimeException("Your manifest is not allowed to work with push. " + e.getMessage());
     }
   }
 

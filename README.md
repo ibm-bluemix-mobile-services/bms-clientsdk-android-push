@@ -28,6 +28,11 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (bluemix region) value.
 
+#### 3.6.3
+
+* removed unused code snippets
+* Added new icon for push
+
 #### 3.6.2
 
 * New way to set message icon. 
