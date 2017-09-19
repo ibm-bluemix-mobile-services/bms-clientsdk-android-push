@@ -17,7 +17,7 @@ This package contains the push components of Android SDK.  This package has to b
 The package is supported on Android API level 14 and up (Android 4.0 and up).
 #### Multidex support prior to Android 5.0
 Versions of the platform prior to Android 5.0 (API level 21) use the Dalvik runtime for executing app code.
-1. Add the following in your graadle file,
+1. Add the following in your gradle file,
 
 ```
 
