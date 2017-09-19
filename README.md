@@ -15,6 +15,34 @@ This package contains the push components of Android SDK.  This package has to b
 
 ### Supported Levels
 The package is supported on Android API level 14 and up (Android 4.0 and up).
+#### Multidex support prior to Android 5.0
+Versions of the platform prior to Android 5.0 (API level 21) use the Dalvik runtime for executing app code.
+1. Add the following in your graadle file,
+
+```
+
+android {
+...
+   defaultConfig{
+    ....
+      multiDexEnabled true
+    ....
+   }
+...
+}
+...
+dependencies {
+  .....
+  compile 'com.android.support:multidex:1.0.1'
+  ....
+}
+```
+2. In the `manifest.xml` file add teh following,
+
+```
+<application 
+    android:name="android.support.multidex.MultiDexApplication"
+```
 
 ### Sound Configuration
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
