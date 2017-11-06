@@ -50,9 +50,10 @@ dependencies {
 
 ### Bluemix Region - Core SDK
  Bluemix Region specifies the location where the app hosted. You can either use one of following values or specify the region manually. 
-   - `BMSClient.Region.usSouth`
-   - `BMSClient.Region.unitedKingdom`
-   - `BMSClient.Region.sydney` 
+   - `BMSClient.REGION_US_SOUTH`
+   - `BMSClient.REGION_UK`
+   - `BMSClient.REGION_SYDNEY` 
+   - `BMSClient.REGION_GERMANY`
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (bluemix region) value.
 
