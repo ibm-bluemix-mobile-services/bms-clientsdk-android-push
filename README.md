@@ -15,6 +15,34 @@ This package contains the push components of Android SDK.  This package has to b
 
 ### Supported Levels
 The package is supported on Android API level 14 and up (Android 4.0 and up).
+#### Multidex support prior to Android 5.0
+Versions of the platform prior to Android 5.0 (API level 21) use the Dalvik runtime for executing app code.
+1. Add the following in your gradle file,
+
+```
+
+android {
+...
+   defaultConfig{
+    ....
+      multiDexEnabled true
+    ....
+   }
+...
+}
+...
+dependencies {
+  .....
+  compile 'com.android.support:multidex:1.0.1'
+  ....
+}
+```
+2. In the `manifest.xml` file add teh following,
+
+```
+<application 
+    android:name="android.support.multidex.MultiDexApplication"
+```
 
 ### Sound Configuration
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
@@ -22,9 +50,10 @@ The package is supported on Android API level 14 and up (Android 4.0 and up).
 
 ### Bluemix Region - Core SDK
  Bluemix Region specifies the location where the app hosted. You can either use one of following values or specify the region manually. 
-   - `BMSClient.Region.usSouth`
-   - `BMSClient.Region.unitedKingdom`
-   - `BMSClient.Region.sydney` 
+   - `BMSClient.REGION_US_SOUTH`
+   - `BMSClient.REGION_UK`
+   - `BMSClient.REGION_SYDNEY` 
+   - `BMSClient.REGION_GERMANY`
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (bluemix region) value.
 
