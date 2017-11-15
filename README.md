@@ -245,7 +245,7 @@ Include the below in your AndroidManifest.xml to use this functionality
     2. push.initialize(getApplicationContext(),"your appGuid of push", "clientSecret");
     3. registerDeviceWithUserId("your userId"",new MFPPushResponseListener<String>() {
             @Override
-            public void onSuccess(String deviceId) {
+            public void onSuccess(String response) {
                 updateTextView("Device is registered with Push Service.");
                 displayTags();
             }
