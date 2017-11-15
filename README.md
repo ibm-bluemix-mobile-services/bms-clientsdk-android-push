@@ -64,7 +64,16 @@ Ensure that you have gone through [Configuring credentials for a notification pr
 
 Configure the Module level `build.gradle` and Project level `build.gradle` files.
 
-1. Add Bluemix Push Notifications Android SDK dependency to your Project level `build.gradle` file.
+1. Add the following dependencies to your Project level `build.gradle` file.
+		
+	 ```
+	  dependencies {
+	  	 classpath 'com.android.tools.build:gradle:2.2.3'
+	   	classpath 'com.google.gms:google-services:3.0.0'
+	 }
+  	```
+
+2. Add Bluemix Push Notifications Android SDK dependency to your Module level `build.gradle` file.
 	
 	```
 	dependencies {
@@ -78,28 +87,19 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 	}
 	```
 
-2. Add the following dependencies to your Module level `build.gradle` file.
-		
-	 ```
-	  dependencies {
-	  	 classpath 'com.android.tools.build:gradle:2.2.3'
-	   	classpath 'com.google.gms:google-services:3.0.0'
-	 }
-  	```
 
 3. Add the `Google Play services` dependency to your Module level `build.gradle` file at the end, after the `dependencies{.....}`:
 
 	```
 	apply plugin: 'com.google.gms.google-services'
 	```
+
 4. Configure the `AndroidManifest.xml` file. Refer the [example here](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush/blob/master/helloPush/app/src/main/AndroidManifest.xml). Add the following permissions inside application's `AndroidManifest.xml` file. 
 
 	 ```
 	 <uses-permission android:name="android.permission.INTERNET"/>
-	 <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-	 <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-	 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	 <uses-permission android:name="android.permission.WAKE_LOCK" />
 	 ```
 5. Add the notification intent settings for the activity. This setting starts the application when the user clicks the received notification from the notification area.
 
@@ -145,6 +145,7 @@ A common place to put the initialization code is the `onCreate()` method of the 
 // Initialize the SDK
 BMSClient.getInstance().initialize(this, "bluemixRegionSuffix");
 //Initialize client Push SDK
+
 MFPPush push = MFPPush.getInstance();
 push.initialize(getApplicationContext(), "appGUID", "clientSecret");
 ```
@@ -154,6 +155,7 @@ Where `bluemixRegionSuffix` specifies the location where the app is hosted. You 
 - `BMSClient.REGION_US_SOUTH`
 - `BMSClient.REGION_UK`
 - `BMSClient.REGION_SYDNEY`
+- `BMSClient.REGION_GERMANY`
 
 The `appGUID` is the push app GUID value, while `clientSecret` is the push client secret value.
 
@@ -169,15 +171,17 @@ The following options are supported:
 	```
 	//Register Android devices
 	push.registerDevice(new MFPPushResponseListener<String>() {
-    @Override
-    public void onSuccess(String response) {
-    //handle successful device registration here
-    }
-    @Override
-    public void onFailure(MFPPushException ex) {
-    //handle failure in device registration here
-    }
-	  		});
+		
+		@Override
+		public void onSuccess(String response) {
+		   //handle successful device registration here
+		}
+
+		@Override
+		public void onFailure(MFPPushException ex) {
+		   //handle failure in device registration here
+		}
+	});
 	```
 
 - Register with UserId. For `userId` based notification, the register method will accept one more parameter - `userId`.
@@ -185,14 +189,16 @@ The following options are supported:
 	```
 	// Register the device to Push Notifications
 	push.registerDeviceWithUserId("userId",new MFPPushResponseListener<String>() {
-	@Override	
-	public void onSuccess(String response) {
-    //handle successful device registration here
-	}
-	@Override	
-	public void onFailure(MFPPushException ex) {
-    //handle failure in device registration here
-	}
+		
+		@Override	
+		public void onSuccess(String response) {
+			//handle successful device registration here
+		}
+
+		@Override	
+		public void onFailure(MFPPushException ex) {
+			//handle failure in device registration here
+		}
 	});
 	```
 
@@ -206,24 +212,27 @@ To register the `notificationListener` object with Push Notifications service, u
 ```
 //Handles the notification when it arrives
 MFPPushNotificationListener notificationListener = new MFPPushNotificationListener() {
+	
 	@Override
 	public void onReceive (final MFPSimplePushNotification message){
       // Handle Push Notification
     }	
-	};
-	@Override
-	 protected void onResume(){
+};
+
+@Override
+protected void onResume(){
     super.onResume();
     if(push != null) {
       push.listen(notificationListener);
     }
 }
-	 @Override
-	protected void onPause() {
+
+@Override
+protected void onPause() {
 	super.onPause();
 	if (push != null) {
-       push.hold();
-    }
+		push.hold();
+	}
 }
 ```
 
@@ -232,15 +241,17 @@ MFPPushNotificationListener notificationListener = new MFPPushNotificationListen
 Use the following code snippets to un-register from Push Notifications.
 ```
 push.unregister(new MFPPushResponseListener<String>() {
-@Override
-public void onSuccess(String s) {
- // Handle success
-    }
-    @Override
-    public void onFailure(MFPPushException e) {
-        // Handle Failure
-    }
-	});
+	
+	@Override
+	public void onSuccess(String s) {
+		// Handle success
+	}
+
+	@Override
+	public void onFailure(MFPPushException e) {
+		// Handle Failure
+	}
+});
 ```
 >**Note**: To unregister from the `UserId` based registration, you have to call the registration method. See the `Register without userId option` in [Register for notifications](#register-for-notifications).
 
@@ -256,14 +267,16 @@ Add the following code snippet to your mobile application to get a list of avail
 ```
 // Get a list of available tags to which the device can subscribe
 push.getTags(new MFPPushResponseListener<List<String>>(){  
-@Override
-public void onSuccess(List<String> tags){
-     System.out.println("Available tags are: "+tags);
-}    
-@Override    
-public void onFailure(MFPPushException ex){
-   System.out.println("Error getting available tags.. " + ex.getMessage());
-}
+	
+	@Override
+	public void onSuccess(List<String> tags){
+		System.out.println("Available tags are: "+tags);
+	}  
+	  
+	@Override    
+	public void onFailure(MFPPushException ex){
+		System.out.println("Error getting available tags.. " + ex.getMessage());
+	}
 })
 ```
 
@@ -276,14 +289,16 @@ Add the following code snippet to your Swift mobile application to subscribe to 
 ```
 // Subscribe to the given tag
 push.subscribe(allTags.get(0), new MFPPushResponseListener<String>() {
-@Override
-public void onSuccess(String arg) {
-     System.out.println("Succesfully Subscribed to: "+ arg);
-}
-@Override
-public void onFailure(MFPPushException ex) {
-     System.out.println("Error subscribing to Tag1.." + ex.getMessage());
-}
+	
+	@Override
+	public void onSuccess(String arg) {
+		System.out.println("Succesfully Subscribed to: "+ arg);
+	}
+
+	@Override
+	public void onFailure(MFPPushException ex) {
+		System.out.println("Error subscribing to Tag1.." + ex.getMessage());
+	}
 });
 ```
 
@@ -294,14 +309,16 @@ The `getSubscriptions` API will return the list of tags to which the device is s
 ```
 // Get a list of tags that to which the device is subscribed.
 push.getSubscriptions(new MFPPushResponseListener<List<String>>() {
-@Override
-public void onSuccess(List<String> tags) {
-     System.out.println("Subscribed tags are: "+tags);
-}
-@Override
-public void onFailure(MFPPushException ex) {
-      System.out.println("Error getting subscriptions.. " + ex.getMessage());
-}
+	
+	@Override
+	public void onSuccess(List<String> tags) {
+		System.out.println("Subscribed tags are: "+tags);
+	}
+
+	@Override
+	public void onFailure(MFPPushException ex) {
+		System.out.println("Error getting subscriptions.. " + ex.getMessage());
+	}
 })
 ```
 
@@ -312,14 +329,16 @@ The `unsubscribeFromTags` API will remove the device subscription from the list 
 ```
 // unsubscibe from the given tag ,that to which the device is subscribed.
 push.unsubscribe(tag, new MFPPushResponseListener<String>() {
-@Override
-public void onSuccess(String s) {
-     System.out.println("Successfully unsubscribed from tag . "+ tag);
-   }
-@Override
-public void onFailure(MFPPushException e) {
-     System.out.println("Error while unsubscribing from tags. "+ e.getMessage());
-}	
+	
+	@Override
+	public void onSuccess(String s) {
+		System.out.println("Successfully unsubscribed from tag . "+ tag);
+	}
+
+	@Override
+	public void onFailure(MFPPushException e) {
+		System.out.println("Error while unsubscribing from tags. "+ e.getMessage());
+	}	
 });
 ```
 
@@ -438,10 +457,10 @@ You need to register the `com.ibm.mobilefirstplatform.clientsdk.android.push.api
 
 ```
 	push.setNotificationStatusListener(new MFPPushNotificationStatusListener() {
-	@Override
-	   public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
-       // Handle status change
-	}
+		@Override
+		public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
+		// Handle status change
+		}
 	});
 ```
 
@@ -452,27 +471,28 @@ You can choose to listen to the DISMISSED status on either of the following cond
 * When the app is `active (running in foreground or background)`. Add the snippet to your `AndroidManifest.xml` file:
 
 ```
-		<receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
-    	  <intent-filter>
-        <action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
-    	  </intent-filter>
+	<receiver android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler">
+		<intent-filter>
+	<action android:name="Your_Android_Package_Name.Cancel_IBMPushNotification"/>
+		</intent-filter>
    	</receiver>
 ```
 * When the app is both `active (running in foreground or background)` and `not running (closed)`. Extend the `com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationDismissHandler` broadcast receiver and override the method `onReceive()`, where the `MFPPushNotificationStatusListener` should be registered before calling method `onReceive()` of the base class:
 
 ```
-		public class MyDismissHandler extends MFPPushNotificationDismissHandler {
+	public class MyDismissHandler extends MFPPushNotificationDismissHandler {
+		
 		@Override
 		public void onReceive(Context context, Intent intent) {
-		MFPPush.getInstance().setNotificationStatusListener(new MFPPushNotificationStatusListener() {
-		@Override
-		public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
-		// Handle status change
-       	}
-     	});
-     	super.onReceive(context, intent);
+			MFPPush.getInstance().setNotificationStatusListener(new MFPPushNotificationStatusListener() {
+				@Override
+				public void onStatusChange(String messageId, MFPPushNotificationStatus status) {
+					// Handle status change
+				}
+			});
+			super.onReceive(context, intent);
 		}
-			}
+	}
 ```
 
 Add the following snippet to you `AndroidManifest.xml` file:
