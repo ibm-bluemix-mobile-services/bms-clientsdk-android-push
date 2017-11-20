@@ -57,6 +57,14 @@ dependencies {
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (bluemix region) value.
 
+#### 3.6.5
+
+* Android-O (API 26) support
+
+#### 3.6.4
+
+* Added new core SDK with OKHttp 3
+
 #### 3.6.3
 
 * removed unused code snippets
