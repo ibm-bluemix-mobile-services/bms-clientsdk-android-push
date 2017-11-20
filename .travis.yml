@@ -1,11 +1,14 @@
 language: android
 sudo: required
+jdk: oraclejdk8
 android:
   components:
   - tools
   - build-tools-26.0.1
   - android-26
   - extra
+licenses:
+  - '.+'
 env:
   global:
   - END_TASK=""
