@@ -3,14 +3,15 @@ sudo: required
 jdk: oraclejdk8
 android:
   components:
-  - tools
-  - platform-tools
-  - build-tools-26.0.1
-  - android-26
-  - extra
+    - tools
+    - platform-tools
+    - build-tools-26.0.1
+    - android-26
+    - extra
   licenses:
-  - android-sdk-license-.+
-  - google-gdk-license-.+
+    - '.+'
+    - android-sdk-license-.+
+    - google-gdk-license-.+
 env:
   global:
   - END_TASK=""
