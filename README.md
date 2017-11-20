@@ -61,6 +61,48 @@ dependencies {
 
 * Android-O (API 26) support
 
+* Add following dependecies in your Project `build.gradle`,
+
+ ```
+ buildscript {
+    repositories {
+        jcenter()
+        maven { url 'https://maven.google.com' }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.google.gms:google-services:3.0.0'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        maven { url 'https://maven.google.com' }
+    }
+}
+ ```
+
+* In the App's `build.gradle` file add the following,
+
+ ```
+     android {
+        compileSdkVersion 26
+        buildToolsVersion '26.0.2'
+        .........
+    }
+
+    dependencies {
+        ......
+        compile 'com.google.firebase:firebase-messaging:10.2.6'
+        compile 'com.ibm.mobilefirstplatform.clientsdk.android:push:3.6.5'
+        .....
+
+    }
+    apply plugin: 'com.google.gms.google-services'
+
+ ```
+
 #### 3.6.4
 
 * Added new core SDK with OKHttp 3
