@@ -1,11 +1,11 @@
-IBM Bluemix Mobile Services - Client SDK Android Push
+IBM Cloud Mobile Services - Client SDK Android Push
 ===
 
 [![Build Status](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push.svg?branch=master)](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push)
 [![Build Status](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push.svg?branch=development)](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5c49c09a1f9f45c99c39623f8033d1eb)](https://www.codacy.com/app/ibm-bluemix-mobile-services/bms-clientsdk-android-push?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ibm-bluemix-mobile-services/bms-clientsdk-android-push&amp;utm_campaign=Badge_Grade)
 
-This is the push component of Android SDK for IBM Bluemix Mobile Services. https://console.ng.bluemix.net/solutions/mobilefirst
+This is the push component of Android SDK for IBM Cloud Mobile Services. https://console.ng.net/solutions/mobilefirst
 
 ### Installation
 You can either download and import this package to your Android Studio project or get it via Gradle.
@@ -46,16 +46,16 @@ dependencies {
 
 ### Sound Configuration
 1. Create a folder named `raw` in the `res` directory of your android application and add the ringtone files to that folder.
-2. Specify the ringtone file name when you send notification from Bluemix Push dashboard.
+2. Specify the ringtone file name when you send notification from IBM Cloud Push dashboard.
 
-### Bluemix Region - Core SDK
- Bluemix Region specifies the location where the app hosted. You can either use one of following values or specify the region manually. 
+### IBM Cloud Region - Core SDK
+ IBM Coud Region specifies the location where the app hosted. You can either use one of following values or specify the region manually. 
    - `BMSClient.REGION_US_SOUTH`
    - `BMSClient.REGION_UK`
    - `BMSClient.REGION_SYDNEY` 
    - `BMSClient.REGION_GERMANY`
    
->**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (bluemix region) value.
+>**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (IBM Coud region) value.
 
 #### 3.6.5
 
@@ -258,7 +258,7 @@ Add the below snippet in AndroidManifest.xml to capture the notification dismiss
 
 #### 3.0
 
-* Update push service to use FCM instead of GCM. All existing applications will work as-is and moving forward all new applications will use FCM.  The client application set up is different in FCM in comparison to the old GCM model. Please refer to [documentation](https://console.ng.bluemix.net/docs/services/mobilepush/c_android_enable.html) for details.
+* Update push service to use FCM instead of GCM. All existing applications will work as-is and moving forward all new applications will use FCM.  The client application set up is different in FCM in comparison to the old GCM model. Please refer to [documentation](https://console.ng.net/docs/services/mobilepush/c_android_enable.html) for details.
 * To compile the SDK, create a FCM project in google console -> Add firebase to android application -> Add the package names `com.ibm.mobilefirstplatform.clientsdk.android.app` , `com.ibm.mobilefirstplatform.clientsdk.android.push` and `com.ibm.mobilefirst.clientsdk.android.app` -> Copy the generated google-services.json file inside the `app` directory.
 
 
@@ -335,15 +335,15 @@ Include the below in your AndroidManifest.xml to use this functionality
 
 * Please visit for samples - [Github Sample](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush)
 
-* Video Tutorials Available here - [Bluemix Push Notifications](https://www.youtube.com/channel/UCRr2Wou-z91fD6QOYtZiHGA)
+* Video Tutorials Available here - [IBM Coud Push Notifications](https://www.youtube.com/channel/UCRr2Wou-z91fD6QOYtZiHGA)
 
 ### Learning More
 
-* Visit the **[Bluemix Developers Community](https://developer.ibm.com/bluemix/)**.
+* Visit the **[IBM Coud Developers Community](https://developer.ibm.com/bluemix/)**.
 
 * [Getting started with IBM MobileFirst Platform for iOS](https://www.ng.bluemix.net/docs/mobile/index.html)
 
-### Connect with Bluemix
+### Connect with IBM Coud
 
 [Twitter](https://twitter.com/ibmbluemix) |
 [YouTube](https://www.youtube.com/playlist?list=PLzpeuWUENMK2d3L5qCITo2GQEt-7r0oqm) |
