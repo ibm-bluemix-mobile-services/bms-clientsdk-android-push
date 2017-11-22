@@ -14,6 +14,7 @@
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -32,6 +33,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ACTION;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DEFAULT_CHANNEL_ID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DRAWABLE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.ID;
@@ -226,8 +228,22 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         int androidSDKVersion = Build.VERSION.SDK_INT;
         long when = System.currentTimeMillis();
         Notification notification = null;
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(
-                                                                            this);
+        NotificationCompat.Builder builder;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            String id = context.getPackageName();
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel mChannel = new NotificationChannel(id, DEFAULT_CHANNEL_ID,importance);
+            mChannel.enableLights(true);
+            mNotificationManager.createNotificationChannel(mChannel);
+            builder = new NotificationCompat.Builder(this, id);
+
+
+        } else {
+            builder = new NotificationCompat.Builder(this);
+        }
 
         Intent deleteIntent = new Intent(MFPPushUtils.getIntentPrefix(context)
                                          + CANCEL_IBM_PUSH_NOTIFICATION);
@@ -235,7 +251,6 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         PendingIntent deletePendingIntent = PendingIntent.getBroadcast(context, notificationId, deleteIntent, 0);
 
         if (message.getGcmStyle() != null && androidSDKVersion > 15) {
-            NotificationCompat.Builder mBuilder = null;
             NotificationManager notificationManager = (NotificationManager) context
             .getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -258,9 +273,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         notificationStyle.bigPicture(remote_picture);
                     }
 
-                    mBuilder = new NotificationCompat.Builder(
-                                                              context);
-                    mBuilder.setSmallIcon(icon)
+                    builder.setSmallIcon(icon)
                     .setLargeIcon(remote_picture)
                     .setAutoCancel(true)
                     .setContentTitle(title)
@@ -277,9 +290,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     notificationStyle.setSummaryText(gcmStyleObject.getString(TITLE));
                     notificationStyle.bigText(gcmStyleObject.getString(TEXT));
 
-                    mBuilder = new NotificationCompat.Builder(
-                                                              context);
-                    mBuilder.setSmallIcon(icon)
+                    builder.setSmallIcon(icon)
                     .setAutoCancel(true)
                     .setContentTitle(title)
                     .setContentIntent(PendingIntent
@@ -302,8 +313,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         notificationStyle.addLine(line);
                     }
 
-                    mBuilder = new NotificationCompat.Builder(context);
-                     mBuilder.setSmallIcon(icon)
+                    builder.setSmallIcon(icon)
 
                     .setAutoCancel(true)
                     .setContentTitle(title)
@@ -316,8 +326,8 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                     .setStyle(notificationStyle);
                 }
 
-              this.setNotificationActions(context,intent,notificationId,message.getCategory(),mBuilder);
-                notification = mBuilder.build();
+              this.setNotificationActions(context,intent,notificationId,message.getCategory(),builder);
+                notification = builder.build();
 
                 if (message.getLights() != null) {
                     try {
