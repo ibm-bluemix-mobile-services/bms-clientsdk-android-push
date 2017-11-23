@@ -122,7 +122,7 @@ allprojects {
 
 * removed duplicate code
 * Updated the Core dependency to the working version
-* Updated the doc with Bluemix region specification
+* Updated the doc with IBM Cloud region specification
 
 
 #### 3.6
