@@ -1,13 +1,13 @@
-IBM Bluemix Push Notifications Android SDK
+IBM Cloud Push Notifications Android SDK
 ==========================================
 
 [![Build Status](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push.svg?branch=master)](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push)
 [![Build Status](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push.svg?branch=development)](https://travis-ci.org/ibm-bluemix-mobile-services/bms-clientsdk-android-push)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5c49c09a1f9f45c99c39623f8033d1eb)](https://www.codacy.com/app/ibm-bluemix-mobile-services/bms-clientsdk-android-push?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ibm-bluemix-mobile-services/bms-clientsdk-android-push&amp;utm_campaign=Badge_Grade)
 
-The [Bluemix Push Notifications service](https://console.ng.bluemix.net/catalog/services/push-notifications) provides a unified push service to send real-time notifications to mobile devices. The Push Notifications Android SDK enables Android apps to receive the sent push notifications.
+The [IBM Cloud Push Notifications service](https://console.bluemix.net/catalog/services/push-notifications) provides a unified push service to send real-time notifications to mobile devices. The Push Notifications Android SDK enables Android apps to receive the sent push notifications.
 
-Ensure that you go through [Bluemix Push Notifications service documentation](https://console.ng.bluemix.net/docs/services/mobilepush/index.html#gettingstartedtemplate) before you start.
+Ensure that you go through [IBM Cloud Push Notifications service documentation](https://console.bluemix.net/docs/services/mobilepush/index.html#gettingstartedtemplate) before you start.
 
 ## Contents
 
@@ -37,7 +37,7 @@ Ensure that you go through [Bluemix Push Notifications service documentation](ht
 ## Prerequisites
 
 
- * [Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22)
+ * [IBM Cloud Push Notifications Android Client SDK package](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ibm.mobilefirstplatform.clientsdk.android%22)
  * Android API level 14 or later
  * Android 4.0 or later
  * [Android Studio](https://developer.android.com/studio/index.html)
@@ -57,7 +57,7 @@ Choose to integrate the Push Notifications Android Client SDK package using eith
 ## Initialize SDK
 
 
-Ensure that you have gone through [Configuring credentials for a notification provider](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) to setup the FCM project and obtain your credentials.
+Ensure that you have gone through [Configuring credentials for a notification provider](https://console.bluemix.net/docs/services/mobilepush/push_step_1.html#push_step_1) to setup the FCM project and obtain your credentials.
 
 
 ### Include client Push SDK with Gradle
@@ -67,25 +67,36 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 1. Add the following dependencies to your Project level `build.gradle` file.
 		
 	 ```
-	  dependencies {
-	  	 classpath 'com.android.tools.build:gradle:2.2.3'
-	   	classpath 'com.google.gms:google-services:3.0.0'
-	 }
+	buildscript {
+		repositories {
+			jcenter()
+			maven { url 'https://maven.google.com' }
+		}
+		dependencies {
+			classpath 'com.android.tools.build:gradle:3.0.0'
+			classpath 'com.google.gms:google-services:3.0.0'
+		}
+	}
+
+	allprojects {
+		repositories {
+			jcenter()
+			maven { url 'https://maven.google.com' }
+		}
+	}
   	```
 
-2. Add Bluemix Push Notifications Android SDK dependency to your Module level `build.gradle` file.
+2. Add IBM Cloud Push Notifications Android SDK dependency to your Module level `build.gradle` file.
 	
 	```
 	dependencies {
     	........
-		compile group: 'com.ibm.mobilefirstplatform.clientsdk.android',
-         	name: 'push',
-        	 version: '3.+',
-        	 ext: 'aar',
-         	transitive: true
+		compile 'com.google.firebase:firebase-messaging:10.2.6'
+        compile 'com.ibm.mobilefirstplatform.clientsdk.android:push:3.6.5'
 		.......
 	}
 	```
+	>**Note**: Use the latest build tools (API 26).
 
 
 3. Add the `Google Play services` dependency to your Module level `build.gradle` file at the end, after the `dependencies{.....}`:
@@ -134,7 +145,7 @@ Configure the Module level `build.gradle` and Project level `build.gradle` files
 	<activity android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPushNotificationHandler"
 	   android:theme="@android:style/Theme.NoDisplay"/>
 	```
-8. Add the `google-services.json` in Android application module root directory.  For more information on how to add this file, see [Setup the Push client SDK on FCM](https://console.ng.bluemix.net/docs/services/mobilepush/push_step_3.html#push_step_3_Android).
+8. Add the `google-services.json` in Android application module root directory.  For more information on how to add this file, see [Setup the Push client SDK on FCM](https://console.bluemix.net/docs/services/mobilepush/push_step_3.html#push_step_3_Android).
 
 
 ### Include core SDK and Push SDK
@@ -143,14 +154,14 @@ A common place to put the initialization code is the `onCreate()` method of the 
 
 ```
 // Initialize the SDK
-BMSClient.getInstance().initialize(this, "bluemixRegionSuffix");
+BMSClient.getInstance().initialize(this, "ibmCloudRegionSuffix");
 //Initialize client Push SDK
 
 MFPPush push = MFPPush.getInstance();
 push.initialize(getApplicationContext(), "appGUID", "clientSecret");
 ```
 
-Where `bluemixRegionSuffix` specifies the location where the app is hosted. You can use any of the following values:
+Where `ibmCloudRegionSuffix` specifies the location where the app is hosted. You can use any of the following values:
 
 - `BMSClient.REGION_US_SOUTH`
 - `BMSClient.REGION_UK`
@@ -422,7 +433,7 @@ To send `DeviceId` use the `setDeviceId` method of `MFPPushNotificationOptions` 
 You can choose to specify a ring-tone for your notifications. To specify a ring-tone, complete the following steps:
 
 1. Create a folder named `raw` in the `res` directory of your android application and add the ring-tone files to that folder.
-2. Specify the ring-tone file name when you send notification from Bluemix Push  Notifications dashboard.
+2. Specify the ring-tone file name when you send notification from IBM Cloud Push  Notifications dashboard.
 
 
 ### Holding notifications
@@ -509,15 +520,15 @@ Add the following snippet to you `AndroidManifest.xml` file:
 
 * For samples, visit - [Github Sample](https://github.com/ibm-bluemix-mobile-services/bms-samples-android-hellopush)
 
-* For video tutorials, visit - [Bluemix Push Notifications](https://www.youtube.com/channel/UCRr2Wou-z91fD6QOYtZiHGA)
+* For video tutorials, visit - [IBM Cloud Push Notifications](https://www.youtube.com/playlist?list=PLTroxxTPN9dIZYn9IU-IOcQePO-u5r0r4)
 
 ### Learning More
 
-* Visit the **[Bluemix Developers Community](https://developer.ibm.com/bluemix/)**.
+* Visit the **[IBM Cloud Developers Community](https://developer.ibm.com/bluemix/)**.
 
 * [Getting started with IBM MobileFirst Platform for iOS](https://www.ng.bluemix.net/docs/mobile/index.html)
 
-### Connect with Bluemix
+### Connect with IBM Cloud
 
 [Twitter](https://twitter.com/ibmbluemix)|
 [YouTube](https://www.youtube.com/watch?v=dQ1WcY_Ill4) |
