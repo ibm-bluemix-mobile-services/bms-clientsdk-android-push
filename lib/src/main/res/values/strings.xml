@@ -1,5 +1,0 @@
-<resources>
-
-    <string name="app_name">push</string>
-    android:id="@+id/display"
-</resources>
