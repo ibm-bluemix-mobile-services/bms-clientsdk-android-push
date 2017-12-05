@@ -95,9 +95,6 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 *
 *  &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
 *  &lt;uses-permission android:name="android.permission.WAKE_LOCK" /&gt;
-*  &lt;uses-permission android:name="android.permission.GET_ACCOUNTS" /&gt;
-*  &lt;uses-permission android:name="android.permission.USE_CREDENTIALS" /&gt;
-*  &lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
 *  &lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/&gt;
 *
 * 2. The activity that is the receiver of push notifications should declare a notification intent in the AndroidManifest.xml as follows:
@@ -127,7 +124,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 *    // Use Push Service APIs
 *    push.registerDevice(new MFPPushResponseListener&lt;String&gt;() {
 *      {@literal @}Override
-*      public void onSuccess(String deviceId) {
+*      public void onSuccess(String response) {
 *        ...
 *      }
 *      {@literal @}Override
