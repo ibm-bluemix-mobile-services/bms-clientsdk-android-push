@@ -180,7 +180,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         message.setNotificationId(notificationId);
         saveInSharedPreferences(message);
 
-        if (message.getMessageType() != MESSAGE_TYPE){
+        if (!message.getMessageType().equals(MESSAGE_TYPE)){
             Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
                     + IBM_PUSH_NOTIFICATION);
 
