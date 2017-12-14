@@ -57,5 +57,7 @@ public interface MFPPushConstants {
 	public static final String LEDONMS = "ledOnMS";
 	public static final String LEDOFFMS = "ledOffMS";
 	public static final String DEFAULT_CHANNEL_ID = "bms_notification_channel";
+	public static final String MESSAGE_TYPE = "silent";
+
 
 }

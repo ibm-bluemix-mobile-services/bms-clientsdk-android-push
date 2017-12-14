@@ -41,6 +41,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LEDOFFMS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LEDONMS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.LINES;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.MESSAGE_TYPE;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.NOTIFICATIONID;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PREFS_BMS_REGION;
@@ -172,23 +173,28 @@ public class MFPPushIntentService extends FirebaseMessagingService {
     }
 
     private void onUnhandled(Context context, JSONObject notification) {
+
         MFPInternalPushMessage message = new MFPInternalPushMessage(notification);
 
         int notificationId = randomObj.nextInt();
         message.setNotificationId(notificationId);
         saveInSharedPreferences(message);
 
-        Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
-                                   + IBM_PUSH_NOTIFICATION);
+        if (!message.getMessageType().equals(MESSAGE_TYPE)){
+            Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
+                    + IBM_PUSH_NOTIFICATION);
 
-        intent.setClass(context, MFPPushNotificationHandler.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setClass(context, MFPPushNotificationHandler.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        intent.putExtra(NOTIFICATIONID, message.getNotificationId());
+            intent.putExtra(NOTIFICATIONID, message.getNotificationId());
 
-        generateNotification(context, message.getAlert(),
-                             getNotificationTitle(context), message.getAlert(),
-                             getCustomNotificationIcon(context, message.getIcon()), intent, getNotificationSound(message), notificationId, message);
+            generateNotification(context, message.getAlert(),
+                    getNotificationTitle(context), message.getAlert(),
+                    getCustomNotificationIcon(context, message.getIcon()), intent, getNotificationSound(message), notificationId, message);
+        } else {
+            logger.info("MFPPushIntentService:onUnhandled() - Received silent push notification");
+        }
     }
 
     private String getNotificationTitle(Context context) {
