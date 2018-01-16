@@ -303,8 +303,13 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 	public String getLights() { return lights; }
 	public void setMessageType(String messageType) { this.messageType = messageType; }
-	public String getMessageType() { return messageType; }
-
+	public String getMessageType() {
+		if (messageType != null && !messageType.isEmpty() && !messageType.equals("null")) {
+			return messageType;
+		} else {
+			return "";
+		}
+	}
 
 	@Override
 	public String toString() {
