@@ -77,7 +77,7 @@ def isReleaseBuild() {
 }
 
 def getVersion() {
-    return '3.6.7-SNAPSHOT'
+    return '3.6.8-SNAPSHOT'
 }
 
 uploadArchives {
