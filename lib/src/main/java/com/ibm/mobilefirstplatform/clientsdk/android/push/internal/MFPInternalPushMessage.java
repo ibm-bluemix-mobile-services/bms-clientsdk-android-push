@@ -47,6 +47,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_EXTRA_ICONNAME = "icon";
 	private static final String GCM_EXTRA_LIGHTS = "lights";
 	private static final String GCM_MESSAGE_TYPE = "type";
+	private static final String GCM_HAS_TEMPLATE = "has-template";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -63,6 +64,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String key = null;
 	private String category = null;
 	private String messageType = null;
+	private String messageType = "";
 
 
 	private String htmlTitle = null;
@@ -71,6 +73,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String gcmStyle = null;
 	private String iconName = null;
 	private String lights = null;
+	private int hasTemplate = 0;
 
 	protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
 
@@ -94,6 +97,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		notificationId = info.getInt(GCM_EXTRA_NOTIFICATIONID);
 		lights = info.getString(GCM_EXTRA_LIGHTS);
 		messageType = info.getString(GCM_MESSAGE_TYPE);
+		hasTemplate = Integer.parseInt(info.getString(GCM_HAS_TEMPLATE));
 
 		try {
 			JSONObject towers = new JSONObject(payload);
@@ -122,6 +126,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		notificationId = source.readInt();
 		lights = source.readString();
 		messageType = source.readString();
+		hasTemplate = source.readInt();
 	}
 
 	public MFPInternalPushMessage(JSONObject json) {
@@ -205,7 +210,12 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		try {
 			messageType = json.getString(GCM_MESSAGE_TYPE);
 		} catch (JSONException e) {
-			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get lights. "+ e.toString());
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get messageType. "+ e.toString());
+		}
+		try {
+			hasTemplate = Integer.parseInt(json.getString(GCM_HAS_TEMPLATE));
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get hasTemplate. "+ e.toString());
 		}
 	}
 
@@ -228,6 +238,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
             json.put(GCM_EXTRA_NOTIFICATIONID, notificationId);
 			json.put(GCM_EXTRA_LIGHTS, lights);
 			json.put(GCM_MESSAGE_TYPE, messageType);
+			json.put(GCM_HAS_TEMPLATE,hasTemplate);
 
     } catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON.  "+ e.toString());
@@ -241,6 +252,10 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	@Override
 	public	String getAlert() {
 		return alert;
+	}
+
+	public void setAlert(String alert) {
+		this.alert = alert;
 	}
 
 	/**
@@ -310,11 +325,13 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			return "";
 		}
 	}
+	public void setHastemplate(int hasTemplate) { this.hasTemplate = hasTemplate; }
+	public int getHastemplate() { return hasTemplate; }
 
 	@Override
 	public String toString() {
 		return "MFPPushMessage [url=" + url + ", alert=" + alert + ", payload="
-				+ payload + ", mid=" + mid + ",sound="+ sound+ ",priority="+ priority + ",visibility="+ visibility + ",redact=" + redact + ",category="+category + ",key="+key + ",notificationId="+notificationId + ",type="+messageType+"]";
+				+ payload + ", mid=" + mid + ",sound="+ sound+ ",priority="+ priority + ",visibility="+ visibility + ",redact=" + redact + ",category="+category + ",key="+key + ",notificationId="+notificationId + ",type="+messageType+" ,hasTemplate="+hasTemplate+"]";
 	}
 
 	/* (non-Javadoc)
@@ -347,6 +364,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		dest.writeInt(notificationId);
 		dest.writeString(lights);
 		dest.writeString(messageType);
+		dest.writeInt(hasTemplate);
 	}
 
 	public static final Creator<MFPInternalPushMessage> CREATOR = new Creator<MFPInternalPushMessage>() {

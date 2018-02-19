@@ -1,5 +1,6 @@
 package com.ibm.mobilefirstplatform.clientsdk.android.push.api;
 
+import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class MFPPushNotificationOptions {
     private static MFPPushNotificationOptions instance = null;
     private List<MFPPushNotificationCategory> categories = new ArrayList<MFPPushNotificationCategory>();
     private String deviceId;
+    private JSONObject templateValues = new JSONObject();
 
     public Visibility getVisibility() {
         return visibility;
@@ -102,6 +104,14 @@ public class MFPPushNotificationOptions {
 
     public String getDeviceid() {
         return deviceId;
+    }
+
+    public JSONObject getTemplateValues() {
+        return templateValues;
+    }
+
+    public void setTemplateValues(JSONObject templateValues) {
+        this.templateValues = templateValues;
     }
 
     }

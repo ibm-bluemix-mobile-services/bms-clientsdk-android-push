@@ -21,6 +21,8 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends Activity {
 
@@ -87,6 +89,14 @@ public class MainActivity extends Activity {
 
         options.setInteractiveNotificationCategories(categoryList);
         options.setDeviceid("your_device_id");
+        JSONObject tempValue = new JSONObject();
+        try {
+            tempValue.put("username","testname");
+            tempValue.put("userid","testUserId");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        options.setTemplateValues(tempValue);
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret,options);
