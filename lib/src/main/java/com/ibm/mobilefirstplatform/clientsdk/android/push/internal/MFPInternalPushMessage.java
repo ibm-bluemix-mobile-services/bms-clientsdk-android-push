@@ -64,8 +64,6 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String key = null;
 	private String category = null;
 	private String messageType = null;
-	private String messageType = "";
-
 
 	private String htmlTitle = null;
 	private String htmlContent = null;
