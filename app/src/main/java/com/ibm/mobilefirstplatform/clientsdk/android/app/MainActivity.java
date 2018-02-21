@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        options.setTemplateValues(tempValue);
+        options.setpushVariables(tempValue);
 
         push = MFPPush.getInstance();
         push.initialize(getApplicationContext(),appGuid,clientSecret,options);

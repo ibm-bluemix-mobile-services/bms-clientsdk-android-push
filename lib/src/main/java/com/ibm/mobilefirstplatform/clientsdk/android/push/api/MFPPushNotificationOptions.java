@@ -110,7 +110,7 @@ public class MFPPushNotificationOptions {
         return templateValues;
     }
 
-    public void setTemplateValues(JSONObject templateValues) {
+    public void setpushVariables(JSONObject templateValues) {
         this.templateValues = templateValues;
     }
 
