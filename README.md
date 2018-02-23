@@ -58,6 +58,22 @@ dependencies {
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (IBM Coud region) value.
 
+#### 3.7.0
+
+* Template based push Notifictaions
+
+   Add the template based oush variables in the `MFPPushNotificationOptions`
+
+   ```
+    JSONObject tempValue = new JSONObject();
+    try {
+        tempValue.put("username","testname");
+        tempValue.put("userid","testUserId");
+    } catch (JSONException e) {
+        e.printStackTrace();
+    }
+    options.setPushVariables(tempValue);
+   ```
 #### 3.6.5
 
 * Android-O (API 26) support
