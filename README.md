@@ -75,7 +75,7 @@ dependencies {
     options.setPushVariables(tempValue);
    ```
 
-   While registerign the device IBM Cloud Push Notifications Web SDK will pass these variables to IBM Cloud Push Notifications service. 
+   While registering the device IBM Cloud Push Notifications Android SDK will pass these variables to IBM Cloud Push Notifications service. 
 
 While sending push notification add the varibale key in `{{}}`
 
