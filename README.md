@@ -68,12 +68,26 @@ dependencies {
     JSONObject tempValue = new JSONObject();
     try {
         tempValue.put("username","testname");
-        tempValue.put("userid","testUserId");
+        tempValue.put("accountNumber","3564758697057869");
     } catch (JSONException e) {
         e.printStackTrace();
     }
     options.setPushVariables(tempValue);
    ```
+
+   While registerign the device IBM Cloud Push Notifications Web SDK will pass these variables to IBM Cloud Push Notifications service. 
+
+While sending push notification add the varibale key in `{{}}`
+
+  ```Swift
+
+    {
+        "message": {
+            "alert": "hello {{username}} , balance on your account {{accountNumber}} is $1200"
+        }
+    }
+
+  ```
 #### 3.6.5
 
 * Android-O (API 26) support
