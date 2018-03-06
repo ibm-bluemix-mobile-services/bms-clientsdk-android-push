@@ -60,7 +60,7 @@ dependencies {
 
 #### 3.7.0
 
-* Template based Push Notifications
+* Parameterize Push Notifications
 
    Add the template based oush variables in the `MFPPushNotificationOptions`
 
