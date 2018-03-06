@@ -67,6 +67,8 @@ import java.util.Random;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -146,14 +148,46 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 BMSClient.getInstance().initialize(context, region);
             }
             MFPPush.getInstance().changeStatus(messageId, MFPPushNotificationStatus.RECEIVED);
+            MFPInternalPushMessage recMessage = new MFPInternalPushMessage(dataPayload);
+
+            if(recMessage.getHastemplate() == 1) {
+
+                MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(this.getApplicationContext());
+                if (options != null && options.getTemplateValues() != null
+                        && options.getTemplateValues().length() > 0) {
+
+                        String messageVlue = recMessage.getAlert();
+                        Pattern p = Pattern.compile("\\{\\{.*?\\}\\}");
+                        Matcher m = p.matcher(messageVlue);
+                        while (m.find()) {
+                            String res = m.toMatchResult().group(0);
+                            String temp = res;
+                            temp = temp.replace("{{","");
+                            temp = temp.replace("}}","");
+                            if(options.getTemplateValues().has(temp)) {
+                                try {
+                                    String k = options.getTemplateValues().getString(temp);
+                                    messageVlue = messageVlue.replace(res,k);
+                                } catch (JSONException e) {
+                                    logger.info("MFPPushIntentService:onMessageReceived() - Received template based push notification. Empty options values or Facing error to fetch options" + e.toString());
+                                }
+                            }
+                        }
+                        recMessage.setAlert(messageVlue);
+                } else {
+                    logger.info("MFPPushIntentService:onMessageReceived() - Received template based push notification. Empty options values or Facing error to fetch options");
+                }
+            }
+
+
             if(isAppForeground()) {
                 Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
                                            + GCM_MESSAGE);
-                intent.putExtra(GCM_EXTRA_MESSAGE, new MFPInternalPushMessage(dataPayload));
+                intent.putExtra(GCM_EXTRA_MESSAGE, recMessage);
                 getApplicationContext().sendBroadcast(intent);
             } else {
                 MFPPush.getInstance().sendMessageDeliveryStatus(context, messageId, MFPPushConstants.SEEN);
-                onUnhandled(context, dataPayload);
+                onUnhandled(context, recMessage);
             }
 
         }
@@ -172,9 +206,9 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, count);
     }
 
-    private void onUnhandled(Context context, JSONObject notification) {
+    private void onUnhandled(Context context, MFPInternalPushMessage notification) {
 
-        MFPInternalPushMessage message = new MFPInternalPushMessage(notification);
+        MFPInternalPushMessage message = notification;
 
         int notificationId = randomObj.nextInt();
         message.setNotificationId(notificationId);

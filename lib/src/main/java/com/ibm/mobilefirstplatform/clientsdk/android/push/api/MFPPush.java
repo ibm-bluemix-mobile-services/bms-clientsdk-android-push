@@ -73,6 +73,7 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.DISMISS_NOTIFICATION;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.STATUS;
 import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.PREFS_BMS_REGION;
+import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPushConstants.TEMPLATE_OPTIONS;
 
 
 /**
@@ -215,6 +216,9 @@ public class MFPPush extends FirebaseInstanceIdService {
 
   protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
   public static String overrideServerHost = null;
+
+  public final static String HTTP = "http";
+  private JSONObject templateJson = new JSONObject();
 
   public MFPPush() {
   }
@@ -400,6 +404,21 @@ public class MFPPush extends FirebaseInstanceIdService {
 
     this.registerDeviceWithUserId(null,listener);
   }
+
+ /** Registers the device for https Endpint
+  *
+  * @param listener - Mandatory listener class. When the device is successfully
+  *                 registered with Push service the
+  *                 {@link MFPPushResponseListener}.onSuccess method is called
+  *                 with the deviceId. {@link MFPPushResponseListener}.onFailure
+  *                 method is called otherwise
+  *@param deviceType   -  Which type of registration - eg; HTTP .
+  *@param withData - JsonObject of custom details
+  */
+  /*public void registerDeviceFor(String deviceType, JSONObject withData,MFPPushResponseListener<String> listener) {
+
+  }
+*/
 
   /**
   * Subscribes to the given tag
@@ -1065,15 +1084,14 @@ public class MFPPush extends FirebaseInstanceIdService {
   private JSONObject buildDevice(String userId) {
     JSONObject device = new JSONObject();
     try {
+      device.put(DEVICE_ID, regId);
+      device.put(TOKEN, deviceToken);
+      device.put(PLATFORM, "G");
       if (MFPPushUtils.validateString(userId)) {
-        device.put(DEVICE_ID, regId);
-        device.put(TOKEN, deviceToken);
-        device.put(PLATFORM, "G");
         device.put(USER_ID, userId);
-      } else {
-        device.put(DEVICE_ID, regId);
-        device.put(TOKEN, deviceToken);
-        device.put(PLATFORM, "G");
+      }
+      if (registerOptions()) {
+        device.put(TEMPLATE_OPTIONS, templateJson);
       }
 
     } catch (JSONException e) {
@@ -1084,6 +1102,15 @@ public class MFPPush extends FirebaseInstanceIdService {
     return device;
   }
 
+  private boolean registerOptions() {
+
+    MFPPushNotificationOptions options = MFPPush.getInstance().getNotificationOptions(appContext);
+    if (options != null && options.getTemplateValues() != null && options.getTemplateValues().length() > 0) {
+      templateJson = options.getTemplateValues();
+      return true;
+    }
+    return false;
+  }
   private JSONObject buildSubscription(String tagName) {
     JSONObject subscriptionObject = new JSONObject();
 
