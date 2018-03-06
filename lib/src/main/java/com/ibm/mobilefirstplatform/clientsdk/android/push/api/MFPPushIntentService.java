@@ -161,7 +161,6 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                         Matcher m = p.matcher(messageVlue);
                         while (m.find()) {
                             String res = m.toMatchResult().group(0);
-                            System.out.print(res);
                             String temp = res;
                             temp = temp.replace("{{","");
                             temp = temp.replace("}}","");
@@ -169,9 +168,8 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                                 try {
                                     String k = options.getTemplateValues().getString(temp);
                                     messageVlue = messageVlue.replace(res,k);
-                                    System.out.print(messageVlue);
                                 } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    logger.info("MFPPushIntentService:onMessageReceived() - Received template based push notification. Empty options values or Facing error to fetch options" + e.toString());
                                 }
                             }
                         }
