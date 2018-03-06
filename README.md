@@ -62,7 +62,7 @@ dependencies {
 
 * Parameterize Push Notifications
 
-   Add the template based oush variables in the `MFPPushNotificationOptions`
+   Add the parameters in the `MFPPushNotificationOptions`
 
    ```
     JSONObject tempValue = new JSONObject();
