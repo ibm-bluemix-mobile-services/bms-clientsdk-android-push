@@ -58,6 +58,10 @@ dependencies {
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (IBM Coud region) value.
 
+#### 3.7.1
+
+* Fixed Null pointer exception 
+
 #### 3.7.0
 
 * Parameterize Push Notifications

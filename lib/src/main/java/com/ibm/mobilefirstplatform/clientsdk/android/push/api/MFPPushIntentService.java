@@ -214,10 +214,11 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         message.setNotificationId(notificationId);
         saveInSharedPreferences(message);
 
-        if (!message.getMessageType().equalsIgnoreCase(MESSAGE_TYPE)){
+        if (message.getMessageType() != null && message.getMessageType().equalsIgnoreCase(MESSAGE_TYPE) ) {
+            logger.info("MFPPushIntentService:onUnhandled() - Received silent push notification");
+        } else {
             Intent intent = new Intent(MFPPushUtils.getIntentPrefix(context)
                     + IBM_PUSH_NOTIFICATION);
-
             intent.setClass(context, MFPPushNotificationHandler.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
@@ -226,8 +227,6 @@ public class MFPPushIntentService extends FirebaseMessagingService {
             generateNotification(context, message.getAlert(),
                     getNotificationTitle(context), message.getAlert(),
                     getCustomNotificationIcon(context, message.getIcon()), intent, getNotificationSound(message), notificationId, message);
-        } else {
-            logger.info("MFPPushIntentService:onUnhandled() - Received silent push notification");
         }
     }
 
