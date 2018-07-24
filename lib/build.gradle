@@ -133,7 +133,6 @@ dependencies {
 
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.google.firebase:firebase-messaging:10.2.6'
-    compile 'com.firebase:firebase-client-android:2.5.0'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.ibm.mobilefirstplatform.clientsdk.android:core:3.1.3'
 }
