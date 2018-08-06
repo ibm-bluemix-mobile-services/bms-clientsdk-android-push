@@ -134,7 +134,7 @@ allprojects {
     dependencies {
         ......
         compile 'com.google.firebase:firebase-messaging:10.2.6'
-        compile 'com.ibm.mobilefirstplatform.clientsdk.android:push:3.6.5'
+        compile 'com.ibm.mobilefirstplatform.clientsdk.android:push:3.7.2'
         .....
 
     }
