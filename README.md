@@ -58,6 +58,10 @@ dependencies {
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (IBM Coud region) value.
 
+#### 3.7.2
+
+* Fixed for custom notification icon loader from drawable
+
 #### 3.7.1
 
 * Fixed Null pointer exception 
@@ -130,7 +134,7 @@ allprojects {
     dependencies {
         ......
         compile 'com.google.firebase:firebase-messaging:10.2.6'
-        compile 'com.ibm.mobilefirstplatform.clientsdk.android:push:3.6.5'
+        compile 'com.ibm.mobilefirstplatform.clientsdk.android:push:3.7.2'
         .....
 
     }
