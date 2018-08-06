@@ -654,7 +654,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         int resourceId = -1;
 
         try {
-            resourceId = context.getResources().getIdentifier(DRAWABLE+"/" + resourceName, DRAWABLE, context.getPackageName());
+            resourceId = context.getResources().getIdentifier(resourceName, DRAWABLE, context.getPackageName());
         } catch (Exception e) {
             logger.error("MFPPushIntentService: Failed to find resource R." + resourceCategory + "." + resourceName, e);
         }
