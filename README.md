@@ -58,6 +58,10 @@ dependencies {
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (IBM Coud region) value.
 
+#### 3.7.3
+
+* Latest core SDK support
+
 #### 3.7.2
 
 * Fixed for custom notification icon loader from drawable
