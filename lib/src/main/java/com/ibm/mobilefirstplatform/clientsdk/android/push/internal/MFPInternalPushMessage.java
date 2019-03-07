@@ -48,6 +48,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_EXTRA_LIGHTS = "lights";
 	private static final String GCM_MESSAGE_TYPE = "type";
 	private static final String GCM_HAS_TEMPLATE = "has-template";
+	private static final String FCM_TITLE = "androidTitle";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -73,6 +74,8 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private String lights = null;
 	private int hasTemplate = 0;
 
+	private String androidTitle = null;
+
 	protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
 
 	public MFPInternalPushMessage(Intent intent) {
@@ -81,6 +84,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		MFPPushUtils.dumpIntent(intent);
 
 		alert = info.getString(GCM_EXTRA_ALERT);
+		androidTitle = info.getString(FCM_TITLE);
 		url = info.getString(GCM_EXTRA_URL);
 		payload = info.getString(GCM_EXTRA_PAYLOAD);
 		sound = info.getString(GCM_EXTRA_SOUND);
@@ -109,6 +113,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private MFPInternalPushMessage(Parcel source) {
 		id = source.readString();
 		alert = source.readString();
+		androidTitle = source.readString();
 		url = source.readString();
 		payload = source.readString();
 		mid = source.readString();
@@ -132,6 +137,11 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			alert = json.getString(GCM_EXTRA_ALERT);
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get alert.  "+ e.toString());
+		}
+		try {
+			androidTitle = json.getString(FCM_TITLE);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get androidTitle.  "+ e.toString());
 		}
 		try {
 			url = json.getString(GCM_EXTRA_URL);
@@ -222,6 +232,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		try {
 			json.put(GCM_EXTRA_ID, id);
 			json.put(GCM_EXTRA_ALERT, alert);
+			json.put(FCM_TITLE,androidTitle);
 			json.put(GCM_EXTRA_URL, url);
 			json.put(GCM_EXTRA_PAYLOAD, payload);
 			json.put(GCM_EXTRA_MID, mid);
@@ -254,6 +265,13 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 	public void setAlert(String alert) {
 		this.alert = alert;
+	}
+
+	public  String getAndroidTitle() {
+		return androidTitle;
+	}
+	public void  setAndroidTitle(String androidTitle) {
+		this.androidTitle = androidTitle;
 	}
 
 	/**
@@ -328,7 +346,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 
 	@Override
 	public String toString() {
-		return "MFPPushMessage [url=" + url + ", alert=" + alert + ", payload="
+		return "MFPPushMessage [url=" + url + ", alert=" + alert + ", title=" + androidTitle + ", payload="
 				+ payload + ", mid=" + mid + ",sound="+ sound+ ",priority="+ priority + ",visibility="+ visibility + ",redact=" + redact + ",category="+category + ",key="+key + ",notificationId="+notificationId + ",type="+messageType+" ,hasTemplate="+hasTemplate+"]";
 	}
 
@@ -347,6 +365,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(id);
 		dest.writeString(alert);
+		dest.writeString(androidTitle);
 		dest.writeString(url);
 		dest.writeString(payload);
 		dest.writeString(mid);
