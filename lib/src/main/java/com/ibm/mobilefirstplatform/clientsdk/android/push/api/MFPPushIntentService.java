@@ -225,14 +225,18 @@ public class MFPPushIntentService extends FirebaseMessagingService {
             intent.putExtra(NOTIFICATIONID, message.getNotificationId());
 
             generateNotification(context, message.getAlert(),
-                    getNotificationTitle(context), message.getAlert(),
+                    getNotificationTitle(context, message.getAndroidTitle()), message.getAlert(),
                     getCustomNotificationIcon(context, message.getIcon()), intent, getNotificationSound(message), notificationId, message);
         }
     }
 
-    private String getNotificationTitle(Context context) {
+    private String getNotificationTitle(Context context, String title) {
         // Check if push_notification_title is defined, if not get the
         // application name
+
+        if (title != null && title != "") {
+            return  title;
+        }
         int notificationTitle = -1;
         try {
             notificationTitle = MFPPushUtils.getResourceId(getApplicationContext(),
