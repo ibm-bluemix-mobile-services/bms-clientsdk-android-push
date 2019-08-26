@@ -20,7 +20,6 @@ public class MFPPushUrlBuilder {
 
 	private static final String FORWARDSLASH = "/";
 	private static final String IMFPUSH = "imfpush";
-	private static final String JPIMFPUSH = "jp-tok.imfpush.cloud.ibm.com";
 	private static final String V1 = "v1";
 	private static final String APPS = "apps";
 	private static final String AMPERSAND = "&";
@@ -64,9 +63,7 @@ public class MFPPushUrlBuilder {
                 else {
                     reWriteDomain = STAGE_DEV_URL;
                 }
-            } else if(BMSClient.getInstance().getBluemixRegionSuffix() == ".jp-tok.bluemix.net"){
-            	pwUrl_.append(JPIMFPUSH);
-			} else {
+            } else {
                 pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
                 reWriteDomain = "";
             }
