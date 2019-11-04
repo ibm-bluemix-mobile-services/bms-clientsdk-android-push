@@ -23,7 +23,13 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
@@ -38,7 +44,7 @@ import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
 
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.FirebaseInstanceIdService;
+//import com.google.firebase.iid.FirebaseInstanceIdService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -168,7 +174,8 @@ import static com.ibm.mobilefirstplatform.clientsdk.android.push.internal.MFPPus
 * </pre>
 */
 
-public class MFPPush extends FirebaseInstanceIdService {
+public class MFPPush extends FirebaseMessagingService {
+
   public static final String PREFS_NAME = "com.ibm.mobile.services.push";
   static final String PREFS_NOTIFICATION_MSG = "LatestNotificationMsg";
   static final String PREFS_NOTIFICATION_COUNT = "NotificationCount";
@@ -776,7 +783,33 @@ public class MFPPush extends FirebaseInstanceIdService {
     return builder.getMessagesUrl();
   }
 
+  @Override
+  public void onNewToken(@NonNull String s) {
+    //super.onNewToken(s);
+    logger.debug("registerInBackground() - " + s);
+
+  }
+
   private void registerInBackground(final String userId) {
+    FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+      @Override
+      public void onComplete(@NonNull Task<InstanceIdResult> task) {
+        if (!task.isSuccessful()) {
+          logger.debug("registerInBackground() - Failed to retry as the thread was interrupted." + task.getException());
+          registerResponseListener.onFailure((new MFPPushException("Unable to retreive deviceToken after maximum retries")));
+          return;
+        }
+        deviceToken = task.getResult().getToken();
+        logger.info("MFPPush:registerInBackground() - Successfully registered with FCM. Returned deviceToken is: " + deviceToken);
+        computeRegId();
+        if (MFPPushUtils.validateString(userId)) {
+          registerWithUserId(userId);
+        } else {
+          register();
+        }
+      }
+    });
+/*
     new AsyncTask<Void, Void, String>() {
       @Override
       protected String doInBackground(Void... params) {
@@ -785,7 +818,7 @@ public class MFPPush extends FirebaseInstanceIdService {
           while(true) {
             try {
               backoff = backoff/2 + new Random().nextInt(backoff);
-              deviceToken = FirebaseInstanceId.getInstance().getToken();
+              deviceToken = FirebaseInstanceId.getInstance().getInstanceId().getResult().getToken();
 
               if (deviceToken == null) {
                 if(backoff < MAX_BACKOFF_MS) {
@@ -827,7 +860,7 @@ public class MFPPush extends FirebaseInstanceIdService {
         }
         return msg;
       }
-    }.execute(null, null, null);
+    }.execute(null, null, null); */
   }
 
   private void computeRegId() {

@@ -24,7 +24,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
+//import android.support.v4.app.NotificationCompat;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -72,6 +72,8 @@ import java.util.regex.Pattern;
 
 import android.media.RingtoneManager;
 import android.net.Uri;
+
+import androidx.core.app.NotificationCompat;
 
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -131,11 +133,17 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         String from = message.getFrom();
 
         Map<String, String> data = message.getData();
-        JSONObject dataPayload = new JSONObject(data);
-        logger.info("MFPPushIntentService:onMessageReceived() - New notification received. Payload is: "+ dataPayload.toString());
+        int notificationId = randomObj.nextInt();
+        onNotificationReceived(data, notificationId);
+    }
 
+    public void onNotificationReceived(Map <String, String> data, int notificationId) {
+
+        JSONObject dataPayload = new JSONObject(data);
         String messageId = getMessageId(dataPayload);
         String action = data.get(ACTION);
+
+        logger.info("MFPPushIntentService:onMessageReceived() - New notification received. Payload is: " + dataPayload.toString());
 
         if (action != null && action.equals(DISMISS_NOTIFICATION)) {
             logger.debug("MFPPushIntentService:handleMessageIntent() - Dismissal message from GCM Server");
@@ -187,7 +195,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 getApplicationContext().sendBroadcast(intent);
             } else {
                 MFPPush.getInstance().sendMessageDeliveryStatus(context, messageId, MFPPushConstants.SEEN);
-                onUnhandled(context, recMessage);
+                onUnhandled(context, recMessage, notificationId);
             }
 
         }
@@ -206,11 +214,11 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         MFPPushUtils.storeContentInSharedPreferences(sharedPreferences, MFPPush.PREFS_NOTIFICATION_COUNT, count);
     }
 
-    private void onUnhandled(Context context, MFPInternalPushMessage notification) {
+    private void onUnhandled(Context context, MFPInternalPushMessage notification, int notificationId) {
 
         MFPInternalPushMessage message = notification;
 
-        int notificationId = randomObj.nextInt();
+
         message.setNotificationId(notificationId);
         saveInSharedPreferences(message);
 

@@ -4,9 +4,9 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="18" />
+    <!--<uses-sdk-->
+        <!--android:minSdkVersion="9"-->
+        <!--android:targetSdkVersion="18" />-->
 
     <!-- Push Settings Start -->
 
@@ -68,6 +68,13 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <!--<service-->
+            <!--android:name=".MessageIntentService"-->
+            <!--android:exported="true" >-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
         <service
             android:name="com.ibm.mobilefirstplatform.clientsdk.android.push.api.MFPPush"
             android:exported="true" >
