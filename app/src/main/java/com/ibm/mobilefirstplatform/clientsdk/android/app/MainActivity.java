@@ -42,10 +42,10 @@ public class MainActivity extends Activity {
 
         updateTextView("Starting Push Android Sample..");
 
-        String appGuid = "Your-app-GUID-here";
-        String clientSecret = "Your-app-ClientSecret-here";
+        String appGuid = "Appp GUID";
+        String clientSecret = "App client secret";
 
-        BMSClient.getInstance().initialize(getApplicationContext(), BMSClient.REGION_US_SOUTH);
+        BMSClient.getInstance().initialize(getApplicationContext(), BMSClient.REGION_UK);
 
 
         // Actionable Notifications
