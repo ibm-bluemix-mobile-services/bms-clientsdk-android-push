@@ -58,6 +58,20 @@ dependencies {
    
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (IBM Coud region) value.
 
+#### 4.0.0
+
+* Added new version of FCM (com.google.firebase:firebase-messaging:20.0.0)
+* Kitkat and JellyBean APIs may face issues, refer [this](https://github.com/firebase/quickstart-android/issues/759).
+* To handle the notifications recieved from the app, extend the MFPPushIntentService class and override `onMessageReceived()` method. For reference visit the `MessageIntentService.java` class in the `app` folder.
+
+#### 3.7.5
+
+* Added Android notification title support
+
+#### 3.7.4
+
+* removed Tokyo support
+
 #### 3.7.3
 
 * Latest core SDK support
