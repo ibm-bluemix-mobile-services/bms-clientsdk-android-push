@@ -55,7 +55,8 @@ dependencies {
    - `BMSClient.REGION_SYDNEY` 
    - `BMSClient.REGION_GERMANY`
    - `BMSClient.REGION_US_EAST`
-   
+   - `BMSClient.REGION_TOKYO`
+
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (IBM Coud region) value.
 
 #### 4.0.0
