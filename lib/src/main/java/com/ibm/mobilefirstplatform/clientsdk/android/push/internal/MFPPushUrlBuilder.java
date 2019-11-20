@@ -40,7 +40,9 @@ public class MFPPushUrlBuilder {
 	private static final String STAGE_PROD_URL = ".stage1.ng.bluemix.net";
 	public static final String DEVICE_ID_NULL = "nullDeviceId";
 
-    String reWriteDomain = null;
+	public static final String JPIMFPUSH = "jp-tok.imfpush.cloud.ibm.com";
+
+	String reWriteDomain = null;
 	private final StringBuilder pwUrl_ = new StringBuilder();
 
 	public MFPPushUrlBuilder() {
@@ -53,17 +55,22 @@ public class MFPPushUrlBuilder {
 		} else {
 			pwUrl_.append(BMSClient.getInstance().getDefaultProtocol());
 			pwUrl_.append("://");
-			pwUrl_.append(IMFPUSH);
+
 			String regionSuffix = BMSClient.getInstance().getBluemixRegionSuffix();
             if (regionSuffix != null && regionSuffix.contains(STAGE_TEST) || regionSuffix.contains(STAGE_DEV)){
-                pwUrl_.append(STAGE_PROD_URL);
+				pwUrl_.append(IMFPUSH);
+            	pwUrl_.append(STAGE_PROD_URL);
                 if (regionSuffix.contains(STAGE_TEST)) {
                     reWriteDomain = STAGE_TEST_URL;
                 }
                 else {
                     reWriteDomain = STAGE_DEV_URL;
                 }
-            } else {
+            } else if (regionSuffix == BMSClient.REGION_TOKYO) {
+				pwUrl_.append(JPIMFPUSH);
+				reWriteDomain = "";
+			} else {
+				pwUrl_.append(IMFPUSH);
                 pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
                 reWriteDomain = "";
             }
