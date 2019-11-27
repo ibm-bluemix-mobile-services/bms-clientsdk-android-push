@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="push_notification_title">Push Android Sample App</string>
     <string name="title_activity_rich_notification">RichNotification</string>
+    <string name="bms_notification_channel">Default Channel</string>
 
 </resources>

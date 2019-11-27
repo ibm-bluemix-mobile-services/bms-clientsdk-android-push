@@ -13,10 +13,17 @@
 
 package com.ibm.mobilefirstplatform.clientsdk.android.push.internal;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.RequiresApi;
+
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +56,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private static final String GCM_MESSAGE_TYPE = "type";
 	private static final String GCM_HAS_TEMPLATE = "has-template";
 	private static final String FCM_TITLE = "androidTitle";
+	private static final String FCM_CHANNEL = "channel";
 
 	public static final String LOG_TAG = "PushMessage";
 
@@ -75,6 +83,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	private int hasTemplate = 0;
 
 	private String androidTitle = null;
+	private JSONObject channelJson = null;
 
 	protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPInternalPushMessage.class.getSimpleName());
 
@@ -86,6 +95,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		alert = info.getString(GCM_EXTRA_ALERT);
 		androidTitle = info.getString(FCM_TITLE);
 		url = info.getString(GCM_EXTRA_URL);
+		channelJson = (JSONObject) info.get (FCM_CHANNEL);
 		payload = info.getString(GCM_EXTRA_PAYLOAD);
 		sound = info.getString(GCM_EXTRA_SOUND);
 		bridge = info.getBoolean(GCM_EXTRA_BRIDGE);
@@ -115,6 +125,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		alert = source.readString();
 		androidTitle = source.readString();
 		url = source.readString();
+		//channelJson = source.readString();
 		payload = source.readString();
 		mid = source.readString();
 		sound = source.readString();
@@ -143,6 +154,13 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		} catch (JSONException e) {
 			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get androidTitle.  "+ e.toString());
 		}
+		try {
+			String channel =json.getString(FCM_CHANNEL);
+			channelJson = new JSONObject(channel);
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception while parsing JSON, get androidTitle.  "+ e.toString());
+		}
+
 		try {
 			url = json.getString(GCM_EXTRA_URL);
 		} catch (JSONException e) {
@@ -233,6 +251,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 			json.put(GCM_EXTRA_ID, id);
 			json.put(GCM_EXTRA_ALERT, alert);
 			json.put(FCM_TITLE,androidTitle);
+			json.put(FCM_CHANNEL,channelJson);
 			json.put(GCM_EXTRA_URL, url);
 			json.put(GCM_EXTRA_PAYLOAD, payload);
 			json.put(GCM_EXTRA_MID, mid);
@@ -274,6 +293,22 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		this.androidTitle = androidTitle;
 	}
 
+	public JSONObject getChannelJson() {
+		return channelJson;
+	}
+	public void  setChannelJson(JSONObject channelJson) {
+		this.channelJson = channelJson;
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.O)
+	public NotificationChannel getChannel(Context context, NotificationManager mNotificationManager) {
+
+		if (channelJson != null) {
+			MFPInternalPushChannel channel = new MFPInternalPushChannel(channelJson);
+			return channel.getChannel(context,mNotificationManager);
+		}
+		return null;
+	}
 	/**
 	 * Returns the payload as string
 	 *
@@ -347,7 +382,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 	@Override
 	public String toString() {
 		return "MFPPushMessage [url=" + url + ", alert=" + alert + ", title=" + androidTitle + ", payload="
-				+ payload + ", mid=" + mid + ",sound="+ sound+ ",priority="+ priority + ",visibility="+ visibility + ",redact=" + redact + ",category="+category + ",key="+key + ",notificationId="+notificationId + ",type="+messageType+" ,hasTemplate="+hasTemplate+"]";
+				+ payload + ", mid=" + mid + ",sound="+ sound+ ",priority="+ priority + ",visibility="+ visibility + ",redact=" + redact + ",category="+category + ",key="+key + ",notificationId="+notificationId + ",type="+messageType+" ,hasTemplate="+hasTemplate+", channelJson="+channelJson+"]";
 	}
 
 	/* (non-Javadoc)
@@ -367,6 +402,7 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		dest.writeString(alert);
 		dest.writeString(androidTitle);
 		dest.writeString(url);
+		dest.writeString(channelJson.toString());
 		dest.writeString(payload);
 		dest.writeString(mid);
 		dest.writeString(sound);

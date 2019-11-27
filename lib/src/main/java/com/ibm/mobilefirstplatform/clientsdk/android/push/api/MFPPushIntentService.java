@@ -285,11 +285,19 @@ public class MFPPushIntentService extends FirebaseMessagingService {
 
             NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             String id = context.getPackageName();
-            int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel mChannel = new NotificationChannel(id, DEFAULT_CHANNEL_ID,importance);
-            mChannel.enableLights(true);
-            mNotificationManager.createNotificationChannel(mChannel);
+            NotificationChannel channel = message.getChannel(context,mNotificationManager);
+            if(channel != null) {
+                // ArrayList<MFPInternalPushChannelGroup> channelGroups = channel.getChannelGroups();
+                mNotificationManager.createNotificationChannel(channel);
+            } else {
+
+                int importance = NotificationManager.IMPORTANCE_LOW;
+                channel = new NotificationChannel(id, getNotificationDefaultTitle(context),importance);
+                channel.enableLights(true);
+                mNotificationManager.createNotificationChannel(channel);
+            }
             builder = new NotificationCompat.Builder(this, id);
+            builder.setChannelId(channel.getId());
 
 
         } else {
@@ -609,7 +617,19 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         return null;
     }
 
-    private Uri getNotificationSoundUri(Context context, String sound) {
+    private String getNotificationDefaultTitle(Context context) {
+        int notificationTitle = -1;
+        try {
+            notificationTitle = MFPPushUtils.getResourceId(getApplicationContext(),
+                    "string", DEFAULT_CHANNEL_ID);
+            return context.getString(notificationTitle);
+        } catch (Exception e) {
+            // ignore the exception
+        }
+        return  DEFAULT_CHANNEL_ID;
+    }
+
+    public Uri getNotificationSoundUri(Context context, String sound) {
         Uri uri = null;
 
         if (sound == null) {
