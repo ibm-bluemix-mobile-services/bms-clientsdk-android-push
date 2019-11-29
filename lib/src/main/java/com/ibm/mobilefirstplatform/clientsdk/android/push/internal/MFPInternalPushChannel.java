@@ -39,7 +39,7 @@ public class MFPInternalPushChannel {
     private int importance = NotificationManager.IMPORTANCE_DEFAULT;
     private boolean enableLights = false;
     private boolean enableVibration = false;
-    private String lightColor = null;
+    private String lightColor = "black";
     private int lockScreenVisibility = Notification.VISIBILITY_PUBLIC;
     private JSONObject groupJson = null;
     private boolean bypassDND = false;
@@ -145,7 +145,9 @@ public class MFPInternalPushChannel {
         }
 
         try {
-            groupJson = json.getJSONObject(GROUP_CHANNEL_GROUP);
+            String group =json.getString(GROUP_CHANNEL_GROUP);
+            groupJson = new JSONObject(group);
+            //groupJson = json.getJSONObject(GROUP_CHANNEL_GROUP);
         } catch (JSONException e) {
             logger.error("MFPInternalPushChannel: MFPInternalPushChannel() - Exception while parsing JSON, get alert.  "+ e.toString());
         }
@@ -188,7 +190,6 @@ public class MFPInternalPushChannel {
 
             MFPInternalPushChannelGroup group = new MFPInternalPushChannelGroup(this.groupJson);
             NotificationChannelGroup channelGroup = new NotificationChannelGroup(group.getGroupId(),group.getChannelGroupName());
-
             return  channelGroup;
         }
         return null;
