@@ -59,6 +59,15 @@ dependencies {
 
 >**Note**:  If you are using dedicated service, use `overrideServerHost` and add any of the `bluemixRegion` (IBM Coud region) value.
 
+#### 4.2.0
+
+* Android Notifications channel and group support
+* Pass the channel and group details from IBM Push service 
+* For using the default Channel , add a value for the key `bms_notification_channel` in your app's `strings.xml` file.
+
+#### 4.1.0
+* Added Tokyo region support
+
 #### 4.0.0
 
 * Added new version of FCM (com.google.firebase:firebase-messaging:20.0.0)
