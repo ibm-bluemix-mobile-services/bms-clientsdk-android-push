@@ -402,7 +402,9 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		dest.writeString(alert);
 		dest.writeString(androidTitle);
 		dest.writeString(url);
-		dest.writeString(channelJson.toString());
+		if (channelJson != null) {
+			dest.writeString(channelJson.toString());
+		}
 		dest.writeString(payload);
 		dest.writeString(mid);
 		dest.writeString(sound);
