@@ -31,6 +31,7 @@ Ensure that you go through [IBM Cloud Push Notifications service documentation](
 	- [Holding notifications](#holding-notifications)
 - [Monitoring](#monitoring)
 	- [Listening to the DISMISSED status](#listening-to-the-dismissed-status)
+- [API documentation](#api-documentation)
 - [Samples and videos](#samples-and-videos)
 
 
@@ -547,6 +548,10 @@ dependencies {
 <application 
     android:name="android.support.multidex.MultiDexApplication"
 ```
+
+## API documentation
+ 
+ Find the API documentation here - https://www.javadoc.io/doc/com.ibm.mobilefirstplatform.clientsdk.android/push/latest/index.html
 
 ## Samples and videos
 
