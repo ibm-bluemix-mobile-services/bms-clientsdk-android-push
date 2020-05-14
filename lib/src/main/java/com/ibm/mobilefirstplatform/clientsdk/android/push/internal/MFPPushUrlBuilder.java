@@ -40,40 +40,28 @@ public class MFPPushUrlBuilder {
 	private static final String STAGE_PROD_URL = ".stage1.ng.bluemix.net";
 	public static final String DEVICE_ID_NULL = "nullDeviceId";
 
-	public static final String JPIMFPUSH = "jp-tok.imfpush.cloud.ibm.com";
+	private static final String HOST = "cloud.ibm.com";
+
 
 	String reWriteDomain = null;
 	private final StringBuilder pwUrl_ = new StringBuilder();
 
 	public MFPPushUrlBuilder() {
 	}
-
 	public MFPPushUrlBuilder(String applicationId) {
 		if (MFPPush.overrideServerHost != null){
 			pwUrl_.append(MFPPush.overrideServerHost);
-			reWriteDomain = "";
+			reWriteDomain = MFPPush.overrideServerHost;
 		} else {
 			pwUrl_.append(BMSClient.getInstance().getDefaultProtocol());
 			pwUrl_.append("://");
-
-			String regionSuffix = BMSClient.getInstance().getBluemixRegionSuffix();
-            if (regionSuffix != null && regionSuffix.contains(STAGE_TEST) || regionSuffix.contains(STAGE_DEV)){
-				pwUrl_.append(IMFPUSH);
-            	pwUrl_.append(STAGE_PROD_URL);
-                if (regionSuffix.contains(STAGE_TEST)) {
-                    reWriteDomain = STAGE_TEST_URL;
-                }
-                else {
-                    reWriteDomain = STAGE_DEV_URL;
-                }
-            } else if (regionSuffix == BMSClient.REGION_TOKYO) {
-				pwUrl_.append(JPIMFPUSH);
-				reWriteDomain = "";
-			} else {
-				pwUrl_.append(IMFPUSH);
-                pwUrl_.append(BMSClient.getInstance().getBluemixRegionSuffix());
-                reWriteDomain = "";
-            }
+			String region = getRegion(BMSClient.getInstance().getBluemixRegionSuffix());
+			pwUrl_.append(region);
+			pwUrl_.append(".");
+			pwUrl_.append(IMFPUSH);
+			pwUrl_.append(".");
+			pwUrl_.append(HOST);
+			reWriteDomain = "";
 		}
 
 		pwUrl_.append(FORWARDSLASH);
@@ -166,5 +154,22 @@ public class MFPPushUrlBuilder {
 		collectionUrl.append(collectionName);
 
 		return collectionUrl;
+	}
+    
+	private String getRegion(String region) {
+		 switch(region){  
+	        case BMSClient.REGION_US_SOUTH:  
+	            return "us-south" ;
+	        case BMSClient.REGION_UK:
+	        	return "eu-gb";
+	        case BMSClient.REGION_SYDNEY:
+	        	return "au-syd";
+	        case BMSClient.REGION_GERMANY:
+	        	return "eu-de";
+	        case BMSClient.REGION_US_EAST:
+	        	return "us-east";
+	        default:
+	        	return "jp-tok";
+	        }  
 	}
 }
