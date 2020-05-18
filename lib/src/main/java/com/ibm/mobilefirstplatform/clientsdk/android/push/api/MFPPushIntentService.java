@@ -242,7 +242,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         // Check if push_notification_title is defined, if not get the
         // application name
 
-        if (title.equals(null) && title.equals("")) {
+        if (!title.equals("") && title != null && !title.isEmpty()) {
             return  title;
         }
         int notificationTitle = -1;
