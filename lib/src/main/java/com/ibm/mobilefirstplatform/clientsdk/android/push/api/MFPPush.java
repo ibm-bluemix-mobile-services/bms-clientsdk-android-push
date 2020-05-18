@@ -19,8 +19,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -53,7 +51,6 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
@@ -218,8 +215,8 @@ public class MFPPush extends FirebaseMessagingService {
   private boolean sendDeliveryStatus = true;
   private final Object sendDeliveryStatusLock = new Object();
 
-  private int backoff = 3000; // Minimum backoff in ms
-  private static final int MAX_BACKOFF_MS =  (int) TimeUnit.SECONDS.toMillis(3600); // 1 hour
+//  private int backoff = 3000; // Minimum backoff in ms
+//  private static final int MAX_BACKOFF_MS =  (int) TimeUnit.SECONDS.toMillis(3600); // 1 hour
 
   protected static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + MFPPush.class.getSimpleName());
   public static String overrideServerHost = null;
@@ -227,8 +224,8 @@ public class MFPPush extends FirebaseMessagingService {
   public final static String HTTP = "http";
   private JSONObject templateJson = new JSONObject();
 
-  public MFPPush() {
-  }
+//  public MFPPush() {
+//  }
 
   public synchronized static MFPPush getInstance() {
     if (instance == null) {
@@ -703,7 +700,7 @@ public class MFPPush extends FirebaseMessagingService {
     if (options != null ) {
       return this.options;
     }else {
-      SharedPreferences sharedPreferences = context.getSharedPreferences(MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
+      //SharedPreferences sharedPreferences = context.getSharedPreferences(MFPPush.PREFS_NAME, Context.MODE_PRIVATE);
       String optionsString = MFPPushUtils.getContentFromSharedPreferences(context,MFPPush.PREFS_MESSAGES_OPTIONS);
       Gson gson = new Gson();
       MFPPushNotificationOptions options = gson.fromJson(optionsString, MFPPushNotificationOptions.class);
@@ -875,7 +872,7 @@ public class MFPPush extends FirebaseMessagingService {
 
   private boolean registerWithUserId(final String userId) {
 
-    if (isInitialized == true) {
+    if (isInitialized == true)
       if (MFPPushUtils.validateString(userId) && MFPPushUtils.validateString(clientSecret)) {
 
         MFPPushUrlBuilder builder = new MFPPushUrlBuilder(applicationId);
@@ -892,12 +889,12 @@ public class MFPPush extends FirebaseMessagingService {
               String userIdFromResponse = (new JSONObject(response.getResponseText())).getString(USER_ID);
 
               if (!(retDeviceId.equals(regId))
-              || !(retToken.equals(deviceToken)) || !(userId.equals(userIdFromResponse))) {
+                      || !(retToken.equals(deviceToken)) || !(userId.equals(userIdFromResponse))) {
                 deviceId = retDeviceId;
                 MFPPushUtils
-                .storeContentInSharedPreferences(
-                appContext, applicationId,
-                DEVICE_ID, deviceId);
+                        .storeContentInSharedPreferences(
+                                appContext, applicationId,
+                                DEVICE_ID, deviceId);
 
                 hasRegisterParametersChanged = true;
                 updateTokenCallback(deviceToken, userId);
@@ -905,11 +902,11 @@ public class MFPPush extends FirebaseMessagingService {
                 deviceId = retDeviceId;
                 isTokenUpdatedOnServer = true;
                 MFPPushUtils
-                .storeContentInSharedPreferences(
-                appContext, applicationId,
-                DEVICE_ID, deviceId);
+                        .storeContentInSharedPreferences(
+                                appContext, applicationId,
+                                DEVICE_ID, deviceId);
                 registerResponseListener
-                .onSuccess(response.toString());
+                        .onSuccess(response.toString());
               }
             } catch (JSONException e1) {
               logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Exception caught while parsing JSON response.");
@@ -927,11 +924,11 @@ public class MFPPush extends FirebaseMessagingService {
         invoker.execute();
       } else {
 
-        String error = "Error while registration - Please verify your UserId and ClientSecret value";
+        //String error = "Error while registration - Please verify your UserId and ClientSecret value";
         logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Please verify your UserId and ClientSecret value");
       }
-    } else {
-      String error = "Error while registration -. Not initialized MFPPush";
+    else {
+      //String error = "Error while registration -. Not initialized MFPPush";
       logger.error("MFPPush:verifyDeviceRegistrationWithUserId() - Error while registration -. Not initialized MFPPush");
     }
 
