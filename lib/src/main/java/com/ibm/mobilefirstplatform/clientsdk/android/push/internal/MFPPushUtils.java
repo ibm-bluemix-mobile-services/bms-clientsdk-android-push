@@ -128,7 +128,7 @@ public class MFPPushUtils extends Activity {
 		}
 	}
 	public static Boolean validateString(String object) {
-		if (object == null || object.isEmpty() || object == "") {
+		if (object == null || object.isEmpty() || object.equals("")) {
 			return false;
 		} else {
 			return true;
