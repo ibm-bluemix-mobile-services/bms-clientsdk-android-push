@@ -242,7 +242,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
         // Check if push_notification_title is defined, if not get the
         // application name
 
-        if (!title.equals("") && title != null && !title.isEmpty()) {
+        if (title != null && !title.equals("") && !title.isEmpty()) {
             return  title;
         }
         int notificationTitle = -1;
@@ -291,7 +291,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 mNotificationManager.createNotificationChannel(channel);
             } else {
 
-                int importance = NotificationManager.IMPORTANCE_LOW;
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
                 channel = new NotificationChannel(id, getNotificationDefaultTitle(context),importance);
                 channel.enableLights(true);
                 mNotificationManager.createNotificationChannel(channel);

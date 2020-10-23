@@ -125,7 +125,14 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		alert = source.readString();
 		androidTitle = source.readString();
 		url = source.readString();
-		//channelJson = source.readString();
+		try {
+			String value = source.readString();
+			if (value != null) {
+				channelJson = new JSONObject(value);
+			}
+		} catch (JSONException e) {
+			logger.error("MFPInternalPushMessage: MFPInternalPushMessage() - Exception with Parcel.  "+ e.toString());
+		}
 		payload = source.readString();
 		mid = source.readString();
 		sound = source.readString();
@@ -404,6 +411,8 @@ public class MFPInternalPushMessage implements Parcelable, MFPPushMessage {
 		dest.writeString(url);
 		if (channelJson != null) {
 			dest.writeString(channelJson.toString());
+		} else {
+			dest.writeString(null);
 		}
 		dest.writeString(payload);
 		dest.writeString(mid);
