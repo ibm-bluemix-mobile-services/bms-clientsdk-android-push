@@ -291,7 +291,7 @@ public class MFPPushIntentService extends FirebaseMessagingService {
                 mNotificationManager.createNotificationChannel(channel);
             } else {
 
-                int importance = NotificationManager.IMPORTANCE_LOW;
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
                 channel = new NotificationChannel(id, getNotificationDefaultTitle(context),importance);
                 channel.enableLights(true);
                 mNotificationManager.createNotificationChannel(channel);
