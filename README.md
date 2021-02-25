@@ -58,7 +58,7 @@ Choose to integrate the Push Notifications Android Client SDK package using eith
 
 
 ## Authentication
-In order to use an IBM Push Notifications service in a your Application, you will need to create an instance and authenticate first. The following describes the typical path you need to take to do so.
+In order to use an IBM Push Notifications service in a your application, you will need to create an instance and authenticate first. The following describes the typical path you need to take to do so.
 
 ### Create Instance
 Credentials to use an IBM Push Notifications service are obtained via IBM Cloud. You will need an active account and a service instance for the service that you wish to use prior to authenticating in your application.
