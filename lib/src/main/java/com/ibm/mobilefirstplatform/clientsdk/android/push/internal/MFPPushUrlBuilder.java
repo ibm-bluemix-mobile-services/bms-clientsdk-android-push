@@ -168,8 +168,6 @@ public class MFPPushUrlBuilder {
 	        	return "eu-de";
 	        case BMSClient.REGION_US_EAST:
 	        	return "us-east";
-	        case BMSClient.REGION_JP_OSA:
-	        	return "jp-osa";
 	        default:
 	        	return "jp-tok";
 	        }  
