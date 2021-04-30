@@ -171,7 +171,6 @@ Where `ibmCloudRegionSuffix` specifies the location where the app is hosted. You
 - `BMSClient.REGION_GERMANY`
 - `BMSClient.REGION_US_EAST`
 - `BMSClient.REGION_TOKYO`
-- `BMSClient.REGION_JP_OSA`
 
 The `appGUID` is the push app GUID value, while `clientSecret` is the push client secret value.
 
